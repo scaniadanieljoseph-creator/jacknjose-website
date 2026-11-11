@@ -50,7 +50,7 @@ route('transports', app => {
   `<section class="wrap overlap"><div class="search-box"><div class="tabs" id="modes">${Object.entries(MODE_INFO).map(([k, m]) => `<button class="tab ${k === 'road' ? 'on' : ''}" data-mode="${k}">${icon(m.icon).replace('<svg', '<svg style="width:18px;height:18px"')} ${m.label}</button>`).join('')}</div>
     <div class="split"><form id="fq" class="stack" autocomplete="off">
       <div class="chips" id="loads"></div>
-      <div class="form-grid"><label class="field"><span>Origin</span><input class="input" id="fq-from" name="from" list="dl-world" value="Kochi" required></label><label class="field"><span>Destination</span><input class="input" id="fq-to" name="to" list="dl-world" value="Delhi" required></label>
+      <div class="form-grid"><label class="field"><span>Origin</span><input class="input" id="fq-from" name="from" list="dl-world" value="${esc(SITE_CONFIG.city || 'Kochi')}" required></label><label class="field"><span>Destination</span><input class="input" id="fq-to" name="to" list="dl-world" value="Delhi" required></label>
         <label class="field" id="veh-wrap"><span id="veh-label">Vehicle</span><select class="input" id="fq-veh" name="vehicle"></select></label>
         <label class="field"><span>Gross weight (kg)</span><input class="input" id="fq-wt" name="weight" type="number" min="1" value="6500" required></label>
         <label class="field" data-dims><span>Packages</span><input class="input" id="fq-pk" name="pkgs" type="number" min="1" value="1"></label>
@@ -110,7 +110,7 @@ route('transports', app => {
       <ol class="timeline">${stages.map((x, i) => `<li class="${i < s.stage ? 'done' : i === s.stage ? 'now' : ''}"><b>${x}</b>${i === s.stage ? '<div class="muted small">Current status</div>' : ''}</li>`).join('')}</ol></div>`;
   }
   $$('[data-mode]').forEach(b => b.onclick = () => { st.mode = b.dataset.mode; $$('[data-mode]').forEach(x => x.classList.toggle('on', x === b));
-    if (st.mode === 'road') { f.from.value = 'Kochi'; f.to.value = 'Delhi'; f.weight.value = 6500; } else if (st.mode === 'air') { st.load = 'PTL'; f.from.value = 'Bengaluru'; f.to.value = 'Dubai (UAE)'; f.weight.value = 250; } else { f.from.value = 'Kochi'; f.to.value = 'Rotterdam (Netherlands)'; f.weight.value = 15000; }
+    if (st.mode === 'road') { f.from.value = SITE_CONFIG.city || 'Kochi'; f.to.value = 'Delhi'; f.weight.value = 6500; } else if (st.mode === 'air') { st.load = 'PTL'; f.from.value = 'Bengaluru'; f.to.value = 'Dubai (UAE)'; f.weight.value = 250; } else { f.from.value = 'Kochi'; f.to.value = 'Rotterdam (Netherlands)'; f.weight.value = 15000; }
     setMode(); });
   f.addEventListener('input', quote); f.addEventListener('change', quote); f.onsubmit = e => e.preventDefault();
   $('#trk', app).onsubmit = e => { e.preventDefault(); const s = Store.find('shipments', e.target.id.value.trim().toUpperCase()); if (!s) { $('#trk-out').innerHTML = `<p class="muted">No shipment found with that ID. Check the ID on your booking confirmation.</p>`; return; } trackShow(s); };
