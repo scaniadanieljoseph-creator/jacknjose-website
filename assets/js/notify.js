@@ -174,7 +174,7 @@ function emailPreview(m) {
   const S = Store.get('notifySettings');
   return `<div class="email-mock"><div class="email-meta"><div><span>From</span>${esc(m.from || `${S.fromName} <${S.fromEmail}>`)}</div><div><span>To</span>${esc(m.toName ? `${m.toName} <${m.to}>` : m.to || '—')}</div><div><span>Subject</span><b>${esc(m.subject)}</b></div></div>
     <div class="email-frame"><div class="email-brand"><span class="brand-mark">J&amp;J</span><b>Jack &amp; Jose</b></div><div class="email-body">${esc(m.body).split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}</div>
-    <div class="email-foot">Jack &amp; Jose · Kochi, Kerala · jacknjose.co.in<br>You received this because you made a booking or enquiry with us.</div></div></div>`;
+    <div class="email-foot">Jack &amp; Jose · ${esc(SITE_CONFIG.address)} · jacknjose.co.in<br>You received this because you made a booking or enquiry with us.</div></div></div>`;
 }
 const messagePreview = m => m.channel === 'sms' ? smsPreview(m) : emailPreview(m);
 

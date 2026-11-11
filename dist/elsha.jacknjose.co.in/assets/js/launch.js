@@ -20,7 +20,7 @@ const Launch = {
     if (!this.on()) return false;
     const d = REQUEST_BUILDERS[kind](o), text = [`*${d.title}* · ${d.ref}`, ...d.lines.filter(Boolean), '', `Sent from ${location.hostname || SITE_CONFIG.domain}`].join('\n');
     const wa = SITE_CONFIG.whatsapp ? `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(text)}` : '';
-    const mail = SITE_CONFIG.email ? `mailto:${SITE_CONFIG.email}?subject=${encodeURIComponent(`${d.title} ${d.ref}`)}&body=${encodeURIComponent(text.replace(/\*/g, ''))}` : '';
+    const mail = SITE_CONFIG.email ? `mailto:${SITE_CONFIG.email}?${SITE_CONFIG.supportEmail ? 'cc=' + SITE_CONFIG.supportEmail + '&' : ''}subject=${encodeURIComponent(`${d.title} ${d.ref}`)}&body=${encodeURIComponent(text.replace(/\*/g, ''))}` : '';
     openModal('One last step: send your request', `<div class="notice g"><b>Your details are ready.</b> Send them to ${esc(SITE_CONFIG.name)} with one tap. We reply with availability, confirmation and how to pay.</div>
       <pre class="request-text" id="rq-text">${esc(text.replace(/\*/g, ''))}</pre>
       <div style="display:flex;gap:10px;flex-wrap:wrap">${wa ? `<a class="btn btn-green btn-lg" href="${wa}" target="_blank" rel="noopener" id="rq-wa">Send on WhatsApp</a>` : ''}${mail ? `<a class="btn ${wa ? 'btn-outline' : 'btn-green'} btn-lg" href="${mail}" id="rq-mail">Send by email</a>` : ''}<button class="btn btn-outline btn-lg" type="button" id="rq-copy">Copy details</button></div>
@@ -49,7 +49,7 @@ route('terms', app => { app.innerHTML = legalPage('Terms of service', LEGAL_DATE
   ['7. Payments', ['Payments are collected through licensed payment gateways or by the methods stated in your confirmation. We do not store card details.']],
   ['8. Cancellations and refunds', ['See our <a href="#refunds">Cancellation &amp; refund policy</a>.']],
   ['9. Liability', ['To the extent permitted by law, we are not liable for indirect or consequential losses. Nothing in these terms limits rights you have under the Consumer Protection Act, 2019.']],
-  ['10. Governing law', ['These terms are governed by the laws of India. Courts at Ernakulam, Kerala have jurisdiction.']],
+  ['10. Governing law', [`These terms are governed by the laws of India. Courts having jurisdiction over our registered office in ${esc(SITE_CONFIG.address)} have exclusive jurisdiction.`]],
 ]); });
 ROUTE_TITLES.privacy = 'Privacy policy';
 route('privacy', app => { app.innerHTML = legalPage('Privacy policy', LEGAL_DATE, [
