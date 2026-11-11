@@ -103,3 +103,26 @@ before launch, and keep the refund rules in line with what the site does.
 **Your photos:** put files in `assets/img/` and list them under `photos` in `config.js`
 (slots: travels, hotels, transports, road, air, sea, logistics, fleet, media, eee, contact, jj, elsha). Each replaces the
 built-in illustration everywhere that slot is used. Illustrations and the animated background are in `assets/js/art.js`.
+
+## Portal tools added (`assets/js/extras.js`)
+**Travels portal → Buses & vehicles** (per bus): *Photos* (up to 8, resized in the browser, first one is the cover),
+*Seat layout* (presets, 1–2 decks, seats or sleeper berths, rows and columns, click a seat to remove it for a door or stairs),
+*Stops* (boarding and dropping points with times). Customers see the photos, the custom seat map and the stops when booking.
+
+**Ratings & reviews** (Travels portal and Hotels portal): customers rate 1–5 stars with a comment from *Manage booking*
+after the journey date / check-in. Staff can *Reply* publicly or *Challenge* a rating with a reason and evidence; the review
+stays visible marked "under review" until the group administrator *upholds* or *removes* it. Removed reviews stop counting.
+
+**Hotels portal → Hotels & media**: photos (as above) and video links (YouTube / Vimeo / .mp4). Guests see the gallery,
+videos and reviews when choosing a room.
+
+**Logistics portal → Transhipment hub**: choose the hub or branch you are working at, then (1) receive inbound manifests,
+(2) sort parcels and dispatch them on a new manifest to the suggested next stop (branch → its hub → destination hub →
+destination branch), (3) send local parcels out for delivery. Every scan is added to the parcel's movement log.
+
+**Print copies with QR**: each parcel prints a *Booking copy* and a *Delivery copy (POD)* on one A4 sheet (Parcels → Print,
+or straight after booking). The QR opens `https://<siteHost>/?awb=<AWB>#logistics`, which tracks that parcel. Manifests print
+with their own QR. The QR library loads from cdnjs.
+
+All of this is stored in the browser like the rest of the demo data: photos, reviews and manifests are only visible on the
+device that created them until the site is connected to a server database.

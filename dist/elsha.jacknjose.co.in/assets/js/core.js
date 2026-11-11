@@ -30,7 +30,7 @@ const Store = (() => {
       mem[k] = v;
       return v;
     },
-    set(k, v) { mem[k] = v; try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) { /* ignore */ } },
+    set(k, v) { mem[k] = v; this.lastError = null; try { localStorage.setItem(NS + k, JSON.stringify(v)); } catch (e) { this.lastError = e; } },
     add(k, item) { const a = [item, ...this.get(k)]; this.set(k, a); return item; },
     find(k, id) { return this.get(k).find(x => x.id === id); },
     update(k, id, patch) { this.set(k, this.get(k).map(x => x.id === id ? { ...x, ...(typeof patch === 'function' ? patch(x) : patch) } : x)); },
@@ -217,7 +217,7 @@ function renderCrud(el, o) {
   };
 }
 const statusChip = (s) => {
-  const map = { Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Requested: 'warn', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
+  const map = { Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Requested: 'warn', Published: 'green', Challenged: 'warn', Upheld: 'blue', Removed: 'danger', Received: 'green', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
   return `<span class="chip ${map[s] ?? ''}">${esc(s)}</span>`;
 };
 

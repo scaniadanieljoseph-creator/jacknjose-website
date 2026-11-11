@@ -9,7 +9,7 @@ const out = path.join(root, 'dist', domain);
 fs.rmSync(out, { recursive: true, force: true });
 const copy = (rel, transform) => { const src = path.join(root, rel), dst = path.join(out, rel); fs.mkdirSync(path.dirname(dst), { recursive: true }); let c = fs.readFileSync(src, 'utf8'); if (transform) c = transform(c); fs.writeFileSync(dst, c); };
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const files = ['assets/css/style.css', ...[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1])];
+const files = ['assets/css/style.css', ...[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]).filter(u => !/^https?:/.test(u))];
 const ver = Date.now().toString(36);
 const page = html.replace(/"(assets\/[^"]+\.(?:js|css))"/g, `"/$1?v=${ver}"`)
   .replace('<meta name="theme-color"', `<link rel="canonical" href="https://${domain}/">\n<meta property="og:title" content="Jack &amp; Jose · Elsha">\n<meta property="og:url" content="https://${domain}/">\n<meta name="theme-color"`)

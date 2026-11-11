@@ -47,7 +47,7 @@ function parcelCard(p) {
   return `<div class="ticket"><div class="ticket-head"><div><div class="small" style="opacity:.8">Jack & Jose Logistics · Airway bill</div><b class="mono" style="font-size:1.3rem">${esc(p.id)}</b></div><div>${statusChip(p.status)}</div></div>
     <div class="ticket-body"><div class="kv"><div><span>From</span><b>${esc(branchName(p.fromBranch))}</b></div><div><span>To</span><b>${esc(p.toCity)}</b></div><div><span>Service</span><b>${esc(p.service)}</b></div><div><span>Parcel</span><b>${esc(p.type)} · ${p.pkgs} pkg · ${p.weight} kg</b></div></div>
     <div class="kv"><div><span>Sender</span><b>${esc(p.sender)}</b><div class="muted small">${esc(p.senderPhone)}</div></div><div><span>Receiver</span><b>${esc(p.receiver)}</b><div class="muted small">${esc(p.receiverPhone)}</div></div><div><span>Amount</span><b>${inr(p.total)}</b></div></div></div>
-    <div class="ticket-perf"></div><div class="ticket-body">${parcelTimeline(p)}${Notify.note(p.id)}</div></div>`;
+    <div class="ticket-perf"></div><div class="ticket-body">${parcelTimeline(p)}${movementLog(p)}${Notify.note(p.id)}</div></div>`;
 }
 
 ROUTE_TITLES.logistics = 'Parcel booking';
@@ -84,13 +84,13 @@ route('logistics', app => {
     const toBranch = Store.get('branches').find(b => sameCity(b.city, o.to) && b.status === 'Active');
     const p = { id: genNum('JJL', 9), fromBranch: o.fromBranch, toCity: o.to, toBranch: toBranch?.id || '', sender: f.sender.value.trim(), senderPhone: f.senderPhone.value.trim(), senderEmail: f.senderEmail.value.trim(), receiver: f.receiver.value.trim(), receiverPhone: f.receiverPhone.value.trim(), receiverAddress: f.receiverAddress.value.trim(),
       type: o.type, service: o.service, weight: o.weight, pkgs: o.pkgs, value: o.value, addons: { pickup: o.pickup, loading: o.loading, unloading: o.unloading, insure: o.insure }, total: q.total, status: 'Booked', vehicle: '', history: [{ status: 'Booked', at: new Date().toISOString(), note: `At ${branchName(o.fromBranch)}` }], createdAt: new Date().toISOString() };
-    Store.add('parcels', p); if (Launch.request('parcel', p)) { f.reset(); quote(); return; } Notify.event('parcel_booked', p); toast('Parcel booked · AWB ' + p.id); openModal('Parcel booked', parcelCard(p), { wide: true }); f.reset(); quote(); };
+    Store.add('parcels', p); if (Launch.request('parcel', p)) { f.reset(); quote(); return; } Notify.event('parcel_booked', p); toast('Parcel booked · AWB ' + p.id); openModal('Parcel booked', parcelCard(p) + `<div style="text-align:right"><button class="btn btn-primary" data-print-parcel="${p.id}">Print booking & delivery copies</button></div>`, { wide: true }); f.reset(); quote(); };
   $('#pt', app).onsubmit = e => { e.preventDefault(); const p = Store.find('parcels', e.target.id.value.trim().toUpperCase()); $('#pt-out').innerHTML = p ? `<div class="stack"><div><b class="mono">${esc(p.id)}</b> · ${esc(branchName(p.fromBranch))} → ${esc(p.toCity)}</div>${parcelTimeline(p)}</div>` : '<p class="muted">No parcel found with that number. Check the airway bill on your receipt.</p>'; };
 });
 
 ROUTE_TITLES['logistics-admin'] = 'Logistics portal';
 route('logistics-admin', app => {
-  const tabs = [['dash', 'Dashboard'], ['parcels', 'Parcels'], ['loading', 'Loading & unloading'], ['branches', 'Branches']];
+  const tabs = [['dash', 'Dashboard'], ['parcels', 'Parcels'], ['loading', 'Loading & unloading'], ['hub', 'Transhipment hub'], ['branches', 'Branches & hubs']];
   const active = Session.get('tab_#logistics-admin') || 'dash';
   app.innerHTML = adminShell({ title: 'Logistics master portal', sub: 'Parcel operations, vehicle loading sheets and the branch network.', tabs, active, base: 'logistics' });
   const body = $('#admin-body', app);
@@ -107,7 +107,7 @@ route('logistics-admin', app => {
     if (tab === 'parcels') renderCrud(body, { key: 'parcels', single: 'Parcel', plural: 'Parcels', noAdd: true, noEdit: true, label: r => r.id,
       columns: [{ label: 'AWB', render: r => `<span class="mono">${esc(r.id)}</span><div class="muted small">${fmtDateTime(r.createdAt)}</div>` }, { label: 'Route', render: r => `${esc(branchName(r.fromBranch))}<div class="muted small">→ ${esc(r.toCity)}</div>` }, { label: 'Parcel', render: r => `${esc(r.type)}<div class="muted small">${r.pkgs} pkg · ${r.weight} kg</div>` },
         { label: 'Receiver', render: r => `${esc(r.receiver)}<div class="muted small">${esc(r.receiverPhone)}</div>` }, { label: 'Add-ons', render: r => [r.addons?.pickup && 'Pickup', r.addons?.loading && 'Load', r.addons?.unloading && 'Unload'].filter(Boolean).map(a => `<span class="chip">${a}</span>`).join(' ') || '—' }, { label: 'Amount', render: r => inr(r.total) }, { label: 'Status', render: r => statusChip(r.status) }],
-      actions: [{ id: 'view', label: 'Details', run: r => openModal('Parcel ' + r.id, parcelCard(r), { wide: true }) }, { id: 'next', label: 'Next step', show: r => !['Delivered', 'Cancelled'].includes(r.status), run: (r, rr) => { const n = PARCEL_STATUSES[PARCEL_STATUSES.indexOf(r.status) + 1]; moveTo(r, n); toast(`${r.id} → ${n}`); rr(); } },
+      actions: [{ id: 'view', label: 'Details', run: r => openModal('Parcel ' + r.id, parcelCard(r), { wide: true }) }, { id: 'print', label: 'Print', run: r => printParcel(r) }, { id: 'next', label: 'Next step', show: r => !['Delivered', 'Cancelled'].includes(r.status), run: (r, rr) => { const n = PARCEL_STATUSES[PARCEL_STATUSES.indexOf(r.status) + 1]; moveTo(r, n); toast(`${r.id} → ${n}`); rr(); } },
         { id: 'cx', label: 'Cancel', show: r => r.status === 'Booked', run: (r, rr) => confirmBox(`Cancel parcel ${r.id}?`, () => { moveTo(r, 'Cancelled'); toast('Parcel cancelled'); rr(); }, 'Cancel parcel') }] });
     if (tab === 'loading') {
       const V = Store.get('vehicles').filter(v => v.status !== 'Inactive');
@@ -124,6 +124,7 @@ route('logistics-admin', app => {
       $('#do-transit', body).onclick = () => { const L = picked('U').filter(p => p.status === 'Loaded'); if (!L.length) return toast('Select loaded parcels to dispatch', 'err'); L.forEach(p => moveTo(p, 'In Transit', { note: 'Vehicle departed' })); toast(`${L.length} parcel(s) dispatched`); show('loading'); };
       $('#do-unload', body).onclick = () => { const L = picked('U'); if (!L.length) return toast('Select at least one parcel', 'err'); L.forEach(p => moveTo(p, 'Unloaded', { note: `Unloaded at ${p.toBranch ? branchName(p.toBranch) : p.toCity + ' delivery centre'}` })); toast(`${L.length} parcel(s) unloaded`); show('loading'); };
     }
+    if (tab === 'hub') hubModule(body, () => show('hub'));
     if (tab === 'branches') renderCrud(body, { key: 'branches', single: 'Branch', plural: 'Branches', label: r => r.name, newId: d => 'BR' + d.code.toUpperCase() + (Store.find('branches', 'BR' + d.code.toUpperCase()) ? genId('', 2) : ''),
       fields: [{ name: 'code', label: 'Branch code', required: true, placeholder: 'e.g. KOC' }, { name: 'name', label: 'Branch name', required: true }, { name: 'city', label: 'City', list: 'dl-india', required: true }, { name: 'type', label: 'Type', type: 'select', options: ['Hub', 'Branch', 'Franchise'] },
         { name: 'manager', label: 'Branch manager', required: true }, { name: 'phone', label: 'Phone', required: true }, { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'] }, { name: 'address', label: 'Address', full: true, required: true }],
