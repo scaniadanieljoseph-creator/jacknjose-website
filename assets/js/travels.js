@@ -78,7 +78,7 @@ const totalSeats = bus => seatLayout(bus).reduce((n, d) => n + d.rows.flat().fil
 /* ---------- Search widget ---------- */
 function busSearchForm(s = Session.get('busSearch') || {}) {
   return `<form class="search-row" id="bus-search" autocomplete="off">
-    <label class="field"><span>From</span><input class="input" id="bs-from" name="from" list="dl-india" placeholder="Leaving from" value="${esc(s.from || 'Kochi')}" required></label>
+    <label class="field"><span>From</span><input class="input" id="bs-from" name="from" list="dl-india" placeholder="Leaving from" value="${esc(s.from || SITE_CONFIG.city || 'Kochi')}" required></label>
     <button type="button" class="swap" id="bs-swap" aria-label="Swap cities" title="Swap">⇄</button>
     <label class="field"><span>To</span><input class="input" id="bs-to" name="to" list="dl-india" placeholder="Going to" value="${esc(s.to || 'Bengaluru')}" required></label>
     <label class="field"><span>Date of journey</span><input class="input" id="bs-date" type="date" name="date" min="${todayISO()}" value="${esc(s.date && s.date >= todayISO() ? s.date : todayISO(1))}" required></label>

@@ -49,7 +49,7 @@ route('terms', app => { app.innerHTML = legalPage('Terms of service', LEGAL_DATE
   ['7. Payments', ['Payments are collected through licensed payment gateways or by the methods stated in your confirmation. We do not store card details.']],
   ['8. Cancellations and refunds', ['See our <a href="#refunds">Cancellation &amp; refund policy</a>.']],
   ['9. Liability', ['To the extent permitted by law, we are not liable for indirect or consequential losses. Nothing in these terms limits rights you have under the Consumer Protection Act, 2019.']],
-  ['10. Governing law', [`These terms are governed by the laws of India. Courts having jurisdiction over our registered office in ${esc(SITE_CONFIG.address)} have exclusive jurisdiction.`]],
+  ['10. Governing law', [`These terms are governed by the laws of India. Courts at ${esc(SITE_CONFIG.jurisdiction)} have exclusive jurisdiction.`]],
 ]); });
 ROUTE_TITLES.privacy = 'Privacy policy';
 route('privacy', app => { app.innerHTML = legalPage('Privacy policy', LEGAL_DATE, [

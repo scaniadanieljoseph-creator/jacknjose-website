@@ -58,7 +58,7 @@ const hotelImg = h => `background:linear-gradient(135deg,hsl(${h.hue} 55% 32%),h
 function hotelSearchForm(s = Session.get('hotelSearch') || {}) {
   const ci = s.checkIn && s.checkIn >= todayISO() ? s.checkIn : todayISO(1);
   return `<form class="search-row hotel" id="hotel-search" autocomplete="off">
-    <label class="field"><span>City or destination</span><input class="input" id="hs-city" name="city" list="dl-india" value="${esc(s.city || 'Kochi')}" required></label>
+    <label class="field"><span>City or destination</span><input class="input" id="hs-city" name="city" list="dl-india" value="${esc(s.city || SITE_CONFIG.city || 'Kochi')}" required></label>
     <label class="field"><span>Check-in</span><input class="input" id="hs-in" type="date" name="checkIn" min="${todayISO()}" value="${ci}" required></label>
     <label class="field"><span>Check-out</span><input class="input" id="hs-out" type="date" name="checkOut" min="${todayISO(1)}" value="${s.checkOut && s.checkOut > ci ? s.checkOut : todayISO(2)}" required></label>
     <label class="field"><span>Rooms</span><input class="input" id="hs-rooms" type="number" name="rooms" min="1" max="8" value="${s.rooms || 1}" required></label>

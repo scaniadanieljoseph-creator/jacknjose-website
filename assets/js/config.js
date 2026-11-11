@@ -8,7 +8,9 @@ const SITE_CONFIG = {
   whatsapp: '917845666015',              // digits only with country code, e.g. '919876543210' — booking requests are sent here
   email: 'info@jacknjose.co.in',                 // e.g. 'bookings@jacknjose.co.in' — booking requests can also be emailed here
   supportEmail: 'customercare@jacknjose.co.in', // customer-care address: shown on the site and copied on emailed requests
-  address: 'Tamil Nadu, India',  // TODO: replace with the full registered office address
+  address: '2A Senthil Nagar, Pillayar Kovil Street, Somanur – 641668, Coimbatore District, Tamil Nadu, India',
+  city: 'Coimbatore',        // home city: default "From" city in searches
+  jurisdiction: 'Coimbatore, Tamil Nadu',
   hours: 'Mon–Sat, 9:00 AM – 7:00 PM. Bus helpline 24×7.',
   gstin: '33BBQPJ1260D1Z0',                 // shown in the footer when filled
   legalName: 'Jack & Jose',  // company name used in Terms, Privacy and Refund pages
