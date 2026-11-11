@@ -4,20 +4,21 @@
 const SITE_CONFIG = {
   name: 'Jack & Jose',
   domain: 'jacknjose.co.in',
-  phone: '',                 // e.g. '+91 98765 43210' — shown on Contact page and footer
-  whatsapp: '',              // digits only with country code, e.g. '919876543210' — booking requests are sent here
-  email: '',                 // e.g. 'bookings@jacknjose.co.in' — booking requests can also be emailed here
-  address: 'Kochi, Kerala, India',
+  phone: '+91 97910 66604',                 // e.g. '+91 98765 43210' — shown on Contact page and footer
+  whatsapp: '917845666015',              // digits only with country code, e.g. '919876543210' — booking requests are sent here
+  email: 'info@jacknjose.co.in',                 // e.g. 'bookings@jacknjose.co.in' — booking requests can also be emailed here
+  supportEmail: 'customercare@jacknjose.co.in', // customer-care address: shown on the site and copied on emailed requests
+  address: 'Tamil Nadu, India',  // TODO: replace with the full registered office address
   hours: 'Mon–Sat, 9:00 AM – 7:00 PM. Bus helpline 24×7.',
-  gstin: '',                 // shown in the footer when filled
+  gstin: '33BBQPJ1260D1Z0',                 // shown in the footer when filled
   legalName: 'Jack & Jose',  // company name used in Terms, Privacy and Refund pages
 
   /* 'demo'    — bookings and payments are simulated in the visitor's browser (a preview banner is shown on the live site).
      'request' — LAUNCH MODE: every booking is sent to you as a request on WhatsApp / email; you confirm and collect
                  payment yourself. No fake payment screen, no preview banner. Needs `whatsapp` or `email` above. */
-  bookingMode: 'demo',
+  bookingMode: 'request',
 
-  showStaffMenu: true,       // show the "Staff" menu in the top navigation (staff can always use the footer link)
+  showStaffMenu: false,       // show the "Staff" menu in the top navigation (staff can always use the footer link)
 
   /* Your own photographs. Put image files in assets/img/ and name them here to replace the built-in illustrations.
      Slots: travels, hotels, transports, road, air, sea, logistics, fleet, media, eee, contact, jj, elsha */
