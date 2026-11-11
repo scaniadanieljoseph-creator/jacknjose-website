@@ -63,6 +63,7 @@ function busesForRoute(from, to) {
   return [...own, ...gen];
 }
 function seatLayout(bus) {
+  if (bus.layout?.decks?.length) return bus.layout.decks; // custom layout from the seat-layout editor
   const T = BUS_TYPES[bus.type] || BUS_TYPES['AC Seater (2+2)'];
   if (T.layout === 'sleeper') { const deck = p => Array.from({ length: 6 }, (_, r) => [p + (r * 3 + 1), null, p + (r * 3 + 2), p + (r * 3 + 3)]); return [{ name: 'Lower deck', rows: deck('L'), sleeper: true }, { name: 'Upper deck', rows: deck('U'), sleeper: true }]; }
   return [{ name: 'Seater', rows: Array.from({ length: 10 }, (_, r) => [String(r * 4 + 1), String(r * 4 + 2), null, String(r * 4 + 3), String(r * 4 + 4)]), sleeper: false }];
@@ -112,7 +113,7 @@ function busTicketHtml(b) {
 function showBusTicket(b, { allowCancel = false, after } = {}) {
   const canCancel = allowCancel && b.status === 'Confirmed' && b.date >= todayISO();
   openModal('Your bus ticket', busTicketHtml(b) + (canCancel ? `<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><span class="muted small">Cancel now and get ${inr(b.total * .75)} back (75% refund).</span><button class="btn btn-danger" id="tk-cancel">Cancel this booking</button></div>` : ''), {
-    wide: true, onMount: m => { const c = $('#tk-cancel', m); if (c) c.onclick = () => confirmBox(`Cancel PNR ${b.id}? Refund: ${inr(b.total * .75)}.`, () => { Store.update('busBookings', b.id, { status: 'Cancelled', refund: Math.round(b.total * .75) }); Pay.refundBooking(b.id, Math.round(b.total * .75), 'Bus ticket cancelled by customer'); Notify.event('bus_cancelled', Store.find('busBookings', b.id)); toast('Booking cancelled'); after && after(); }, 'Cancel booking'); },
+    wide: true, onMount: m => { if (allowCancel) Reviews.attach(m, 'bus', b); const c = $('#tk-cancel', m); if (c) c.onclick = () => confirmBox(`Cancel PNR ${b.id}? Refund: ${inr(b.total * .75)}.`, () => { Store.update('busBookings', b.id, { status: 'Cancelled', refund: Math.round(b.total * .75) }); Pay.refundBooking(b.id, Math.round(b.total * .75), 'Bus ticket cancelled by customer'); Notify.event('bus_cancelled', Store.find('busBookings', b.id)); toast('Booking cancelled'); after && after(); }, 'Cancel booking'); },
   });
 }
 
@@ -173,20 +174,20 @@ route('bus-results', app => {
       return `<article class="card bus" data-bus="${esc(b.id)}"><div class="bus-main">
         <div style="min-width:0"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(b.operator)}</h3>${b.own ? '<span class="own-badge">Jack & Jose</span>' : ''}</div><div class="muted small" style="margin-top:4px">${esc(b.type)}</div></div>
         <div class="bus-times"><div><b>${b.dep}</b><div class="muted small">${esc(s.from)}</div></div><div style="flex:1;text-align:center" class="muted small"><div class="route-line" style="margin:6px 0"></div>${durTxt(b.durationMin)}</div><div style="text-align:right"><b>${arr.t}</b>${arr.days ? `<sup class="small" style="color:var(--warn)"> +${arr.days}</sup>` : ''}<div class="muted small">${esc(s.to)}</div></div></div>
-        <div class="bus-price"><div><span class="rating">★ ${b.rating.toFixed(1)}</span></div><div><span class="muted small">Starts from</span><br><b>${inr(b.fare)}</b></div><div class="small" style="color:${left < 8 ? 'var(--danger)' : 'var(--muted)'}">${left} seats left</div></div></div>
-        <div class="bus-foot">${b.amenities.split(',').slice(0, 4).map(a => `<span class="chip">${esc(a.trim())}</span>`).join('')}<span style="flex:1"></span><button class="btn btn-green btn-sm" data-view="${esc(b.id)}">${state.open === b.id ? 'Hide seats' : 'View seats'}</button></div>
+        <div class="bus-price"><div>${ratingBadge('bus', b.id, b.rating, b.operator)}</div><div><span class="muted small">Starts from</span><br><b>${inr(b.fare)}</b></div><div class="small" style="color:${left < 8 ? 'var(--danger)' : 'var(--muted)'}">${left} seats left</div></div></div>
+        <div class="bus-foot">${b.amenities.split(',').slice(0, 4).map(a => `<span class="chip">${esc(a.trim())}</span>`).join('')}${Media.of('bus', b.id, 'photo').length ? `<button class="chip blue" data-busphotos="${esc(b.id)}">Photos (${Media.of('bus', b.id, 'photo').length})</button>` : ''}<span style="flex:1"></span><button class="btn btn-green btn-sm" data-view="${esc(b.id)}">${state.open === b.id ? 'Hide seats' : 'View seats'}</button></div>
         ${state.open === b.id ? seatPanel(b, booked) : ''}</article>`; }).join('') || `<div class="card empty-state"><h3>No buses match these filters</h3><p style="margin-top:6px">Clear a filter or try the next day.</p></div>`;
     bindPanel();
   }
   function seatPanel(b, booked) {
-    const T = BUS_TYPES[b.type], deps = [0, 15, 30], arr = addMins(b.dep, b.durationMin);
+    const T = BUS_TYPES[b.type] || {}, stops = busStops(b, s.from, s.to);
     const decks = seatLayout(b).map(d => `<div class="deck"><div class="deck-title"><span>${d.name}</span>${d.name !== 'Upper deck' ? '<span>Driver ⊙</span>' : ''}</div>
-      <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '34px').join(' ')}">${d.rows.flat().map(c => c === null ? '<span class="seat-gap"></span>' :
+      <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '34px').join(' ')}">${d.rows.flat().map(c => c === null ? '<span class="seat-gap"></span>' : c === '' ? '<span></span>' :
       `<button type="button" class="seat ${d.sleeper ? 'sleeper' : ''} ${booked[c] === 'ladies' ? 'booked ladies' : booked[c] ? 'booked' : ''} ${state.sel.includes(c) ? 'sel' : ''}" data-seat="${c}" ${booked[c] ? 'disabled' : ''} aria-label="Seat ${c}${booked[c] ? ' booked' : ''}">${c}</button>`).join('')}</div></div>`).join('');
     const sub = state.sel.length * b.fare;
     return `<div class="seat-panel"><div><div class="decks">${decks}</div><div class="legend"><span><i></i>Available</span><span><i class="b"></i>Booked</span><span><i class="l"></i>Booked by ladies</span><span><i class="s"></i>Your selection</span></div></div>
-      <div class="stack" style="align-content:start"><label class="field"><span>Boarding point</span><select class="input" id="bp">${deps.map((m, i) => `<option>${addMins(b.dep, m).t} · ${esc(s.from)} ${['Central Bus Stand', 'Railway Station', 'Bypass Junction'][i]}</option>`).join('')}</select></label>
-      <label class="field"><span>Dropping point</span><select class="input" id="dp">${deps.map((m, i) => `<option>${addMins(arr.t, m).t} · ${esc(s.to)} ${['Bypass Junction', 'Central Bus Stand', 'Railway Station'][i]}</option>`).join('')}</select></label>
+      <div class="stack" style="align-content:start"><label class="field"><span>Boarding point</span><select class="input" id="bp">${stops.boarding.map(x => `<option>${x.t} · ${esc(x.name)}</option>`).join('')}</select></label>
+      <label class="field"><span>Dropping point</span><select class="input" id="dp">${stops.dropping.map(x => `<option>${x.t} · ${esc(x.name)}</option>`).join('')}</select></label>
       <div class="card" style="background:var(--surface-2)"><div class="line-item"><span>Seats</span><b class="mono">${state.sel.join(', ') || '—'}</b></div><div class="line-item"><span>Fare (${state.sel.length} × ${inr(b.fare)})</span><span>${inr(sub)}</span></div><div class="line-item"><span>GST 5%</span><span>${inr(sub * .05)}</span></div><div class="line-item total"><span>Total</span><span>${inr(sub * 1.05)}</span></div></div>
       <button class="btn btn-primary btn-block" id="proceed" ${state.sel.length ? '' : 'disabled'}>${state.sel.length ? 'Proceed to book' : 'Select up to 6 seats'}</button>
       <p class="muted small">${T.sleeper ? 'Berths are 6 ft long. ' : ''}Cancellation up to the day of travel: 75% refund.</p></div></div>`;
@@ -231,7 +232,7 @@ route('bus-results', app => {
 /* ---------- Travels master portal ---------- */
 ROUTE_TITLES['travels-admin'] = 'Travels portal';
 route('travels-admin', app => {
-  const tabs = [['dash', 'Dashboard'], ['bookings', 'Bookings'], ['buses', 'Buses'], ['agents', 'Agents']];
+  const tabs = [['dash', 'Dashboard'], ['bookings', 'Bookings'], ['buses', 'Buses & vehicles'], ['reviews', 'Ratings & reviews'], ['agents', 'Agents']];
   const active = Session.get('tab_#travels-admin') || 'dash';
   app.innerHTML = adminShell({ title: 'Travels master portal', sub: 'Buses, routes, agents and every seat sold.', tabs, active, base: 'travels' });
   const body = $('#admin-body', app);
@@ -252,13 +253,14 @@ route('travels-admin', app => {
       columns: [{ label: 'PNR', render: r => `<span class="mono">${esc(r.id)}</span>` }, { label: 'Journey', render: r => `${esc(r.from)} → ${esc(r.to)}<div class="muted small">${esc(r.operator)}</div>` }, { label: 'Date', render: r => `${fmtDate(r.date)}<div class="muted small">${esc(r.dep)}</div>` },
         { label: 'Seats', render: r => `<span class="mono">${esc(r.seats.join(', '))}</span>` }, { label: 'Lead passenger', render: r => `${esc(r.passengers[0]?.name)}<div class="muted small">${esc(r.phone)}</div>` }, { label: 'Channel', render: r => esc(agentName(r.agentId)) }, { label: 'Amount', render: r => inr(r.total) }, { label: 'Status', render: r => statusChip(r.status) }],
       actions: [{ id: 'view', label: 'Ticket', run: r => showBusTicket(r) }, { id: 'cancel', label: 'Cancel', show: r => r.status === 'Confirmed', run: (r, rr) => confirmBox(`Cancel PNR ${r.id}? The passenger gets a 75% refund (${inr(r.total * .75)}).`, () => { Store.update('busBookings', r.id, { status: 'Cancelled', refund: Math.round(r.total * .75) }); Pay.refundBooking(r.id, Math.round(r.total * .75), 'Bus ticket cancelled by operator'); Notify.event('bus_cancelled', Store.find('busBookings', r.id)); toast('Booking cancelled'); rr(); }, 'Cancel booking') }] });
-    if (tab === 'buses') renderCrud(body, { key: 'buses', single: 'Bus', plural: 'Buses', idPrefix: 'BUS', label: r => r.busNo,
+    if (tab === 'reviews') reviewsAdmin(body, 'bus');
+    if (tab === 'buses') renderCrud(body, { actions: BUS_TOOLS, key: 'buses', single: 'Bus', plural: 'Buses', idPrefix: 'BUS', label: r => r.busNo,
       fields: [{ name: 'operator', label: 'Operator', default: OWN_OPERATOR, required: true }, { name: 'busNo', label: 'Registration no.', required: true, placeholder: 'KL-07-JJ-4100' }, { name: 'type', label: 'Bus type', type: 'select', options: Object.keys(BUS_TYPES) },
         { name: 'from', label: 'From city', list: 'dl-india', required: true }, { name: 'to', label: 'To city', list: 'dl-india', required: true }, { name: 'dep', label: 'Departure time', type: 'time', default: '21:00', required: true },
         { name: 'durationMin', label: 'Journey time (minutes)', type: 'number', min: 30, default: 480, required: true }, { name: 'fare', label: 'Fare per seat (₹)', type: 'number', min: 50, default: 999, required: true },
         { name: 'rating', label: 'Rating', type: 'number', min: 1, max: 5, step: '0.1', default: 4.5 }, { name: 'active', label: 'Status', type: 'select', options: ['Active', 'Inactive'] }, { name: 'amenities', label: 'Amenities (comma separated)', full: true, default: 'WiFi, Charging point, Water bottle, Blanket' }],
       validate: d => sameCity(d.from, d.to) ? 'From and To cities must be different' : null,
-      columns: [{ label: 'Bus', render: r => `<b class="mono">${esc(r.busNo)}</b><div class="muted small">${esc(r.operator)}</div>` }, { label: 'Type', field: 'type' }, { label: 'Route', render: r => `${esc(r.from)} → ${esc(r.to)}` }, { label: 'Departs', render: r => `${esc(r.dep)}<div class="muted small">${durTxt(+r.durationMin)}</div>` }, { label: 'Fare', render: r => inr(r.fare) }, { label: 'Status', render: r => statusChip(r.active) }] });
+      columns: [{ label: 'Photo', render: r => Media.cover('bus', r.id) ? `<img class="thumb" src="${Media.cover('bus', r.id)}" alt="">` : '<span class="muted small">None</span>' }, { label: 'Bus', render: r => `<b class="mono">${esc(r.busNo)}</b><div class="muted small">${esc(r.operator)}</div>` }, { label: 'Type', field: 'type' }, { label: 'Route', render: r => `${esc(r.from)} → ${esc(r.to)}` }, { label: 'Departs', render: r => `${esc(r.dep)}<div class="muted small">${durTxt(+r.durationMin)}</div>` }, { label: 'Fare', render: r => inr(r.fare) }, { label: 'Status', render: r => statusChip(r.active) }] });
     if (tab === 'agents') { const bk = Store.get('busBookings').filter(b => b.status === 'Confirmed');
       renderCrud(body, { key: 'agents', single: 'Agent', plural: 'Agents', idPrefix: 'AGT', label: r => r.agency,
         fields: [{ name: 'name', label: 'Agent name', required: true }, { name: 'agency', label: 'Agency name', required: true }, { name: 'city', label: 'City', list: 'dl-india', required: true }, { name: 'phone', label: 'Phone', required: true }, { name: 'email', label: 'Email', type: 'email' }, { name: 'commission', label: 'Commission %', type: 'number', min: 0, max: 30, step: '0.5', default: 7 }, { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'] }],

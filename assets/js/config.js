@@ -4,6 +4,8 @@
 const SITE_CONFIG = {
   name: 'Jack & Jose',
   domain: 'jacknjose.co.in',
+  siteHost: 'elsha.jacknjose.co.in', // where the site is published: used in parcel QR codes
+  allowPrint: true,
   phone: '+91 97910 66604',                 // e.g. '+91 98765 43210' — shown on Contact page and footer
   whatsapp: '917845666015',              // digits only with country code, e.g. '919876543210' — booking requests are sent here
   email: 'info@jacknjose.co.in',                 // e.g. 'bookings@jacknjose.co.in' — booking requests can also be emailed here
