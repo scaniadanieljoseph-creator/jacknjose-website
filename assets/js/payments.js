@@ -24,8 +24,8 @@ SEED.payments = () => {
     if (b.status === 'Cancelled') { const amt = type === 'bus' ? Math.round(b.total * .75) : b.total; p.refunds.push({ id: 'rfnd_' + rid(r), amount: amt, reason: 'Booking cancelled', at: new Date(new Date(b.createdAt).getTime() + 864e5).toISOString() }); p.status = amt >= p.amount ? 'Refunded' : 'Partially refunded'; }
     out.push(p);
   };
-  Store.get('busBookings').forEach(b => mk('bus', b, b.passengers?.[0]?.name || 'Customer', b.phone));
-  Store.get('hotelBookings').forEach(b => mk('hotel', b, b.guest, b.phone));
+  Store.get('busBookings').filter(b => b.sample).forEach(b => mk('bus', b, b.passengers?.[0]?.name || 'Customer', b.phone));
+  Store.get('hotelBookings').filter(b => b.sample).forEach(b => mk('hotel', b, b.guest, b.phone));
   // a couple of failed attempts, as every real gateway log has them
   [['bus', 1180, 'Card declined by issuing bank'], ['hotel', 5376, 'UPI request expired']].forEach(([t, amt, reason], i) => out.push({ id: 'pay_' + rid(r), orderId: 'order_' + rid(r), bookingType: t, bookingId: '', amount: amt, convFee: 0, method: i ? 'upi' : 'card', detail: i ? 'rahul.m@okicici' : 'Visa •••• 0002', status: 'Failed', failReason: reason, customer: { name: SAMPLE_NAMES[i + 1], phone: '', email: '' }, provider: 'Razorpay', mode: 'test', refunds: [], fee: 0, tax: 0, createdAt: new Date(Date.now() - (i + 1) * 5 * 3600e3).toISOString(), sample: true }));
   return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -69,6 +69,7 @@ const Pay = {
   },
   /* Open the checkout. opts: { amount, description, bookingType, bookingId, customer:{name,phone,email}, onSuccess(payment), onCancel() } */
   checkout(opts) {
+    if (Launch.on()) return opts.onSuccess({ requested: true }); // launch mode: no simulated payment, the request goes to the business
     const s = this.settings();
     const convFee = Math.round(opts.amount * (+s.convFeePct || 0) / 100);
     const total = opts.amount + convFee;

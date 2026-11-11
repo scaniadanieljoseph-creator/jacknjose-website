@@ -84,7 +84,7 @@ route('logistics', app => {
     const toBranch = Store.get('branches').find(b => sameCity(b.city, o.to) && b.status === 'Active');
     const p = { id: genNum('JJL', 9), fromBranch: o.fromBranch, toCity: o.to, toBranch: toBranch?.id || '', sender: f.sender.value.trim(), senderPhone: f.senderPhone.value.trim(), senderEmail: f.senderEmail.value.trim(), receiver: f.receiver.value.trim(), receiverPhone: f.receiverPhone.value.trim(), receiverAddress: f.receiverAddress.value.trim(),
       type: o.type, service: o.service, weight: o.weight, pkgs: o.pkgs, value: o.value, addons: { pickup: o.pickup, loading: o.loading, unloading: o.unloading, insure: o.insure }, total: q.total, status: 'Booked', vehicle: '', history: [{ status: 'Booked', at: new Date().toISOString(), note: `At ${branchName(o.fromBranch)}` }], createdAt: new Date().toISOString() };
-    Store.add('parcels', p); Notify.event('parcel_booked', p); toast('Parcel booked · AWB ' + p.id); openModal('Parcel booked', parcelCard(p), { wide: true }); f.reset(); quote(); };
+    Store.add('parcels', p); if (Launch.request('parcel', p)) { f.reset(); quote(); return; } Notify.event('parcel_booked', p); toast('Parcel booked · AWB ' + p.id); openModal('Parcel booked', parcelCard(p), { wide: true }); f.reset(); quote(); };
   $('#pt', app).onsubmit = e => { e.preventDefault(); const p = Store.find('parcels', e.target.id.value.trim().toUpperCase()); $('#pt-out').innerHTML = p ? `<div class="stack"><div><b class="mono">${esc(p.id)}</b> · ${esc(branchName(p.fromBranch))} → ${esc(p.toCity)}</div>${parcelTimeline(p)}</div>` : '<p class="muted">No parcel found with that number. Check the airway bill on your receipt.</p>'; };
 });
 

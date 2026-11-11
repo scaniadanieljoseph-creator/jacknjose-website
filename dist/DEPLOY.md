@@ -23,6 +23,10 @@ It contains index.html, 404.html, assets/, plus config for the common hosts (.ht
 
 DNS changes usually take 5–30 minutes (up to 24 hours).
 
+## Launch mode vs. preview banner
+Fill in `assets/js/config.js` (WhatsApp number / email, `bookingMode: 'request'`) and rebuild: the banner disappears and every
+booking is sent to you as a WhatsApp/email request. See README → "Launching for real".
+
 ## The "Preview site" banner
 The live build shows a banner saying online booking and payments are in test mode, because right now:
 - bookings, payments, notifications and staff sign-in are saved only in each visitor's own browser, so staff

@@ -106,7 +106,7 @@ function busTicketHtml(b) {
     <div class="ticket-perf"></div>
     <div class="ticket-body"><div class="table-wrap"><table class="table"><thead><tr><th>Seat</th><th>Passenger</th><th>Age</th><th>Gender</th></tr></thead><tbody>
     ${b.passengers.map(p => `<tr><td class="mono">${esc(p.seat)}</td><td>${esc(p.name)}</td><td>${esc(p.age)}</td><td>${esc(p.gender)}</td></tr>`).join('')}</tbody></table></div>
-    <div class="line-item total"><span>Total paid (incl. 5% GST)</span><span>${inr(b.total)}</span></div>${Notify.note(b.id)}
+    <div class="line-item total"><span>Total paid (incl. 5% GST)</span><span>${inr(b.total)}</span></div>${Notify.note(b.id)}${b.status === 'Requested' ? '<div class="notice">This is a booking request. Your seats are confirmed only when we reply with a confirmation.</div>' : ''}
     ${b.status === 'Cancelled' ? `<div class="notice">This booking is cancelled.${b.refund ? ` Refund of ${inr(b.refund)} goes back to the original payment method: 1–2 days for UPI and wallets, 5–7 working days for cards and net banking.` : ''}</div>` : ''}</div></div>`;
 }
 function showBusTicket(b, { allowCancel = false, after } = {}) {
@@ -209,7 +209,7 @@ route('bus-results', app => {
         <label class="field"><span>Booking through</span><select class="input" id="pagent" name="agent"><option value="">Website (direct)</option>${agents.map(a => `<option value="${a.id}">${esc(a.agency)} · ${esc(a.city)}</option>`).join('')}</select></label>
         </div>
       <div class="line-item total"><span>Amount payable</span><span>${inr(sub * 1.05)}</span></div>
-      <button class="btn btn-green btn-lg">Continue to payment</button><p class="muted small">Pay by UPI, card, net banking or wallet on the next step. Seats are confirmed once payment succeeds.</p></form>`, {
+      <button class="btn btn-green btn-lg">${Launch.payLabel()}</button><p class="muted small">${Launch.payNote() || 'Pay by UPI, card, net banking or wallet on the next step. Seats are confirmed once payment succeeds.'}</p></form>`, {
       wide: true, onMount: m => $('#pax', m).onsubmit = e => {
         e.preventDefault(); const f = e.target;
         const bk = { id: genId('JJB', 6), busId: b.id, operator: b.operator, busNo: b.busNo, type: b.type, from: s.from, to: s.to, date: s.date, dep: b.dep, arr: addMins(b.dep, b.durationMin).t,
@@ -217,7 +217,7 @@ route('bus-results', app => {
           boarding: boarding.split(' · ')[1], dropping: dropping.split(' · ')[1], fare: b.fare, total: Math.round(sub * 1.05), phone: f.phone.value.trim(), email: f.email.value.trim(), agentId: f.agent.value, status: 'Confirmed', createdAt: new Date().toISOString() };
         const taken = bookedSeats(b, s.date); if (bk.seats.some(x => taken[x])) { closeModal(); toast('Some of these seats were just booked by someone else. Pick again.', 'err'); state.sel = []; return list(); }
         Pay.checkout({ amount: bk.total, description: `Bus ${s.from} → ${s.to} · ${fmtDate(s.date)} · ${bk.seats.length} seat(s)`, bookingType: 'bus', bookingId: bk.id, customer: { name: bk.passengers[0].name, phone: bk.phone, email: bk.email },
-          onSuccess: p => { bk.paymentId = p.id; bk.payment = PAY_METHODS[p.method]?.label; Store.add('busBookings', bk); state.sel = []; state.open = null; list(); Notify.event('bus_booked', bk); toast('Paid & confirmed · PNR ' + bk.id); showBusTicket(bk); } });
+          onSuccess: p => { if (p.requested) bk.status = 'Requested'; else { bk.paymentId = p.id; bk.payment = PAY_METHODS[p.method]?.label; } Store.add('busBookings', bk); state.sel = []; state.open = null; list(); if (Launch.request('bus', bk)) return; Notify.event('bus_booked', bk); toast('Paid & confirmed · PNR ' + bk.id); showBusTicket(bk); } });
       },
     });
   }

@@ -217,14 +217,15 @@ function renderCrud(el, o) {
   };
 }
 const statusChip = (s) => {
-  const map = { Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
+  const map = { Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Requested: 'warn', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
   return `<span class="chip ${map[s] ?? ''}">${esc(s)}</span>`;
 };
 
 /* ---------- Layout fragments ---------- */
 function pageHero({ eyebrow, title, lead, elsha = false, extra = '' }) {
-  return `<section class="hero page-hero ${elsha ? 'elsha' : ''}"><canvas data-routes></canvas><div class="wrap">
-    <div class="eyebrow">${eyebrow}</div><h1 style="margin-top:10px">${title}</h1>${lead ? `<p class="lead">${lead}</p>` : ''}${extra}</div></section>`;
+  const slot = (location.hash || '').slice(1), art = typeof SCENES !== 'undefined' && (SCENES[slot] || SITE_CONFIG.photos?.[slot]) ? pic(slot, 'hero-pic') : '';
+  return `<section class="hero page-hero ${elsha ? 'elsha' : ''}"><canvas data-routes></canvas><div class="wrap ${art ? 'hero-grid' : ''}">
+    <div><div class="eyebrow">${eyebrow}</div><h1 style="margin-top:10px">${title}</h1>${lead ? `<p class="lead">${lead}</p>` : ''}${extra}</div>${art}</div></section>`;
 }
 function adminShell({ title, sub, tabs, active, base, green = false }) {
   return `<section class="admin-top ${green ? 'g' : ''}"><div class="wrap">

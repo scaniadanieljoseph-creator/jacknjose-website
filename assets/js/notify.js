@@ -91,11 +91,11 @@ SEED.notifyTemplates = () => Object.entries(NOTIFY_EVENTS).map(([id, d], i) => (
 SEED.notifySettings = () => ({ mode: 'test', smsOn: true, emailOn: true, smsProvider: 'MSG91', senderId: 'JKNJSE', peId: '1101000000000000000', emailProvider: 'Amazon SES', fromName: 'Jack & Jose', fromEmail: 'bookings@jacknjose.co.in', replyTo: 'support@jacknjose.co.in', opsEmail: 'operations@jacknjose.co.in', endpoint: 'https://api.jacknjose.co.in/notify', smsRate: 0.18 });
 SEED.notifications = () => {
   const out = [], push = (key, o) => { try { buildMessages(key, o).forEach(m => out.push({ ...m, status: 'Delivered', createdAt: o.createdAt || m.createdAt, deliveredAt: o.createdAt || m.createdAt, sample: true })); } catch (e) { /* skip incomplete sample */ } };
-  Store.get('busBookings').slice(0, 6).forEach(b => { push('bus_booked', b); if (b.status === 'Cancelled') push('bus_cancelled', b); });
-  Store.get('hotelBookings').slice(0, 5).forEach(b => push('hotel_booked', b));
-  Store.get('parcels').slice(0, 4).forEach(p => push('parcel_booked', p));
-  Store.get('shipments').slice(0, 2).forEach(s => push('shipment_booked', s));
-  Store.get('mediaBookings').slice(0, 2).forEach(b => push('media_request', b));
+  Store.get('busBookings').filter(b => b.sample).slice(0, 6).forEach(b => { push('bus_booked', b); if (b.status === 'Cancelled') push('bus_cancelled', b); });
+  Store.get('hotelBookings').filter(b => b.sample).slice(0, 5).forEach(b => push('hotel_booked', b));
+  Store.get('parcels').filter(b => b.sample).slice(0, 4).forEach(p => push('parcel_booked', p));
+  Store.get('shipments').filter(b => b.sample).slice(0, 2).forEach(s => push('shipment_booked', s));
+  Store.get('mediaBookings').filter(b => b.sample).slice(0, 2).forEach(b => push('media_request', b));
   if (out.length) out.push({ ...out[out.length - 1], id: 'ntf_' + rid(), channel: 'email', to: 'rahul.menon@exmaple.con', subject: 'Your bus ticket JJB7314', status: 'Failed', error: 'Hard bounce: recipient domain does not exist', sample: true });
   return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 };
@@ -127,6 +127,7 @@ function buildMessages(key, o, recipients) {
 const Notify = {
   event(key, o) {
     const def = NOTIFY_EVENTS[key]; if (!def || !o) return [];
+    if (Launch.on() && Store.get('notifySettings').mode !== 'live') return []; // launch mode without a sending server: nothing is really sent, so nothing is logged
     const sent = buildMessages(key, o).map(m => this.dispatch(m));
     (def.also || []).forEach(k => sent.push(...this.event(k, o)));
     if (def.ops) { const S = Store.get('notifySettings'); if (S.opsEmail) buildMessages('ops_alert', def.ops(o), [{ name: 'Operations', email: S.opsEmail }]).forEach(m => sent.push(this.dispatch(m))); }

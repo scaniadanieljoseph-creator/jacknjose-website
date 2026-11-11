@@ -65,7 +65,7 @@ route('transports', app => {
     ${[['truck', 'Road freight', 'FTL trucks from 0.75 T mini trucks to 25 T trailers, and PTL consolidation between major hubs. Every truck GPS-tracked through our fleet portal.'],
       ['plane', 'Air cargo', 'Consolidated and charter air freight through all major Indian airports and to the Gulf, Southeast Asia, Europe and the Americas.'],
       ['ship', 'Sea freight', 'FCL and LCL from Kochi (Vallarpadam), Chennai, Nhava Sheva and Mundra, with customs documentation handled end to end.']]
-      .map(([i, t, d]) => `<div class="card stack"><div class="ico">${icon(i)}</div><h3>${t}</h3><p class="muted">${d}</p></div>`).join('')}</div></section>
+      .map(([i, t, d]) => `<div class="card stack pic-card">${pic({ truck: 'road', plane: 'air', ship: 'sea' }[i])}<div class="ico">${icon(i)}</div><h3>${t}</h3><p class="muted">${d}</p></div>`).join('')}</div></section>
   <section class="section-tight"><div class="wrap"><div class="card"><div class="eyebrow">Track a shipment</div><h3 style="margin:6px 0 14px">Where is my consignment?</h3>
     <form id="trk" style="display:flex;gap:10px;flex-wrap:wrap"><input class="input mono" id="trk-id" name="id" placeholder="Shipment ID, e.g. JJT88010" style="flex:1 1 220px" required><button class="btn btn-primary">Track</button></form><div id="trk-out" style="margin-top:16px"></div></div></div></section>`;
   const f = $('#fq', app);
@@ -102,7 +102,7 @@ route('transports', app => {
       <label class="field full"><span>GSTIN (optional)</span><input class="input mono" id="sb-gst" name="gstin" placeholder="32ABCDE1234F1Z5" maxlength="15"></label>
       <button class="btn btn-green btn-lg full">Confirm booking</button></form>`, { onMount: m => $('#sb', m).onsubmit = e => { e.preventDefault(); const t = e.target;
         const s = { id: genNum('JJT', 5), mode: o.mode, load: o.load, from: o.from, to: o.to, weight: o.weight, vehicle: o.load === 'FTL' ? o.vehicle : '', goods: o.goods, company: t.company.value.trim(), contact: t.name.value.trim(), phone: t.phone.value.trim(), email: t.email.value.trim(), address: t.addr.value.trim(), gstin: t.gstin.value.trim(), pickupDate: o.date, total: q.total, intl: q.intl, stage: 0, createdAt: new Date().toISOString() };
-        Store.add('shipments', s); Notify.event('shipment_booked', s); closeModal(); toast('Shipment booked · ' + s.id); $('#trk-id').value = s.id; trackShow(s); $('#trk-out').scrollIntoView({ behavior: 'smooth', block: 'center' }); } });
+        Store.add('shipments', s); if (Launch.request('freight', s)) return; Notify.event('shipment_booked', s); closeModal(); toast('Shipment booked · ' + s.id); $('#trk-id').value = s.id; trackShow(s); $('#trk-out').scrollIntoView({ behavior: 'smooth', block: 'center' }); } });
   }
   function trackShow(s) {
     const stages = SHIP_STAGES(s.intl);

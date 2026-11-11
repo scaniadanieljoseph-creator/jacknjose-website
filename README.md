@@ -87,3 +87,19 @@ Tickets, vouchers and airway bills show where the confirmation was sent.
    `{ channel, to, subject, body, dltTemplateId, senderId, from, replyTo, event, ref }` and calls the provider APIs with
    keys kept on the server. Ideally the server sends these itself when a booking is saved, rather than trusting the browser.
 4. In Notifications portal → Providers & settings, enter the endpoint, choose Live and save.
+
+## Launching for real (`assets/js/config.js`)
+The site can go live today **without a server** in *request mode*: every bus, hotel, parcel, freight, shoot, energy-audit and
+contact form ends by sending the full details to your WhatsApp number and/or email, and you confirm and collect payment yourself.
+1. Open `assets/js/config.js` and fill in `phone`, `whatsapp` (digits with country code, e.g. `919876543210`), `email`, `gstin`.
+2. Set `bookingMode: 'request'` and, if you like, `showStaffMenu: false`.
+3. Run `node tools/build-dist.js elsha.jacknjose.co.in` and publish `dist/elsha.jacknjose.co.in` (the `gh-pages` branch).
+In request mode there is no simulated payment screen, no simulated SMS/email, no preview banner, and a WhatsApp chat button appears.
+`bookingMode: 'demo'` keeps the full simulated flow (payment gateway, notifications, portals) for demonstrations.
+
+**Policies:** `#terms`, `#privacy` and `#refunds` are linked in the footer (payment gateways require them). Have them reviewed
+before launch, and keep the refund rules in line with what the site does.
+
+**Your photos:** put files in `assets/img/` and list them under `photos` in `config.js`
+(slots: travels, hotels, transports, road, air, sea, logistics, fleet, media, eee, contact, jj, elsha). Each replaces the
+built-in illustration everywhere that slot is used. Illustrations and the animated background are in `assets/js/art.js`.
