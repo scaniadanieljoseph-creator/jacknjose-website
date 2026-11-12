@@ -14,7 +14,7 @@ const PORTALS = [['travels-admin', 'bus', 'Travels portal', 'Buses, agents and t
 
 function headerHtml() {
   const dd = (items) => items.map(v => `<a href="#${v.id}"><span class="dd-icon ${v.venture === 'el' ? 'g' : ''}">${icon(v.icon)}</span><div><b>${v.title}</b><span>${v.text.split('.')[0]}.</span></div></a>`).join('');
-  return `<div class="wrap nav"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Jack &amp; Jose<small>Travels · Transports · Elsha</small></span></a>
+  return `<div class="wrap nav"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Elsha<small>by Jack &amp; Jose</small></span></a>
     <button class="menu-btn" aria-label="Open menu" id="menu-btn">☰</button>
     <nav class="nav-links" id="nav-links">
       <div class="nav-item"><button class="nav-link" data-nav="jack transports logistics fleet travels hotels bus hotel">Jack &amp; Jose <span class="caret">▼</span></button><div class="dropdown"><a href="#jack-jose"><span class="dd-icon">${icon('globe')}</span><div><b>About Jack &amp; Jose</b><span>Travels and transports venture.</span></div></a>${dd(VERTICALS.filter(v => v.venture === 'jj'))}</div></div>
@@ -27,7 +27,7 @@ function headerHtml() {
       <a class="btn btn-green btn-sm nav-cta" href="#contact">Contact us</a></nav></div>`;
 }
 function footerHtml() {
-  return `<div class="wrap"><div class="footer-grid"><div class="stack"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Jack &amp; Jose</span></a><p style="max-width:40ch">Jack &amp; Jose runs travels and transports. Elsha runs media, design and energy efficiency. Both are part of one group.</p></div>
+  return `<div class="wrap"><div class="footer-grid"><div class="stack"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Elsha<small>by Jack &amp; Jose</small></span></a><p style="max-width:40ch">Jack &amp; Jose runs travels and transports. Elsha runs media, design and energy efficiency. Both are part of one group.</p></div>
     <div><h4>Jack &amp; Jose</h4>${VERTICALS.filter(v => v.venture === 'jj').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}</div>
     <div><h4>Elsha</h4>${VERTICALS.filter(v => v.venture === 'el').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}<a href="#elsha">About Elsha</a></div>
     <div><h4>Company</h4><a href="#contact">Contact</a><a href="#terms">Terms of service</a><a href="#privacy">Privacy policy</a><a href="#refunds">Cancellation &amp; refunds</a><a href="#login">Staff sign in</a></div></div>
