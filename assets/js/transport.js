@@ -113,6 +113,6 @@ route('transports', app => {
     if (st.mode === 'road') { f.from.value = SITE_CONFIG.city || 'Kochi'; f.to.value = 'Delhi'; f.weight.value = 6500; } else if (st.mode === 'air') { st.load = 'PTL'; f.from.value = 'Bengaluru'; f.to.value = 'Dubai (UAE)'; f.weight.value = 250; } else { f.from.value = 'Kochi'; f.to.value = 'Rotterdam (Netherlands)'; f.weight.value = 15000; }
     setMode(); });
   f.addEventListener('input', quote); f.addEventListener('change', quote); f.onsubmit = e => e.preventDefault();
-  $('#trk', app).onsubmit = e => { e.preventDefault(); const s = Store.find('shipments', e.target.id.value.trim().toUpperCase()); if (!s) { $('#trk-out').innerHTML = `<p class="muted">No shipment found with that ID. Check the ID on your booking confirmation.</p>`; return; } trackShow(s); };
+  $('#trk', app).onsubmit = async e => { e.preventDefault(); const s = await Store.lookup('shipments', e.target.id.value.trim().toUpperCase()); if (!s) { $('#trk-out').innerHTML = `<p class="muted">No shipment found with that ID. Check the ID on your booking confirmation.</p>`; return; } trackShow(s); };
   setMode();
 });
