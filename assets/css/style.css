@@ -597,3 +597,8 @@ button.rating:hover { filter: brightness(1.1); }
 
 /* Mixed decks: a sleeper berth is as long as two rows of seats */
 .seat.span2 { grid-row: span 2; height: auto; min-height: 74px; }
+
+/* Brand wordmark: rounded letters that echo the round "e" symbol */
+:root { --font-brand: "Comfortaa", "Sora", "Segoe UI", system-ui, sans-serif; }
+.brand > span:not(.brand-mark) { font-family: var(--font-brand); font-weight: 700; font-size: 1.4rem; letter-spacing: .01em; line-height: 1.1; }
+.brand small { margin-top: 3px; }
