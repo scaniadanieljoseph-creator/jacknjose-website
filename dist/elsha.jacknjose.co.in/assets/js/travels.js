@@ -174,7 +174,7 @@ route('bus-results', app => {
       return `<article class="card bus" data-bus="${esc(b.id)}"><div class="bus-main">
         <div style="min-width:0"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(b.operator)}</h3>${b.own ? '<span class="own-badge">Jack & Jose</span>' : ''}</div><div class="muted small" style="margin-top:4px">${esc(b.type)}</div></div>
         <div class="bus-times"><div><b>${b.dep}</b><div class="muted small">${esc(s.from)}</div></div><div style="flex:1;text-align:center" class="muted small"><div class="route-line" style="margin:6px 0"></div>${durTxt(b.durationMin)}</div><div style="text-align:right"><b>${arr.t}</b>${arr.days ? `<sup class="small" style="color:var(--warn)"> +${arr.days}</sup>` : ''}<div class="muted small">${esc(s.to)}</div></div></div>
-        <div class="bus-price"><div>${ratingBadge('bus', b.id, b.rating, b.operator)}</div><div><span class="muted small">Starts from</span><br><b>${inr(b.fare)}</b></div><div class="small" style="color:${left < 8 ? 'var(--danger)' : 'var(--muted)'}">${left} seats left</div></div></div>
+        <div class="bus-price"><div>${ratingBadge('bus', b.id, b.rating, b.operator)}</div><div><span class="muted small">Starts from</span><br><b>${inr(minFare(b))}</b></div><div class="small" style="color:${left < 8 ? 'var(--danger)' : 'var(--muted)'}">${left} seats left</div></div></div>
         <div class="bus-foot">${b.amenities.split(',').slice(0, 4).map(a => `<span class="chip">${esc(a.trim())}</span>`).join('')}${Media.of('bus', b.id, 'photo').length ? `<button class="chip blue" data-busphotos="${esc(b.id)}">Photos (${Media.of('bus', b.id, 'photo').length})</button>` : ''}<span style="flex:1"></span><button class="btn btn-green btn-sm" data-view="${esc(b.id)}">${state.open === b.id ? 'Hide seats' : 'View seats'}</button></div>
         ${state.open === b.id ? seatPanel(b, booked) : ''}</article>`; }).join('') || `<div class="card empty-state"><h3>No buses match these filters</h3><p style="margin-top:6px">Clear a filter or try the next day.</p></div>`;
     bindPanel();
@@ -183,14 +183,14 @@ route('bus-results', app => {
     const T = BUS_TYPES[b.type] || {}, stops = busStops(b, s.from, s.to);
     const decks = seatLayout(b).map(d => `<div class="deck"><div class="deck-title"><span>${d.name}</span>${d.name !== 'Upper deck' ? '<span>Driver ⊙</span>' : ''}</div>
       <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '34px').join(' ')}">${d.rows.flat().map(c => c === null ? '<span class="seat-gap"></span>' : c === '' ? '<span></span>' :
-      `<button type="button" class="seat ${d.sleeper ? 'sleeper' : ''} ${booked[c] === 'ladies' ? 'booked ladies' : booked[c] ? 'booked' : ''} ${state.sel.includes(c) ? 'sel' : ''}" data-seat="${c}" ${booked[c] ? 'disabled' : ''} aria-label="Seat ${c}${booked[c] ? ' booked' : ''}">${c}</button>`).join('')}</div></div>`).join('');
-    const sub = state.sel.length * b.fare;
+      `<button type="button" class="seat ${seatKindClass(d, c)} ${booked[c] === 'ladies' ? 'booked ladies' : booked[c] ? 'booked' : ''} ${state.sel.includes(c) ? 'sel' : ''}" data-seat="${c}" ${booked[c] ? 'disabled' : ''} title="${seatKindClass(d, c) ? 'Sleeper berth' : 'Seat'} ${c} · ${inr(seatPrice(b, c))}" aria-label="${seatKindClass(d, c) ? 'Berth' : 'Seat'} ${c}${booked[c] ? ' booked' : ''}">${c}</button>`).join('')}</div></div>`).join('');
+    const sub = fareTotal(b, state.sel), mixed = hasBothKinds(b) && b.layout?.seatPct;
     return `<div class="seat-panel"><div><div class="decks">${decks}</div><div class="legend"><span><i></i>Available</span><span><i class="b"></i>Booked</span><span><i class="l"></i>Booked by ladies</span><span><i class="s"></i>Your selection</span></div></div>
       <div class="stack" style="align-content:start"><label class="field"><span>Boarding point</span><select class="input" id="bp">${stops.boarding.map(x => `<option>${x.t} · ${esc(x.name)}</option>`).join('')}</select></label>
       <label class="field"><span>Dropping point</span><select class="input" id="dp">${stops.dropping.map(x => `<option>${x.t} · ${esc(x.name)}</option>`).join('')}</select></label>
-      <div class="card" style="background:var(--surface-2)"><div class="line-item"><span>Seats</span><b class="mono">${state.sel.join(', ') || '—'}</b></div><div class="line-item"><span>Fare (${state.sel.length} × ${inr(b.fare)})</span><span>${inr(sub)}</span></div><div class="line-item"><span>GST 5%</span><span>${inr(sub * .05)}</span></div><div class="line-item total"><span>Total</span><span>${inr(sub * 1.05)}</span></div></div>
+      <div class="card" style="background:var(--surface-2)"><div class="line-item"><span>Seats</span><b class="mono">${state.sel.join(', ') || '—'}</b></div><div class="line-item"><span>Fare (${mixed ? state.sel.map(x => `${x} ${inr(seatPrice(b, x))}`).join(' + ') || '0 seats' : `${state.sel.length} × ${inr(b.fare)}`})</span><span>${inr(sub)}</span></div><div class="line-item"><span>GST 5%</span><span>${inr(sub * .05)}</span></div><div class="line-item total"><span>Total</span><span>${inr(sub * 1.05)}</span></div></div>
       <button class="btn btn-primary btn-block" id="proceed" ${state.sel.length ? '' : 'disabled'}>${state.sel.length ? 'Proceed to book' : 'Select up to 6 seats'}</button>
-      <p class="muted small">${T.sleeper ? 'Berths are 6 ft long. ' : ''}Cancellation up to the day of travel: 75% refund.</p></div></div>`;
+      <p class="muted small">${mixed ? `Sleeper berth ${inr(b.fare)} · Seat ${inr(minFare(b))}. ` : ''}${T.sleeper || mixed ? 'Berths are 6 ft long. ' : ''}Cancellation up to the day of travel: 75% refund.</p></div></div>`;
   }
   function bindPanel() {
     $$('[data-view]').forEach(btn => btn.onclick = () => { state.open = state.open === btn.dataset.view ? null : btn.dataset.view; state.sel = []; list(); if (state.open) $(`[data-bus="${state.open}"]`).scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
@@ -198,7 +198,7 @@ route('bus-results', app => {
     const p = $('#proceed'); if (p) p.onclick = () => checkout(all.find(b => b.id === state.open), $('#bp').value, $('#dp').value);
   }
   function checkout(b, boarding, dropping) {
-    const agents = Store.get('agents').filter(a => a.status === 'Active'), sub = state.sel.length * b.fare;
+    const agents = Store.get('agents').filter(a => a.status === 'Active'), sub = fareTotal(b, state.sel);
     openModal('Passenger details', `<form id="pax" class="stack">
       <div class="notice"><b>${esc(b.operator)}</b> · ${esc(s.from)} → ${esc(s.to)} · ${fmtDate(s.date)} · ${b.dep}</div>
       ${state.sel.map((seat, i) => `<div class="card"><div class="eyebrow" style="margin-bottom:10px">Seat <span class="mono">${esc(seat)}</span></div><div class="form-grid">

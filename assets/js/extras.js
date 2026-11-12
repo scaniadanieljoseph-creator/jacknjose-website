@@ -204,36 +204,67 @@ const SEAT_PRESETS = {
   'Seater 2+3 (50 seats)': [{ name: 'Seater', sleeper: false, rows: 10, left: 2, right: 3, prefix: '' }],
   'Sleeper 2+1, two decks (36 berths)': [{ name: 'Lower deck', sleeper: true, rows: 6, left: 1, right: 2, prefix: 'L' }, { name: 'Upper deck', sleeper: true, rows: 6, left: 1, right: 2, prefix: 'U' }],
   'Sleeper 1+1, two decks (24 berths)': [{ name: 'Lower deck', sleeper: true, rows: 6, left: 1, right: 1, prefix: 'L' }, { name: 'Upper deck', sleeper: true, rows: 6, left: 1, right: 1, prefix: 'U' }],
+  'Lower: sleeper + seats · Upper: sleeper': [{ name: 'Lower deck', mix: 'sleeper-seat', sleeper: false, rows: 6, left: 1, right: 2, prefix: 'L', seatPrefix: 'S' }, { name: 'Upper deck', sleeper: true, rows: 6, left: 1, right: 2, prefix: 'U' }],
+  'Lower: seats + sleeper · Upper: sleeper': [{ name: 'Lower deck', mix: 'seat-sleeper', sleeper: false, rows: 6, left: 2, right: 1, prefix: 'L', seatPrefix: 'S' }, { name: 'Upper deck', sleeper: true, rows: 6, left: 1, right: 2, prefix: 'U' }],
   'Seater below + sleeper above': [{ name: 'Lower deck (seats)', sleeper: false, rows: 9, left: 2, right: 2, prefix: 'S' }, { name: 'Upper deck (berths)', sleeper: true, rows: 6, left: 1, right: 2, prefix: 'U' }],
   'Mini bus 2+1 (21 seats)': [{ name: 'Seater', sleeper: false, rows: 7, left: 2, right: 1, prefix: '' }],
 };
-/* Turns the editor spec into the rows the booking page draws: label = seat, null = aisle, '' = blank space */
+/* Turns the editor spec into the rows the booking page draws: label = seat, null = aisle, '' = blank space.
+   Deck kinds (d.mix): 'seat', 'sleeper', 'sleeper-seat' (berths left of the aisle, seats right) and 'seat-sleeper'.
+   In a mixed deck one berth is as long as two seat rows, so d.rows counts berth rows and the grid has twice as many seat rows. */
+const deckMix = d => d.mix || (d.sleeper ? 'sleeper' : 'seat');
 function buildDeck(d) {
-  let n = 0; const removed = new Set(d.removed || []);
-  const rows = Array.from({ length: d.rows }, (_, r) => { const cells = [];
-    for (let c = 0; c < d.left + d.right; c++) { if (c === d.left && d.right > 0) cells.push(null); cells.push(removed.has(`${r}-${c}`) ? '' : `${d.prefix || ''}${++n}`); }
-    return cells; });
-  return { name: d.name, sleeper: !!d.sleeper, rows };
+  const removed = new Set(d.removed || []), mix = deckMix(d), keys = [];
+  if (mix === 'seat' || mix === 'sleeper') {
+    let n = 0;
+    const rows = Array.from({ length: d.rows }, (_, r) => { const cells = [], kr = [];
+      for (let c = 0; c < d.left + d.right; c++) { if (c === d.left && d.right > 0) { cells.push(null); kr.push(null); } const k = `${r}-${c}`; kr.push(k); cells.push(removed.has(k) ? '' : `${d.prefix || ''}${++n}`); }
+      keys.push(kr); return cells; });
+    return { name: d.name, sleeper: mix === 'sleeper', rows, keys };
+  }
+  let nb = 0, ns = 0; const berths = [], berthsLeft = mix === 'sleeper-seat';
+  const rows = Array.from({ length: d.rows * 2 }, (_, r) => { const cells = [], kr = [];
+    for (let c = 0; c < d.left + d.right; c++) {
+      if (c === d.left && d.right > 0) { cells.push(null); kr.push(null); }
+      if ((c < d.left) === berthsLeft) { const k = `B${Math.floor(r / 2)}-${c}`;
+        if (removed.has(k)) { cells.push(''); kr.push(k); } else if (r % 2 === 0) { const lab = `${d.prefix || ''}${++nb}`; berths.push(lab); cells.push(lab); kr.push(k); } /* odd row: the berth above spans into it */ }
+      else { const k = `${r}-${c}`; kr.push(k); cells.push(removed.has(k) ? '' : `${d.seatPrefix || 'S'}${++ns}`); }
+    }
+    keys.push(kr); return cells; });
+  return { name: d.name, sleeper: false, mixed: true, berths, rows, keys };
 }
+/* Fares: a layout with both berths and seats can price seats as a percentage of the berth fare. */
+const isBerth = (bus, label) => seatLayout(bus).some(d => d.sleeper ? d.rows.some(r => r.includes(label)) : (d.berths || []).includes(label));
+const hasBothKinds = bus => { const D = seatLayout(bus); return D.some(d => d.sleeper || d.berths?.length) && D.some(d => (!d.sleeper && !d.mixed) || (d.mixed && d.rows.flat().some(c => c && !d.berths.includes(c)))); };
+const seatPrice = (bus, label) => bus.layout?.seatPct && hasBothKinds(bus) && !isBerth(bus, label) ? Math.round(bus.fare * bus.layout.seatPct / 100) : +bus.fare;
+const fareTotal = (bus, seats) => seats.reduce((s, x) => s + seatPrice(bus, x), 0);
+const minFare = bus => bus.layout?.seatPct && hasBothKinds(bus) ? Math.min(+bus.fare, Math.round(bus.fare * bus.layout.seatPct / 100)) : +bus.fare;
+/* One seat/berth button class list, shared by the booking page and the editor */
+const seatKindClass = (d, c) => d.sleeper ? 'sleeper' : d.mixed && d.berths.includes(c) ? 'sleeper span2' : '';
 function seatLayoutEditor(bus, after) {
   const T = BUS_TYPES[bus.type] || {};
+  let seatPct = bus.layout?.seatPct || 70;
   let spec = (bus.layout?.spec || SEAT_PRESETS[T.layout === 'sleeper' ? 'Sleeper 2+1, two decks (36 berths)' : 'Seater 2+2 (40 seats)']).map(d => ({ ...d, removed: [...(d.removed || [])] }));
   const draw = m => {
-    const decks = spec.map(buildDeck), total = decks.reduce((s, d) => s + d.rows.flat().filter(Boolean).length, 0);
+    const decks = spec.map(buildDeck), total = decks.reduce((s, d) => s + d.rows.flat().filter(Boolean).length, 0), nBerth = decks.reduce((s, d) => s + (d.sleeper ? d.rows.flat().filter(Boolean).length : (d.berths || []).length), 0), both = nBerth > 0 && nBerth < total;
     $('#sl-body', m).innerHTML = `<div class="split" style="grid-template-columns:1fr auto"><div class="stack">${spec.map((d, i) => `<div class="card stack"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><h4>Deck ${i + 1}</h4>${spec.length > 1 ? `<button type="button" class="btn btn-sm btn-danger-ghost" data-deck-rm="${i}">Remove deck</button>` : ''}</div>
         <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
           <label class="field"><span>Deck name</span><input class="input" data-d="${i}" data-f="name" value="${esc(d.name)}"></label>
-          <label class="field"><span>Type</span><select class="input" data-d="${i}" data-f="sleeper"><option value="0" ${d.sleeper ? '' : 'selected'}>Seats</option><option value="1" ${d.sleeper ? 'selected' : ''}>Sleeper berths</option></select></label>
-          <label class="field"><span>Rows</span><input class="input" type="number" min="1" max="16" data-d="${i}" data-f="rows" value="${d.rows}"></label>
+          <label class="field" style="grid-column:span 2"><span>Type</span><select class="input" data-d="${i}" data-f="mix">${[['seat', 'Seats only'], ['sleeper', 'Sleeper berths only'], ['sleeper-seat', 'Sleeper berths (left) + seats (right)'], ['seat-sleeper', 'Seats (left) + sleeper berths (right)']].map(([v, l]) => `<option value="${v}" ${deckMix(d) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+          <label class="field"><span>${/-/.test(deckMix(d)) ? 'Berth rows' : 'Rows'}</span><input class="input" type="number" min="1" max="16" data-d="${i}" data-f="rows" value="${d.rows}"></label>
           <label class="field"><span>Left of aisle</span><input class="input" type="number" min="1" max="3" data-d="${i}" data-f="left" value="${d.left}"></label>
           <label class="field"><span>Right of aisle</span><input class="input" type="number" min="0" max="3" data-d="${i}" data-f="right" value="${d.right}"></label>
-          <label class="field"><span>Seat no. prefix</span><input class="input mono" maxlength="2" data-d="${i}" data-f="prefix" value="${esc(d.prefix || '')}" placeholder="e.g. L"></label></div></div>`).join('')}
+          <label class="field"><span>${/-/.test(deckMix(d)) ? 'Berth no. prefix' : 'Seat no. prefix'}</span><input class="input mono" maxlength="2" data-d="${i}" data-f="prefix" value="${esc(d.prefix || '')}" placeholder="e.g. L"></label>
+          ${/-/.test(deckMix(d)) ? `<label class="field"><span>Seat no. prefix</span><input class="input mono" maxlength="2" data-d="${i}" data-f="seatPrefix" value="${esc(d.seatPrefix || 'S')}"></label>` : ''}</div>
+          ${/-/.test(deckMix(d)) ? '<p class="muted small">Each berth is as long as two rows of seats.</p>' : ''}</div>`).join('')}
+        ${both ? `<div class="card stack"><h4>Fares</h4><label class="field" style="max-width:320px"><span>Seat fare as % of the berth fare</span><input class="input" type="number" min="30" max="100" step="5" id="sl-pct" value="${seatPct}"></label><p class="muted small">Berth ${inr(bus.fare)} · Seat ${inr(bus.fare * seatPct / 100)}. The berth fare is the bus fare set under Edit.</p></div>` : ''}
         ${spec.length < 2 ? '<button type="button" class="btn btn-outline btn-sm" id="sl-add" style="justify-self:start">+ Add upper deck</button>' : ''}</div>
-      <div class="stack" style="align-content:start"><div class="eyebrow">Preview · ${total} ${total === 1 ? 'seat' : 'seats'}</div><div class="decks">${decks.map((d, i) => `<div class="deck"><div class="deck-title"><span>${esc(d.name)}</span>${i === 0 ? '<span>Driver ⊙</span>' : ''}</div>
-        <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '34px').join(' ')}">${d.rows.map((row, r) => { let ci = -1; return row.map(c => { if (c === null) return '<span class="seat-gap"></span>'; ci++; return `<button type="button" class="seat ${d.sleeper ? 'sleeper' : ''} ${c === '' ? 'blank' : ''}" data-cell="${i}|${r}-${ci}" title="${c === '' ? 'Put the seat back' : 'Remove this seat (door, stairs, luggage)'}">${c === '' ? '+' : c}</button>`; }).join(''); }).join('')}</div></div>`).join('')}</div>
+      <div class="stack" style="align-content:start"><div class="eyebrow">Preview · ${both ? `${nBerth} berths + ${total - nBerth} seats` : `${total} ${nBerth ? 'berths' : 'seats'}`}</div><div class="decks">${decks.map((d, i) => `<div class="deck"><div class="deck-title"><span>${esc(d.name)}</span>${i === 0 ? '<span>Driver ⊙</span>' : ''}</div>
+        <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '34px').join(' ')}">${d.rows.map((row, r) => row.map((c, x) => c === null ? '<span class="seat-gap"></span>' : `<button type="button" class="seat ${seatKindClass(d, c)} ${c === '' ? 'blank' : ''}" data-cell="${i}|${d.keys[r][x]}" title="${c === '' ? 'Put it back' : 'Remove (door, stairs, luggage)'}">${c === '' ? '+' : c}</button>`).join('')).join('')}</div></div>`).join('')}</div>
         <p class="muted small" style="max-width:300px">Click a seat to remove it for a door, staircase or luggage space. Click the “+” to put it back. Seats renumber automatically.</p></div></div>`;
     $$('#sl-body [data-d]', m).forEach(inp => inp.onchange = () => { const d = spec[+inp.dataset.d], f = inp.dataset.f;
-      if (f === 'name' || f === 'prefix') d[f] = inp.value.trim(); else if (f === 'sleeper') d.sleeper = inp.value === '1'; else { d[f] = Math.max(+inp.min, Math.min(+inp.max, Math.round(+inp.value) || +inp.min)); d.removed = []; } draw(m); });
+      if (f === 'name' || f === 'prefix' || f === 'seatPrefix') d[f] = inp.value.trim(); else if (f === 'mix') { d.mix = inp.value; d.sleeper = inp.value === 'sleeper'; d.removed = []; if (/-/.test(d.mix) && !d.seatPrefix) d.seatPrefix = 'S'; } else { d[f] = Math.max(+inp.min, Math.min(+inp.max, Math.round(+inp.value) || +inp.min)); d.removed = []; } draw(m); });
+    const pct = $('#sl-pct', m); if (pct) pct.onchange = () => { seatPct = Math.max(30, Math.min(100, +pct.value || 70)); draw(m); };
     $$('[data-cell]', m).forEach(b => b.onclick = () => { const [i, key] = b.dataset.cell.split('|'), d = spec[+i]; d.removed = d.removed.includes(key) ? d.removed.filter(k => k !== key) : [...d.removed, key]; draw(m); });
     $$('[data-deck-rm]', m).forEach(b => b.onclick = () => { spec.splice(+b.dataset.deckRm, 1); draw(m); });
     const add = $('#sl-add', m); if (add) add.onclick = () => { spec.push({ name: 'Upper deck', sleeper: true, rows: 6, left: 1, right: 2, prefix: 'U', removed: [] }); draw(m); };
@@ -244,10 +275,10 @@ function seatLayoutEditor(bus, after) {
     wide: true, onMount: m => { draw(m);
       $('#sl-preset', m).onchange = e => { if (!e.target.value) return; spec = SEAT_PRESETS[e.target.value].map(d => ({ ...d, removed: [] })); draw(m); };
       $('#sl-reset', m).onclick = () => { Store.update('buses', bus.id, { layout: null }); closeModal(); toast('Default layout restored'); after && after(); };
-      $('#sl-save', m).onclick = () => { const decks = spec.map(buildDeck), labels = decks.flatMap(d => d.rows.flat().filter(Boolean));
+      $('#sl-save', m).onclick = () => { const decks = spec.map(buildDeck).map(({ keys, ...d }) => d), labels = decks.flatMap(d => d.rows.flat().filter(Boolean)), nb = decks.reduce((n, d) => n + (d.sleeper ? d.rows.flat().filter(Boolean).length : (d.berths || []).length), 0);
         if (!labels.length) return toast('The layout has no seats', 'err');
-        if (new Set(labels).size !== labels.length) return toast('Two decks use the same seat numbers. Give each deck a different prefix (for example L and U).', 'err');
-        Store.update('buses', bus.id, { layout: { decks, spec } }); closeModal(); toast(`Seat layout saved · ${labels.length} seats`); after && after(); }; } });
+        if (new Set(labels).size !== labels.length) return toast('Some seat numbers repeat. Give each deck, and berths and seats, a different prefix (for example L, S and U).', 'err');
+        Store.update('buses', bus.id, { layout: { decks, spec, seatPct: nb > 0 && nb < labels.length ? seatPct : null } }); closeModal(); toast(`Seat layout saved · ${nb && nb < labels.length ? `${nb} berths + ${labels.length - nb} seats` : labels.length + (nb ? ' berths' : ' seats')}`); after && after(); }; } });
 }
 const BUS_TOOLS = [
   { id: 'photos', label: 'Photos', run: (r, rr) => mediaManager('bus', r, { after: rr }) },

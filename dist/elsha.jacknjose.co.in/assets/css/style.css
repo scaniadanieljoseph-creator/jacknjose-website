@@ -593,3 +593,6 @@ button.rating:hover { filter: brightness(1.1); }
   .print-sheet { border: 0; padding: 0; overflow: visible; }
   .print-sheet .copy { break-inside: avoid; }
 }
+
+/* Mixed decks: a sleeper berth is as long as two rows of seats */
+.seat.span2 { grid-row: span 2; height: auto; min-height: 74px; }

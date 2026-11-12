@@ -126,3 +126,7 @@ with their own QR. The QR library loads from cdnjs.
 
 All of this is stored in the browser like the rest of the demo data: photos, reviews and manifests are only visible on the
 device that created them until the site is connected to a server database.
+
+**Mixed decks (sleeper + seats):** in the seat-layout editor a deck's *Type* can be "Sleeper berths (left) + seats (right)" or the
+reverse; one berth is as long as two rows of seats. Berths and seats are numbered separately (e.g. L1… and S1…). When a bus has
+both, set "Seat fare as % of the berth fare"; the bus fare is the berth fare and customers see each price when choosing.
