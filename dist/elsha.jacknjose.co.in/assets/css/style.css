@@ -79,7 +79,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 :root .site-header { --hdr-ink: #ffffff; }
 .nav { display: flex; align-items: center; gap: 16px; height: 64px; }
 .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; white-space: nowrap; }
-.brand-mark { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #2b86f0, #1fbf7a); display: grid; place-items: center; font-size: .9rem; color: #fff; }
+.brand-mark { width: 38px; height: 38px; flex: none; display: block; }
+.brand-mark svg { width: 100%; height: 100%; display: block; }
 .brand small { display: block; font-family: var(--font-body); font-weight: 500; font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
 .nav-links { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .nav-item { position: relative; }
@@ -451,7 +452,7 @@ button.chip.on { background: var(--blue); color: var(--on-accent); }
 .email-meta span { display: inline-block; width: 64px; color: var(--muted); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
 .email-frame { background: var(--surface-2); padding: 16px; }
 .email-brand { display: flex; gap: 10px; align-items: center; padding: 12px 16px; background: var(--blue-deep); color: #fff; border-radius: 10px 10px 0 0; }
-.email-brand .brand-mark { width: 28px; height: 28px; font-size: .7rem; }
+.email-brand .brand-mark { width: 28px; height: 28px; }
 .email-body { background: var(--surface); padding: 18px; display: grid; gap: 12px; font-size: .92rem; overflow-wrap: anywhere; }
 .email-foot { font-size: .75rem; color: var(--muted); text-align: center; padding: 12px 8px 0; }
 
