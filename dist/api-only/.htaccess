@@ -1,0 +1,8 @@
+# Keep configuration and data files private
+<FilesMatch "^(config\.php|schema\.php)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes
+<IfModule mod_headers.c>
+  Header set Cache-Control "no-store"
+</IfModule>
