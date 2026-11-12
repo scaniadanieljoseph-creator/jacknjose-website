@@ -84,7 +84,7 @@ const Pay = {
       Store.add('payments', p); return p;
     };
     const m = openModal('Secure payment', `<div class="pg">
-      <div class="pg-head"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="brand-mark">J&amp;J</span><div style="min-width:0"><b>${esc(s.merchantName)}</b><div class="small" style="opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(opts.description)}</div></div></div>
+      <div class="pg-head"><div style="display:flex;gap:12px;align-items:center;min-width:0"><span class="brand-mark">${BRAND_MARK}</span><div style="min-width:0"><b>${esc(s.merchantName)}</b><div class="small" style="opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(opts.description)}</div></div></div>
         <div style="text-align:right"><div class="pg-amt num">${inr(total)}</div>${convFee ? `<div class="small" style="opacity:.85">incl. ${inr(convFee)} convenience fee</div>` : ''}</div></div>
       <div class="pg-test">TEST MODE · no real money moves · ${esc(s.provider)}</div>
       <div class="pg-body"><nav class="pg-methods" role="tablist">${enabled.map(k => `<button type="button" role="tab" data-pm="${k}" class="${k === method ? 'on' : ''}">${icon(PAY_METHODS[k].icon)}<span>${PAY_METHODS[k].label}</span></button>`).join('')}</nav><div class="pg-pane" id="pg-pane"></div></div>

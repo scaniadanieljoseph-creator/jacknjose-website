@@ -82,6 +82,9 @@ function distanceKm(a, b) {
 const roadKm = (a, b) => Math.round(distanceKm(a, b) * 1.28);
 const isIndia = name => !!INDIA_CITIES[cityKey(name)];
 
+/* Elsha symbol: a lowercase “e” with a leaf at its tail (energy) and a sun / record dot (media). */
+const BRAND_MARK = '<svg viewBox="0 0 64 64" role="img" aria-label="Elsha"><defs><linearGradient id="elg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b57b7"/><stop offset=".55" stop-color="#0b8f9c"/><stop offset="1" stop-color="#1fbf7a"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#elg)"/><path d="M15.5 33.500H46.500A15.5 15.5 0 1 0 41.5 45" fill="none" stroke="#ffffff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M40 46.500c2.5-7 9-9.5 15.5-8-.500 7-6 12-15.5 8z" fill="#c8f9d9"/><path d="M41.5 46c4-3 7.5-4.8 11.5-6" fill="none" stroke="#11895a" stroke-width="1.3" stroke-linecap="round"/><circle cx="31" cy="25" r="3.4" fill="#ffd76a"/></svg>';
+
 /* ---------- Icons (inline SVG, stroke style) ---------- */
 const ICONS = {
   truck: '<path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
