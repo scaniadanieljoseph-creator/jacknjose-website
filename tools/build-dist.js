@@ -12,7 +12,7 @@ const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const files = ['assets/css/style.css', ...[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]).filter(u => !/^https?:/.test(u))];
 const ver = Date.now().toString(36);
 const page = html.replace(/"(assets\/[^"]+\.(?:js|css))"/g, `"/$1?v=${ver}"`)
-  .replace('<meta name="theme-color"', `<link rel="canonical" href="https://${domain}/">\n<meta property="og:title" content="Jack &amp; Jose · Elsha">\n<meta property="og:url" content="https://${domain}/">\n<meta name="theme-color"`)
+  .replace('<meta name="theme-color"', `<link rel="canonical" href="https://${domain}/">\n<meta property="og:title" content="Elsha by Jack &amp; Jose">\n<meta property="og:url" content="https://${domain}/">\n<meta name="theme-color"`)
   .replace('<meta name="claude:viewport-fit-sides" content="cover">\n', '')
   .replace('<header class="site-header"', (banner ? '<div class="demo-strip" role="note"><b>Preview site.</b> Online booking and payments are in test mode: no seats, rooms or parcels are actually reserved and no money is charged. To book, contact us.</div>\n' : '') + '<header class="site-header"');
 fs.mkdirSync(out, { recursive: true });
