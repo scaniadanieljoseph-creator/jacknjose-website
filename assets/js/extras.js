@@ -19,7 +19,7 @@ function resizeImage(file, max = 1000, quality = 0.72) {
   });
 }
 const Media = {
-  of: (type, id, kind) => Store.get('media').filter(m => m.ownerType === type && m.ownerId === id && (!kind || m.kind === kind)),
+  of: (type, id, kind) => Store.get('media').filter(m => m.ownerType === type && m.ownerId === id && (!kind || m.kind === kind)).sort((a, b) => (b.cover ? 1 : 0) - (a.cover ? 1 : 0) || String(a.createdAt).localeCompare(String(b.createdAt))),
   cover(type, id) { return this.of(type, id, 'photo')[0]?.src || ''; },
   async addFiles(type, id, files) {
     let added = 0;
@@ -63,7 +63,7 @@ function mediaManager(type, owner, { videos = false, after } = {}) {
         <p class="muted small">Upload the video to YouTube or your own hosting, then paste its link here. Video files are too large to keep inside the website itself.</p></div></div>` : ''}`;
     const fi = $('#mm-file', body); if (fi) fi.onchange = async () => { const n = await Media.addFiles(type, owner.id, fi.files); if (n) toast(`${n} photo${n > 1 ? 's' : ''} added`); draw(m); after && after(); };
     $$('[data-mm-del]', body).forEach(b => b.onclick = () => { Store.remove('media', b.dataset.mmDel); draw(m); after && after(); });
-    $$('[data-mm-cover]', body).forEach(b => b.onclick = () => { const all = Store.get('media'), it = all.find(x => x.id === b.dataset.mmCover); Store.set('media', [it, ...all.filter(x => x !== it)]); draw(m); after && after(); });
+    $$('[data-mm-cover]', body).forEach(b => b.onclick = () => { Store.set('media', Store.get('media').map(x => x.ownerType === type && x.ownerId === owner.id && x.kind === 'photo' ? { ...x, cover: x.id === b.dataset.mmCover } : x)); draw(m); after && after(); });
     const vf = $('#mm-video', body); if (vf) vf.onsubmit = e => { e.preventDefault(); const err = Media.addVideo(type, owner.id, vf.url.value.trim(), vf.cap.value.trim()); if (err) return toast(err, 'err'); toast('Video added'); draw(m); after && after(); };
   };
   openModal(`Photos${videos ? ' & videos' : ''} · ${name}`, `<div id="mm-body" class="stack" style="gap:20px"></div>`, { wide: true, onMount: draw });

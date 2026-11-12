@@ -101,10 +101,11 @@ route('login', app => {
   const f = $('#login-form', app), err = $('#login-err', app);
   $('#lg-eye', app).onclick = e => { const p = f.password; p.type = p.type === 'password' ? 'text' : 'password'; e.target.textContent = p.type === 'password' ? 'Show' : 'Hide'; };
   $$('[data-fill]', app).forEach(b => b.onclick = () => { const [u, p] = b.dataset.fill.split('|'); f.username.value = u; f.password.value = p; f.password.focus(); });
-  f.onsubmit = e => {
+  f.onsubmit = async e => {
     e.preventDefault(); err.hidden = true;
     if (!f.username.value.trim() || !f.password.value) { err.textContent = 'Enter your username and password.'; err.hidden = false; return; }
-    const r = Auth.login(f.username.value, f.password.value, f.remember.checked);
+    const btn = $('button.btn-primary', f); btn.disabled = true;
+    const r = await Auth.login(f.username.value, f.password.value, f.remember.checked); btn.disabled = false;
     if (r.error) { err.textContent = r.error; err.hidden = false; f.password.value = ''; f.password.focus(); return; }
     refreshHeader(); toast(`Signed in as ${r.user.name}`);
     Session.set('afterLogin', null);

@@ -298,6 +298,8 @@ function render() {
   } else fn(app);
   $$('canvas[data-routes]', app).forEach(startRouteCanvas);
   window.scrollTo(0, 0);
+  if (typeof Remote !== 'undefined' && Remote.on && !PROTECTED.includes(name)) Remote.refreshIfStale(45000); // customers: quietly pick up new listings, photos and seat availability
+  if (typeof Remote !== 'undefined' && Remote.on && PROTECTED.includes(name)) Remote.refreshIfStale().then(changed => { if (changed && !$('.modal-back') && (location.hash || '#home').slice(1) === name && !document.activeElement?.matches?.('input, textarea, select')) { const y = scrollY; render(); window.scrollTo(0, y); } });
   $$('.nav-links').forEach(n => n.classList.remove('open'));
   $$('.nav-item').forEach(n => n.classList.remove('open'));
   $$('[data-nav]').forEach(a => a.classList.toggle('active', a.dataset.nav.split(' ').includes(name.split('-')[0])));

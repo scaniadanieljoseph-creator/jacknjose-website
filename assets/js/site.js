@@ -100,8 +100,9 @@ route('admin', app => {
       const B = Store.get('busBookings'), H = Store.get('hotelBookings'), P = Store.get('parcels'), V = Store.get('vehicles');
       body.innerHTML = `<div class="kpis">${kpi('Bus bookings', B.filter(b => b.status === 'Confirmed').length)}${kpi('Hotel bookings', H.filter(b => b.status !== 'Cancelled').length)}${kpi('Parcels in network', P.filter(p => !['Delivered', 'Cancelled'].includes(p.status)).length)}${kpi('Vehicles on trip', V.filter(v => v.status === 'On Trip').length, `${vehicleAlerts().length} fleet alerts`)}${kpi('Open enquiries', [...Store.get('mediaBookings'), ...Store.get('eeeEnquiries'), ...Store.get('messages')].filter(x => x.status === 'New').length)}</div>
         <div class="grid g4" style="margin-top:18px">${PORTALS.map(([id, ic, t, d]) => Auth.can(id) ? `<a class="card svc" href="#${id}"><div class="ico">${icon(ic)}</div><h3>${t}</h3><p>${d}</p><span class="more">Open →</span></a>` : `<div class="card svc" style="opacity:.55"><div class="ico">${icon(ic)}</div><h3>${t}</h3><p>${d}</p><span class="more" style="color:var(--muted)">No access for your role</span></div>`).join('')}</div>
-        ${isAdmin ? `<div class="card" style="margin-top:18px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center"><div><b>Demo data</b><p class="muted small">This preview stores bookings in this browser only. Reset to restore the sample records and staff accounts.</p></div><button class="btn btn-outline" id="reset">Reset sample data</button></div>` : ''}`;
-      if (isAdmin) $('#reset', body).onclick =() => confirmBox('Erase every booking, branch, vehicle and enquiry saved in this browser and restore the sample data?', () => { Store.resetAll(); toast('Sample data restored'); show('portals'); }, 'Reset data');
+        ${isAdmin && Remote.on ? dbCardHtml() : isAdmin ? `<div class="card" style="margin-top:18px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center"><div><b>Demo data</b><p class="muted small">This preview stores bookings in this browser only. Reset to restore the sample records and staff accounts.</p></div><button class="btn btn-outline" id="reset">Reset sample data</button></div>` : ''}`;
+      if (isAdmin && Remote.on) bindDbCard(body, () => show('portals'));
+      if (isAdmin && !Remote.on) $('#reset', body).onclick =() => confirmBox('Erase every booking, branch, vehicle and enquiry saved in this browser and restore the sample data?', () => { Store.resetAll(); toast('Sample data restored'); show('portals'); }, 'Reset data');
     }
     if (tab === 'ship') renderCrud(body, { key: 'shipments', single: 'Shipment', plural: 'Shipments', noAdd: true, noEdit: true, label: r => r.id,
       columns: [{ label: 'ID', render: r => `<span class="mono">${esc(r.id)}</span>` }, { label: 'Mode', render: r => `${MODE_INFO[r.mode].label} · ${r.load === 'FTL' ? 'Full' : 'Part'}` }, { label: 'Route', render: r => `${esc(r.from)} → ${esc(r.to)}` }, { label: 'Shipper', render: r => `${esc(r.company)}<div class="muted small">${esc(r.contact)} · ${esc(r.phone)}</div>` }, { label: 'Pickup', render: r => fmtDate(r.pickupDate) }, { label: 'Freight', render: r => inr(r.total) }, { label: 'Status', render: r => statusChip(SHIP_STAGES(r.intl)[r.stage]) }],
@@ -145,10 +146,14 @@ function refreshHeader() {
   $('#menu-btn').onclick = () => $('#nav-links').classList.toggle('open');
   $$('.nav-item > .nav-link').forEach(b => b.onclick = () => { const it = b.parentElement, was = it.classList.contains('open'); $$('.nav-item').forEach(n => n.classList.remove('open')); it.classList.toggle('open', !was); });
 }
-function boot() {
+async function boot() {
   startBackground();
   mountWhatsApp();
-  ensureDemoStaff();
+  if (Remote.on) {
+    $('#app').innerHTML = '<div class="wrap section" style="text-align:center"><span class="spinner" style="display:inline-block"></span><p class="muted" style="margin-top:12px">Loading…</p></div>';
+    const err = await Remote.init();
+    if (err) setTimeout(() => toast(err.code === 'not_installed' ? 'Database not set up yet: open api/install.php' : 'Could not reach the database. Some information may be missing.', 'err'), 400);
+  } else ensureDemoStaff();
   refreshHeader();
   $('#site-footer').innerHTML = footerHtml();
   injectDatalists();
