@@ -602,3 +602,8 @@ button.rating:hover { filter: brightness(1.1); }
 :root { --font-brand: "Comfortaa", "Sora", "Segoe UI", system-ui, sans-serif; }
 .brand > span:not(.brand-mark) { font-family: var(--font-brand); font-weight: 700; font-size: 1.4rem; letter-spacing: .01em; line-height: 1.1; }
 .brand small { margin-top: 3px; }
+
+/* Icons inside buttons keep a fixed size (they used to stretch full-width buttons on phones) */
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn-lg svg { width: 20px; height: 20px; }
+@media (max-width: 480px) { .search-row > .btn, .search-row.hotel > .btn { min-height: 48px; padding-block: 12px; } }
