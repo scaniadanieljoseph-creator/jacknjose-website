@@ -91,11 +91,11 @@ function dbCardHtml() {
   return `<div class="card stack" style="margin-top:18px"><div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center"><div><b>Database ${Remote.offline ? '<span class="chip danger">Not reachable</span>' : '<span class="chip green">Connected</span>'}</b>
     <p class="muted small">Everything staff and customers enter is saved on your server: ${n('buses')} buses, ${n('hotels')} hotels, ${n('branches')} branches, ${n('vehicles')} vehicles, ${n('busBookings') + n('hotelBookings')} bookings, ${n('parcels')} parcels.</p></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-outline" id="db-seed">Load sample listings</button><button class="btn btn-outline" id="db-backup">Download backup</button></div></div>
-    <p class="muted small">“Load sample listings” adds the example buses, agents, hotels, branches and vehicles so the portals are not empty. Edit or delete them and add your own. It never adds customer bookings.</p></div>`;
+    <p class="muted small">“Load sample listings” adds example agents, hotels, branches and vehicles so the portals are not empty (no sample buses). Edit or delete them and add your own. It never adds customer bookings.</p></div>`;
 }
 function bindDbCard(body, again) {
-  $('#db-seed', body).onclick = () => confirmBox('Add the sample buses, agents, hotels, branches and vehicles to the database? Existing records with the same ID are overwritten.', async () => {
-    try { const r = await Remote.call('import', { collections: Object.fromEntries(['buses', 'agents', 'hotels', 'branches', 'vehicles', 'trips', 'maintenance'].map(k => [k, SEED[k]()])) }); await Remote.load(); toast(`${r.saved} sample records added`); again(); }
+  $('#db-seed', body).onclick = () => confirmBox('Add the sample agents, hotels, branches and vehicles to the database? Existing records with the same ID are overwritten.', async () => {
+    try { const r = await Remote.call('import', { collections: Object.fromEntries(['agents', 'hotels', 'branches', 'vehicles', 'trips', 'maintenance'].map(k => [k, SEED[k]()])) }); await Remote.load(); toast(`${r.saved} sample records added`); again(); }
     catch (e) { toast('Could not load the sample listings: ' + e.message, 'err'); } }, 'Add sample listings');
   $('#db-backup', body).onclick = async () => {
     try { const data = await Remote.call('export'), a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' })); a.download = `elsha-backup-${todayISO()}.json`; document.body.appendChild(a); a.click(); a.remove(); toast('Backup downloaded'); }

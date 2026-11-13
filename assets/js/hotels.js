@@ -49,7 +49,7 @@ const gstRate = perNight => perNight > 7500 ? 0.18 : 0.12;
 const starStr = n => '★'.repeat(n) + '☆'.repeat(5 - n);
 const overlap = (a1, a2, b1, b2) => a1 < b2 && b1 < a2;
 function roomsLeft(h, ci, co) {
-  const occ = Math.floor(h.rooms * (0.35 + rng(hashStr(h.id + ci))() * 0.5));
+  const occ = SITE_CONFIG.simulate() ? Math.floor(h.rooms * (0.35 + rng(hashStr(h.id + ci))() * 0.5)) : 0;
   const booked = Store.get('hotelBookings').filter(b => b.hotelId === h.id && ['Confirmed', 'Checked-in'].includes(b.status) && overlap(b.checkIn, b.checkOut, ci, co)).reduce((s, b) => s + b.rooms, 0);
   return Math.max(0, h.rooms - occ - booked);
 }

@@ -607,3 +607,11 @@ button.rating:hover { filter: brightness(1.1); }
 .btn svg { width: 18px; height: 18px; flex: none; }
 .btn-lg svg { width: 20px; height: 20px; }
 @media (max-width: 480px) { .search-row > .btn, .search-row.hotel > .btn { min-height: 48px; padding-block: 12px; } }
+
+/* Per-seat fares: price printed under the seat number */
+.seat.fare { height: 42px; line-height: 1.15; }
+.seat.fare.sleeper { height: 68px; }
+.seat.fare.span2 { height: auto; min-height: 90px; }
+.seat small { display: block; font-size: .56rem; font-weight: 500; letter-spacing: 0; opacity: .9; }
+.seat.wide { width: 40px; }
+.seat.custom:not(.sel) { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }

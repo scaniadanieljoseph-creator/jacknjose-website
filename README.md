@@ -135,3 +135,10 @@ both, set "Seat fare as % of the berth fare"; the bus fare is the berth fare and
 See `DATABASE.md`. With `api: 'api/'` in `assets/js/config.js` (set automatically by `--cpanel` builds) all data is loaded
 from and saved to MySQL through `api/index.php`; staff sign-in runs on the server. With `api: ''` the site keeps data in the
 visitor's browser (demo / GitHub Pages). Code: `assets/js/remote.js`, `api/`.
+
+**Seat fares (Travels portal → Buses & vehicles → Seat fares):** set a separate price for any seat or berth. Select seats on the
+map or by group (All, a deck, berths, seats, window side, front/last rows), type the fare, Apply, Save. Seats without their own
+fare use the bus fare. Customers see each price on the seat map and pay the exact total.
+
+**Only real buses are listed:** bus search shows the buses added in the Travels portal; no partner buses or booked seats are
+invented. Sample occupancy appears only in the browser-only demo (`bookingMode: 'demo'` with no `api`).

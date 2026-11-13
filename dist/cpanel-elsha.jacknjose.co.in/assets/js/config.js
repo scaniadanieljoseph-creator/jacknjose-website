@@ -10,7 +10,7 @@ const SITE_CONFIG = {
   /* DATABASE: address of the api folder. Leave '' to keep data in each visitor's browser (demo).
      Set to 'api/' when the site and the api folder are uploaded together on your PHP hosting (cPanel),
      or to a full address such as 'https://jacknjose.co.in/api/' when the site is hosted elsewhere. */
-  api: 'api/',
+  api: 'https://api.jacknjose.co.in/',
   phone: '+91 97910 66604',                 // e.g. '+91 98765 43210' — shown on Contact page and footer
   whatsapp: '917845666015',              // digits only with country code, e.g. '919876543210' — booking requests are sent here
   email: 'info@jacknjose.co.in',                 // e.g. 'bookings@jacknjose.co.in' — booking requests can also be emailed here
@@ -35,4 +35,6 @@ const SITE_CONFIG = {
     // travels: 'assets/img/our-sleeper-bus.jpg',
   },
 };
+/* Sample occupancy (random booked seats / rooms) is shown only in the browser-only demo, never on the live site. */
+SITE_CONFIG.simulate = () => SITE_CONFIG.bookingMode === 'demo' && !SITE_CONFIG.api;
 SITE_CONFIG.canRequest = () => SITE_CONFIG.bookingMode === 'request' && !!(SITE_CONFIG.whatsapp || SITE_CONFIG.email);

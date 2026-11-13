@@ -236,9 +236,14 @@ function buildDeck(d) {
 /* Fares: a layout with both berths and seats can price seats as a percentage of the berth fare. */
 const isBerth = (bus, label) => seatLayout(bus).some(d => d.sleeper ? d.rows.some(r => r.includes(label)) : (d.berths || []).includes(label));
 const hasBothKinds = bus => { const D = seatLayout(bus); return D.some(d => d.sleeper || d.berths?.length) && D.some(d => (!d.sleeper && !d.mixed) || (d.mixed && d.rows.flat().some(c => c && !d.berths.includes(c)))); };
-const seatPrice = (bus, label) => bus.layout?.seatPct && hasBothKinds(bus) && !isBerth(bus, label) ? Math.round(bus.fare * bus.layout.seatPct / 100) : +bus.fare;
+/* Price of one seat: its own fare if staff set one (Seat fares tool), else the seat-% rule for mixed buses, else the bus fare. */
+const baseSeatPrice = (bus, label) => bus.layout?.seatPct && hasBothKinds(bus) && !isBerth(bus, label) ? Math.round(bus.fare * bus.layout.seatPct / 100) : +bus.fare;
+const seatPrice = (bus, label) => +bus.seatFares?.[label] > 0 ? +bus.seatFares[label] : baseSeatPrice(bus, label);
+const allSeatPrices = bus => seatLayout(bus).flatMap(d => d.rows.flat().filter(Boolean)).map(l => seatPrice(bus, l));
+const maxFare = bus => Math.max(+bus.fare || 0, ...allSeatPrices(bus));
+const fareVaries = bus => { const p = allSeatPrices(bus); return p.length > 0 && Math.min(...p) !== Math.max(...p); };
 const fareTotal = (bus, seats) => seats.reduce((s, x) => s + seatPrice(bus, x), 0);
-const minFare = bus => bus.layout?.seatPct && hasBothKinds(bus) ? Math.min(+bus.fare, Math.round(bus.fare * bus.layout.seatPct / 100)) : +bus.fare;
+const minFare = bus => { const p = allSeatPrices(bus); return p.length ? Math.min(...p) : +bus.fare; };
 /* One seat/berth button class list, shared by the booking page and the editor */
 const seatKindClass = (d, c) => d.sleeper ? 'sleeper' : d.mixed && d.berths.includes(c) ? 'sleeper span2' : '';
 function seatLayoutEditor(bus, after) {
@@ -274,15 +279,51 @@ function seatLayoutEditor(bus, after) {
     <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap"><button class="btn btn-outline" id="sl-reset">Use default for this bus type</button><div style="display:flex;gap:10px"><button class="btn btn-outline" data-close>Cancel</button><button class="btn btn-primary" id="sl-save">Save layout</button></div></div>`, {
     wide: true, onMount: m => { draw(m);
       $('#sl-preset', m).onchange = e => { if (!e.target.value) return; spec = SEAT_PRESETS[e.target.value].map(d => ({ ...d, removed: [] })); draw(m); };
-      $('#sl-reset', m).onclick = () => { Store.update('buses', bus.id, { layout: null }); closeModal(); toast('Default layout restored'); after && after(); };
+      $('#sl-reset', m).onclick = () => { Store.update('buses', bus.id, { layout: null, seatFares: {} }); closeModal(); toast('Default layout restored'); after && after(); };
       $('#sl-save', m).onclick = () => { const decks = spec.map(buildDeck).map(({ keys, ...d }) => d), labels = decks.flatMap(d => d.rows.flat().filter(Boolean)), nb = decks.reduce((n, d) => n + (d.sleeper ? d.rows.flat().filter(Boolean).length : (d.berths || []).length), 0);
         if (!labels.length) return toast('The layout has no seats', 'err');
         if (new Set(labels).size !== labels.length) return toast('Some seat numbers repeat. Give each deck, and berths and seats, a different prefix (for example L, S and U).', 'err');
-        Store.update('buses', bus.id, { layout: { decks, spec, seatPct: nb > 0 && nb < labels.length ? seatPct : null } }); closeModal(); toast(`Seat layout saved · ${nb && nb < labels.length ? `${nb} berths + ${labels.length - nb} seats` : labels.length + (nb ? ' berths' : ' seats')}`); after && after(); }; } });
+        Store.update('buses', bus.id, { layout: { decks, spec, seatPct: nb > 0 && nb < labels.length ? seatPct : null }, seatFares: Object.fromEntries(Object.entries(bus.seatFares || {}).filter(([k]) => labels.includes(k))) }); closeModal(); toast(`Seat layout saved · ${nb && nb < labels.length ? `${nb} berths + ${labels.length - nb} seats` : labels.length + (nb ? ' berths' : ' seats')}`); after && after(); }; } });
+}
+/* Seat fares: a separate price for each and every seat or sleeper berth. */
+function seatFareEditor(bus, after) {
+  const decks = seatLayout(bus), all = decks.flatMap(d => d.rows.flat().filter(Boolean));
+  const fares = Object.fromEntries(Object.entries(bus.seatFares || {}).filter(([k, v]) => all.includes(k) && +v > 0).map(([k, v]) => [k, +v]));
+  const sel = new Set();
+  const price = l => fares[l] > 0 ? fares[l] : baseSeatPrice(bus, l);
+  const berthsOf = d => d.sleeper ? d.rows.flat().filter(Boolean) : (d.berths || []);
+  const groups = [['All', all], ...(decks.length > 1 ? decks.map(d => [d.name, d.rows.flat().filter(Boolean)]) : []),
+    ...(all.some(l => isBerth(bus, l)) && all.some(l => !isBerth(bus, l)) ? [['All berths', all.filter(l => isBerth(bus, l))], ['All seats', all.filter(l => !isBerth(bus, l))]] : []),
+    ...decks.flatMap(d => { const rows = d.rows.filter(r => r.some(Boolean)), firstCol = d.rows.map(r => r.find(c => c !== null && c !== '')).filter(Boolean), lastCol = d.rows.map(r => [...r].reverse().find(c => c !== null && c !== '')).filter(Boolean);
+      return decks.length > 1 ? [] : [['Window side', [...new Set([...firstCol, ...lastCol])]], ['Front 2 rows', rows.slice(0, 2).flat().filter(Boolean)], ['Last 2 rows', rows.slice(-2).flat().filter(Boolean)]]; })];
+  const draw = m => {
+    const prices = all.map(price), counts = {}; prices.forEach(p => counts[p] = (counts[p] || 0) + 1);
+    $('#sf-body', m).innerHTML = `<div class="split" style="grid-template-columns:auto 1fr"><div class="stack" style="align-content:start"><div class="decks">${decks.map((d, i) => `<div class="deck"><div class="deck-title"><span>${esc(d.name)}</span>${i === 0 ? '<span>Driver ⊙</span>' : ''}</div>
+        <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '40px').join(' ')}">${d.rows.flat().map(c => c === null ? '<span class="seat-gap"></span>' : c === '' ? '<span></span>' : `<button type="button" class="seat fare wide ${seatKindClass(d, c)} ${sel.has(c) ? 'sel' : ''} ${fares[c] > 0 ? 'custom' : ''}" data-sf="${esc(c)}" aria-pressed="${sel.has(c)}" aria-label="${esc(c)}, ${inr(price(c))}">${esc(c)}<small>${price(c)}</small></button>`).join('')}</div></div>`).join('')}</div>
+        <div class="legend"><span><i></i>Bus fare</span><span><i style="border-color:var(--blue);background:var(--blue-soft)"></i>Own fare set</span><span><i class="s"></i>Selected</span></div></div>
+      <div class="stack" style="align-content:start">
+        <div><h4 style="margin-bottom:8px">1. Select seats</h4><p class="muted small" style="margin-bottom:8px">Click seats on the map, or pick a group:</p><div class="chips">${groups.map(([n], i) => `<button type="button" class="chip" data-sf-group="${i}">${esc(n)}</button>`).join('')}<button type="button" class="chip" data-sf-clear>Clear selection</button></div></div>
+        <form id="sf-apply" class="card stack" style="background:var(--surface-2)"><h4>2. Set the fare</h4><div class="muted small">${sel.size ? `Selected (${sel.size}): <b class="mono">${esc([...sel].slice(0, 14).join(', '))}${sel.size > 14 ? '…' : ''}</b>` : 'No seats selected yet.'}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:end"><label class="field" style="flex:1 1 140px"><span>Fare for selected (₹)</span><input class="input" id="sf-amt" type="number" min="1" step="1" placeholder="${bus.fare}" ${sel.size ? '' : 'disabled'} required></label><button class="btn btn-primary" ${sel.size ? '' : 'disabled'}>Apply</button><button type="button" class="btn btn-outline" id="sf-base" ${sel.size ? '' : 'disabled'}>Back to bus fare</button></div></form>
+        <div class="card stack"><h4>Fare summary</h4>${Object.entries(counts).sort((a, b) => b[0] - a[0]).map(([p, n]) => `<div class="line-item"><span>${inr(p)}</span><span>${n} ${n === 1 ? 'seat' : 'seats'}</span></div>`).join('')}<div class="line-item total"><span>Full bus</span><span>${inr(prices.reduce((s, p) => s + p, 0))}</span></div>
+          <p class="muted small">Bus fare ${inr(bus.fare)} applies to every seat without its own fare${bus.layout?.seatPct && hasBothKinds(bus) ? ` (seats at ${bus.layout.seatPct}%)` : ''}.</p></div></div></div>`;
+    $$('[data-sf]', m).forEach(b => b.onclick = () => { const l = b.dataset.sf; sel.has(l) ? sel.delete(l) : sel.add(l); draw(m); });
+    $$('[data-sf-group]', m).forEach(b => b.onclick = () => { groups[+b.dataset.sfGroup][1].forEach(l => sel.add(l)); draw(m); });
+    $('[data-sf-clear]', m).onclick = () => { sel.clear(); draw(m); };
+    $('#sf-apply', m).onsubmit = e => { e.preventDefault(); const v = Math.round(+$('#sf-amt', m).value); if (!(v > 0)) return toast('Enter a fare above ₹0', 'err'); sel.forEach(l => fares[l] = v); toast(`${inr(v)} set for ${sel.size} seat${sel.size > 1 ? 's' : ''}`); sel.clear(); draw(m); };
+    $('#sf-base', m).onclick = () => { sel.forEach(l => delete fares[l]); sel.clear(); draw(m); };
+    const amt = $('#sf-amt', m); if (amt && sel.size) amt.focus();
+  };
+  openModal(`Seat fares · ${bus.busNo}`, `<div class="notice">${esc(bus.from)} → ${esc(bus.to)} · ${esc(bus.type)}. Set a separate fare for any seat or berth. Customers see each price on the seat map and pay exactly what the seat costs.</div><div id="sf-body"></div>
+    <div style="display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap"><button class="btn btn-outline" id="sf-reset">Reset every seat to the bus fare</button><div style="display:flex;gap:10px"><button class="btn btn-outline" data-close>Cancel</button><button class="btn btn-primary" id="sf-save">Save fares</button></div></div>`, {
+    wide: true, onMount: m => { draw(m);
+      $('#sf-reset', m).onclick = () => { Object.keys(fares).forEach(k => delete fares[k]); sel.clear(); draw(m); };
+      $('#sf-save', m).onclick = () => { Store.update('buses', bus.id, { seatFares: { ...fares } }); closeModal(); const n = Object.keys(fares).length; toast(n ? `Fares saved · ${n} seat${n > 1 ? 's' : ''} with their own price` : 'Fares saved · all seats at the bus fare'); after && after(); }; } });
 }
 const BUS_TOOLS = [
   { id: 'photos', label: 'Photos', run: (r, rr) => mediaManager('bus', r, { after: rr }) },
   { id: 'seats', label: 'Seat layout', run: (r, rr) => seatLayoutEditor(r, rr) },
+  { id: 'fares', label: 'Seat fares', run: (r, rr) => seatFareEditor(r, rr) },
   { id: 'stops', label: 'Stops', run: (r, rr) => stopsEditor(r, rr) },
 ];
 

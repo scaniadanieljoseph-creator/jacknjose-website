@@ -35,4 +35,6 @@ const SITE_CONFIG = {
     // travels: 'assets/img/our-sleeper-bus.jpg',
   },
 };
+/* Sample occupancy (random booked seats / rooms) is shown only in the browser-only demo, never on the live site. */
+SITE_CONFIG.simulate = () => SITE_CONFIG.bookingMode === 'demo' && !SITE_CONFIG.api;
 SITE_CONFIG.canRequest = () => SITE_CONFIG.bookingMode === 'request' && !!(SITE_CONFIG.whatsapp || SITE_CONFIG.email);
