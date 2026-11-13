@@ -48,19 +48,7 @@ const sameCity = (a, b) => String(a).trim().toLowerCase() === String(b).trim().t
 
 function busesForRoute(from, to) {
   const own = Store.get('buses').filter(b => b.active === 'Active' && sameCity(b.from, from) && sameCity(b.to, to)).map(b => ({ ...b, own: b.operator === OWN_OPERATOR }));
-  const km = roadKm(from, to), r = rng(hashStr(from.toLowerCase() + '|' + to.toLowerCase()));
-  const hours = [5, 6, 7, 9, 10, 13, 14, 16, 18, 19, 20, 20, 21, 21, 22, 22, 23];
-  const types = Object.keys(BUS_TYPES), n = 4 + Math.floor(r() * 5), gen = [];
-  for (let i = 0; i < n; i++) {
-    const type = types[Math.floor(r() * types.length)], T = BUS_TYPES[type];
-    const dep = `${pad(hours[Math.floor(r() * hours.length)])}:${pad([0, 15, 30, 45][Math.floor(r() * 4)])}`;
-    gen.push({ id: `G${hashStr(from + to).toString(36).toUpperCase()}${i}`, operator: i === 0 && !own.length ? OWN_OPERATOR : PARTNER_OPERATORS[Math.floor(r() * PARTNER_OPERATORS.length)],
-      busNo: `${['KL', 'TN', 'KA', 'MH', 'AP'][Math.floor(r() * 5)]}-${pad(1 + Math.floor(r() * 60))}-${String.fromCharCode(65 + Math.floor(r() * 26))}${String.fromCharCode(65 + Math.floor(r() * 26))}-${1000 + Math.floor(r() * 8999)}`,
-      type, from, to, dep, durationMin: Math.round(km / (T.ac ? 52 : 46) * 60 + r() * 50), fare: Math.max(199, Math.round((km * T.rate * (0.85 + r() * 0.35) + 99) / 10) * 10 - 1),
-      rating: Math.round((3.5 + r() * 1.3) * 10) / 10, amenities: T.ac ? 'Charging point, Water bottle, Blanket' : 'Charging point', active: 'Active' });
-    gen[i].own = gen[i].operator === OWN_OPERATOR;
-  }
-  return [...own, ...gen];
+  return own; // only buses added in the Travels portal are listed (no generated partner buses)
 }
 function seatLayout(bus) {
   if (bus.layout?.decks?.length) return bus.layout.decks; // custom layout from the seat-layout editor
@@ -70,18 +58,19 @@ function seatLayout(bus) {
 }
 function bookedSeats(bus, date) {
   const r = rng(hashStr(bus.id + date)), map = {};
-  seatLayout(bus).forEach(d => d.rows.flat().filter(Boolean).forEach(s => { if (r() < .36) map[s] = r() < .2 ? 'ladies' : 'booked'; }));
+  seatLayout(bus).forEach(d => d.rows.flat().filter(Boolean).forEach(s => { if (SITE_CONFIG.simulate() && r() < .36) map[s] = r() < .2 ? 'ladies' : 'booked'; }));
   Store.get('busBookings').filter(b => b.busId === bus.id && b.date === date && b.status === 'Confirmed').forEach(b => b.passengers.forEach(p => { map[p.seat] = p.gender === 'Female' ? 'ladies' : 'booked'; }));
   return map;
 }
 const totalSeats = bus => seatLayout(bus).reduce((n, d) => n + d.rows.flat().filter(Boolean).length, 0);
 
 /* ---------- Search widget ---------- */
+const firstRoute = () => { const b = Store.get('buses').find(x => x.active === 'Active'); return b ? [b.from, b.to] : [SITE_CONFIG.city || 'Coimbatore', 'Chennai']; };
 function busSearchForm(s = Session.get('busSearch') || {}) {
   return `<form class="search-row" id="bus-search" autocomplete="off">
-    <label class="field"><span>From</span><input class="input" id="bs-from" name="from" list="dl-india" placeholder="Leaving from" value="${esc(s.from || SITE_CONFIG.city || 'Kochi')}" required></label>
+    <label class="field"><span>From</span><input class="input" id="bs-from" name="from" list="dl-india" placeholder="Leaving from" value="${esc(s.from || firstRoute()[0])}" required></label>
     <button type="button" class="swap" id="bs-swap" aria-label="Swap cities" title="Swap">⇄</button>
-    <label class="field"><span>To</span><input class="input" id="bs-to" name="to" list="dl-india" placeholder="Going to" value="${esc(s.to || 'Bengaluru')}" required></label>
+    <label class="field"><span>To</span><input class="input" id="bs-to" name="to" list="dl-india" placeholder="Going to" value="${esc(s.to || firstRoute()[1])}" required></label>
     <label class="field"><span>Date of journey</span><input class="input" id="bs-date" type="date" name="date" min="${todayISO()}" value="${esc(s.date && s.date >= todayISO() ? s.date : todayISO(1))}" required></label>
     <button class="btn btn-green btn-lg">${icon('search')} Search buses</button></form>`;
 }
@@ -120,12 +109,12 @@ function showBusTicket(b, { allowCancel = false, after } = {}) {
 /* ---------- Pages ---------- */
 ROUTE_TITLES.travels = 'Bus booking';
 route('travels', app => {
-  const popular = [['Kochi', 'Bengaluru'], ['Bengaluru', 'Kochi'], ['Thiruvananthapuram', 'Bengaluru'], ['Kochi', 'Chennai'], ['Kozhikode', 'Bengaluru'], ['Chennai', 'Bengaluru'], ['Bengaluru', 'Hyderabad'], ['Mumbai', 'Goa'], ['Delhi', 'Jaipur'], ['Pune', 'Mumbai']];
-  app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Travels', title: 'Book bus tickets to any city in India', lead: `${Object.keys(INDIA_CITIES).length} cities, our own sleeper fleet plus partner operators, live seat maps and instant e-tickets.` }) +
+  const popular = [...new Map(Store.get('buses').filter(b => b.active === 'Active').map(b => [`${b.from}|${b.to}`, [b.from, b.to]])).values()].slice(0, 12);
+  app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Travels', title: 'Book bus tickets to any city in India', lead: `Our own fleet, live seat maps and instant e-tickets.` }) +
   `<section class="wrap overlap"><div class="search-box">${busSearchForm()}<div class="chips" style="margin-top:12px"><span class="muted small">Quick date:</span>
     <button class="chip" type="button" data-qd="0">Today</button><button class="chip" type="button" data-qd="1">Tomorrow</button><button class="chip" type="button" data-qd="2">Day after</button></div></div></section>
   <section class="section"><div class="wrap grid g2">
-    <div class="card"><div class="eyebrow">Popular routes</div><h3 style="margin:6px 0 14px">Routes travellers book most</h3><div class="chips">${popular.map(([a, b]) => `<button class="chip blue" data-route="${esc(a)}|${esc(b)}">${esc(a)} → ${esc(b)}</button>`).join('')}</div></div>
+    <div class="card"><div class="eyebrow">Our routes</div><h3 style="margin:6px 0 14px">${popular.length ? 'Routes we run' : 'Routes are being added'}</h3>${popular.length ? '' : `<p class="muted">Our bus schedule will appear here soon. ${SITE_CONFIG.phone ? 'Call ' + esc(SITE_CONFIG.phone) + ' to book now.' : ''}</p>`}<div class="chips">${popular.map(([a, b]) => `<button class="chip blue" data-route="${esc(a)}|${esc(b)}">${esc(a)} → ${esc(b)}</button>`).join('')}</div></div>
     <div class="card"><div class="eyebrow">Manage booking</div><h3 style="margin:6px 0 14px">View or cancel a ticket</h3>
       <form id="pnr-form" style="display:flex;gap:10px;flex-wrap:wrap"><input class="input mono" id="pnr" name="pnr" placeholder="PNR, e.g. JJB7301" style="flex:1 1 180px" required><button class="btn btn-primary">Find ticket</button></form>
       <p class="muted small" style="margin-top:10px">Your PNR is on the e-ticket shown after booking.</p></div>
@@ -145,6 +134,7 @@ route('bus-results', app => {
   const s = Session.get('busSearch'); if (!s) return go('travels');
   const state = { sort: 'dep', f: new Set(), slot: new Set(), open: null, sel: [] };
   const all = busesForRoute(s.from, s.to);
+  const popular0 = [...new Map(Store.get('buses').filter(b => b.active === 'Active').map(b => [`${b.from}|${b.to}`, [b.from, b.to]])).values()].slice(0, 10);
   const km = roadKm(s.from, s.to);
   app.innerHTML = `<div class="route-summary"><div class="wrap">
       <div class="cities">${esc(s.from)} <span class="route-line" style="width:40px;background-image:linear-gradient(90deg,#9ff0c8 50%,transparent 50%)"></span> ${esc(s.to)}</div>
@@ -176,21 +166,22 @@ route('bus-results', app => {
         <div class="bus-times"><div><b>${b.dep}</b><div class="muted small">${esc(s.from)}</div></div><div style="flex:1;text-align:center" class="muted small"><div class="route-line" style="margin:6px 0"></div>${durTxt(b.durationMin)}</div><div style="text-align:right"><b>${arr.t}</b>${arr.days ? `<sup class="small" style="color:var(--warn)"> +${arr.days}</sup>` : ''}<div class="muted small">${esc(s.to)}</div></div></div>
         <div class="bus-price"><div>${ratingBadge('bus', b.id, b.rating, b.operator)}</div><div><span class="muted small">Starts from</span><br><b>${inr(minFare(b))}</b></div><div class="small" style="color:${left < 8 ? 'var(--danger)' : 'var(--muted)'}">${left} seats left</div></div></div>
         <div class="bus-foot">${b.amenities.split(',').slice(0, 4).map(a => `<span class="chip">${esc(a.trim())}</span>`).join('')}${Media.of('bus', b.id, 'photo').length ? `<button class="chip blue" data-busphotos="${esc(b.id)}">Photos (${Media.of('bus', b.id, 'photo').length})</button>` : ''}<span style="flex:1"></span><button class="btn btn-green btn-sm" data-view="${esc(b.id)}">${state.open === b.id ? 'Hide seats' : 'View seats'}</button></div>
-        ${state.open === b.id ? seatPanel(b, booked) : ''}</article>`; }).join('') || `<div class="card empty-state"><h3>No buses match these filters</h3><p style="margin-top:6px">Clear a filter or try the next day.</p></div>`;
+        ${state.open === b.id ? seatPanel(b, booked) : ''}</article>`; }).join('') || (all.length ? `<div class="card empty-state"><h3>No buses match these filters</h3><p style="margin-top:6px">Clear a filter or try the next day.</p></div>` : `<div class="card empty-state"><h3>We don’t run a bus from ${esc(s.from)} to ${esc(s.to)} yet</h3><p style="margin-top:6px">${popular0.length ? 'Routes we run: ' + popular0.map(([a, b]) => `<button class="chip blue" data-goroute="${esc(a)}|${esc(b)}">${esc(a)} → ${esc(b)}</button>`).join(' ') : 'Our schedule is being added.'}</p>${SITE_CONFIG.phone ? `<p style="margin-top:10px">Need this route? Call ${esc(SITE_CONFIG.phone)}.</p>` : ''}</div>`);
+    $$('[data-goroute]').forEach(c => c.onclick = () => { const [from, to] = c.dataset.goroute.split('|'); Session.set('busSearch', { ...s, from, to }); render(); });
     bindPanel();
   }
   function seatPanel(b, booked) {
-    const T = BUS_TYPES[b.type] || {}, stops = busStops(b, s.from, s.to);
+    const T = BUS_TYPES[b.type] || {}, stops = busStops(b, s.from, s.to), varied = fareVaries(b);
     const decks = seatLayout(b).map(d => `<div class="deck"><div class="deck-title"><span>${d.name}</span>${d.name !== 'Upper deck' ? '<span>Driver ⊙</span>' : ''}</div>
       <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '34px').join(' ')}">${d.rows.flat().map(c => c === null ? '<span class="seat-gap"></span>' : c === '' ? '<span></span>' :
-      `<button type="button" class="seat ${seatKindClass(d, c)} ${booked[c] === 'ladies' ? 'booked ladies' : booked[c] ? 'booked' : ''} ${state.sel.includes(c) ? 'sel' : ''}" data-seat="${c}" ${booked[c] ? 'disabled' : ''} title="${seatKindClass(d, c) ? 'Sleeper berth' : 'Seat'} ${c} · ${inr(seatPrice(b, c))}" aria-label="${seatKindClass(d, c) ? 'Berth' : 'Seat'} ${c}${booked[c] ? ' booked' : ''}">${c}</button>`).join('')}</div></div>`).join('');
-    const sub = fareTotal(b, state.sel), mixed = hasBothKinds(b) && b.layout?.seatPct;
+      `<button type="button" class="seat ${seatKindClass(d, c)} ${varied ? 'fare' : ''} ${booked[c] === 'ladies' ? 'booked ladies' : booked[c] ? 'booked' : ''} ${state.sel.includes(c) ? 'sel' : ''}" data-seat="${c}" ${booked[c] ? 'disabled' : ''} title="${seatKindClass(d, c) ? 'Sleeper berth' : 'Seat'} ${c} · ${inr(seatPrice(b, c))}" aria-label="${seatKindClass(d, c) ? 'Berth' : 'Seat'} ${c}, ${inr(seatPrice(b, c))}${booked[c] ? ', booked' : ''}">${c}${varied ? `<small>${seatPrice(b, c)}</small>` : ''}</button>`).join('')}</div></div>`).join('');
+    const sub = fareTotal(b, state.sel), mixed = varied;
     return `<div class="seat-panel"><div><div class="decks">${decks}</div><div class="legend"><span><i></i>Available</span><span><i class="b"></i>Booked</span><span><i class="l"></i>Booked by ladies</span><span><i class="s"></i>Your selection</span></div></div>
       <div class="stack" style="align-content:start"><label class="field"><span>Boarding point</span><select class="input" id="bp">${stops.boarding.map(x => `<option>${x.t} · ${esc(x.name)}</option>`).join('')}</select></label>
       <label class="field"><span>Dropping point</span><select class="input" id="dp">${stops.dropping.map(x => `<option>${x.t} · ${esc(x.name)}</option>`).join('')}</select></label>
       <div class="card" style="background:var(--surface-2)"><div class="line-item"><span>Seats</span><b class="mono">${state.sel.join(', ') || '—'}</b></div><div class="line-item"><span>Fare (${mixed ? state.sel.map(x => `${x} ${inr(seatPrice(b, x))}`).join(' + ') || '0 seats' : `${state.sel.length} × ${inr(b.fare)}`})</span><span>${inr(sub)}</span></div><div class="line-item"><span>GST 5%</span><span>${inr(sub * .05)}</span></div><div class="line-item total"><span>Total</span><span>${inr(sub * 1.05)}</span></div></div>
       <button class="btn btn-primary btn-block" id="proceed" ${state.sel.length ? '' : 'disabled'}>${state.sel.length ? 'Proceed to book' : 'Select up to 6 seats'}</button>
-      <p class="muted small">${mixed ? `Sleeper berth ${inr(b.fare)} · Seat ${inr(minFare(b))}. ` : ''}${T.sleeper || mixed ? 'Berths are 6 ft long. ' : ''}Cancellation up to the day of travel: 75% refund.</p></div></div>`;
+      <p class="muted small">${mixed ? `Fares from ${inr(minFare(b))} to ${inr(maxFare(b))}; each seat shows its price. ` : ''}${T.sleeper || mixed ? 'Berths are 6 ft long. ' : ''}Cancellation up to the day of travel: 75% refund.</p></div></div>`;
   }
   function bindPanel() {
     $$('[data-view]').forEach(btn => btn.onclick = () => { state.open = state.open === btn.dataset.view ? null : btn.dataset.view; state.sel = []; list(); if (state.open) $(`[data-bus="${state.open}"]`).scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
@@ -260,7 +251,7 @@ route('travels-admin', app => {
         { name: 'durationMin', label: 'Journey time (minutes)', type: 'number', min: 30, default: 480, required: true }, { name: 'fare', label: 'Fare per seat (₹)', type: 'number', min: 50, default: 999, required: true },
         { name: 'rating', label: 'Rating', type: 'number', min: 1, max: 5, step: '0.1', default: 4.5 }, { name: 'active', label: 'Status', type: 'select', options: ['Active', 'Inactive'] }, { name: 'amenities', label: 'Amenities (comma separated)', full: true, default: 'WiFi, Charging point, Water bottle, Blanket' }],
       validate: d => sameCity(d.from, d.to) ? 'From and To cities must be different' : null,
-      columns: [{ label: 'Photo', render: r => Media.cover('bus', r.id) ? `<img class="thumb" src="${Media.cover('bus', r.id)}" alt="">` : '<span class="muted small">None</span>' }, { label: 'Bus', render: r => `<b class="mono">${esc(r.busNo)}</b><div class="muted small">${esc(r.operator)}</div>` }, { label: 'Type', field: 'type' }, { label: 'Route', render: r => `${esc(r.from)} → ${esc(r.to)}` }, { label: 'Departs', render: r => `${esc(r.dep)}<div class="muted small">${durTxt(+r.durationMin)}</div>` }, { label: 'Fare', render: r => inr(r.fare) }, { label: 'Status', render: r => statusChip(r.active) }] });
+      columns: [{ label: 'Photo', render: r => Media.cover('bus', r.id) ? `<img class="thumb" src="${Media.cover('bus', r.id)}" alt="">` : '<span class="muted small">None</span>' }, { label: 'Bus', render: r => `<b class="mono">${esc(r.busNo)}</b><div class="muted small">${esc(r.operator)}</div>` }, { label: 'Type', field: 'type' }, { label: 'Route', render: r => `${esc(r.from)} → ${esc(r.to)}` }, { label: 'Departs', render: r => `${esc(r.dep)}<div class="muted small">${durTxt(+r.durationMin)}</div>` }, { label: 'Fare', render: r => fareVaries(r) ? `${inr(minFare(r))} – ${inr(maxFare(r))}<div class="muted small">per-seat fares</div>` : inr(minFare(r)) }, { label: 'Status', render: r => statusChip(r.active) }] });
     if (tab === 'agents') { const bk = Store.get('busBookings').filter(b => b.status === 'Confirmed');
       renderCrud(body, { key: 'agents', single: 'Agent', plural: 'Agents', idPrefix: 'AGT', label: r => r.agency,
         fields: [{ name: 'name', label: 'Agent name', required: true }, { name: 'agency', label: 'Agency name', required: true }, { name: 'city', label: 'City', list: 'dl-india', required: true }, { name: 'phone', label: 'Phone', required: true }, { name: 'email', label: 'Email', type: 'email' }, { name: 'commission', label: 'Commission %', type: 'number', min: 0, max: 30, step: '0.5', default: 7 }, { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'] }],
