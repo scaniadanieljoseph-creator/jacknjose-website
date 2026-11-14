@@ -197,7 +197,7 @@ function renderCrud(el, o) {
     $('[data-crud-count]', el).textContent = `${n} ${o.plural.toLowerCase()}`;
   });
   const openForm = (row) => {
-    const fields = typeof o.fields === 'function' ? o.fields() : o.fields;
+    const fields = typeof o.fields === 'function' ? o.fields(row) : o.fields;
     openModal(row ? `Edit ${o.single}` : `Add ${o.single}`, `<form class="form-grid" id="crud-form">${formHtml(fields, row || {})}
       <div class="full" style="display:flex;gap:10px;justify-content:flex-end"><button type="button" class="btn btn-outline" data-close>Cancel</button><button class="btn btn-primary">${row ? 'Save changes' : 'Add ' + esc(o.single)}</button></div></form>`, {
       onMount: m => $('#crud-form', m).addEventListener('submit', ev => {
@@ -213,14 +213,15 @@ function renderCrud(el, o) {
   };
   el.onclick = e => {
     const add = e.target.closest('[data-crud-add]'), ed = e.target.closest('[data-crud-edit]'), del = e.target.closest('[data-crud-del]'), act = e.target.closest('[data-crud-act]');
+    if (add || ed || del || act) e.stopPropagation(); // a list inside another container must not also trigger that container's older handler
     if (add) openForm(null);
     if (ed) openForm(Store.find(o.key, ed.dataset.crudEdit));
     if (del) { const r = Store.find(o.key, del.dataset.crudDel); const blocked = o.beforeDelete && o.beforeDelete(r); if (blocked) return toast(blocked, 'err'); confirmBox(`Delete ${o.single.toLowerCase()} “${o.label ? o.label(r) : r.id}”? This cannot be undone.`, () => { Store.remove(o.key, r.id); toast(`${o.single} deleted`); rerender(); }); }
-    if (act) { const a = o.actions.find(x => x.id === act.dataset.crudAct); a.run(Store.find(o.key, act.dataset.id), rerender); }
+    if (act) { const a = (o.actions || []).find(x => x.id === act.dataset.crudAct); if (!a) return; a.run(Store.find(o.key, act.dataset.id), rerender); }
   };
 }
 const statusChip = (s) => {
-  const map = { Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Requested: 'warn', Published: 'green', Challenged: 'warn', Upheld: 'blue', Removed: 'danger', Received: 'green', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
+  const map = { Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Requested: 'warn', Reserved: 'blue', 'No-show': 'danger', Published: 'green', Challenged: 'warn', Upheld: 'blue', Removed: 'danger', Received: 'green', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
   return `<span class="chip ${map[s] ?? ''}">${esc(s)}</span>`;
 };
 
