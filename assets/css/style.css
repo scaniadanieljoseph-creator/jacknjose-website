@@ -655,3 +655,13 @@ table.roster td { padding: 6px 8px; }
 .tripsheet .ts-head { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 13px; }
 .tripsheet .ts-table th { width: 26%; background: #ffffff; text-transform: none; font-size: 12.5px; letter-spacing: 0; }
 .tripsheet .ts-table td { width: 24%; height: 26px; font-size: 13px; }
+
+/* ---------- Fleet reports ---------- */
+.rep-bar { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+.rep-bar .field { min-width: 150px; flex: 0 1 auto; }
+.rep-quick { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.table tfoot th { text-align: left; padding: 10px 12px; border-top: 2px solid var(--line, #d5dde8); white-space: nowrap; }
+.table tr.row-low td { background: color-mix(in srgb, #f5a524 12%, transparent); }
+.report-print .ph-table { font-size: 11px; }
+.report-print .ph-table th, .report-print .ph-table td { padding: 3px 5px; }
+@media (max-width: 640px) { .rep-bar .field { flex: 1 1 45%; min-width: 0; } .rep-quick { margin-left: 0 !important; } }

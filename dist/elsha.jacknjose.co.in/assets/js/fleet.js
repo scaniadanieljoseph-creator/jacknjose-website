@@ -61,7 +61,7 @@ function fleetMap() {
 
 ROUTE_TITLES.fleet = 'Fleet portal';
 route('fleet', app => {
-  const tabs = [['dash', 'Live overview'], ['vehicles', 'Vehicles'], ['duty', 'Duty list & trip sheets'], ['maint', 'Maintenance'], ['fstaff', 'Staff'], ['rates', 'Daily wages'], ['pay', 'Payroll']];
+  const tabs = [['dash', 'Live overview'], ['vehicles', 'Vehicles'], ['duty', 'Duty list & trip sheets'], ['maint', 'Maintenance'], ['fstaff', 'Staff'], ['rates', 'Daily wages'], ['pay', 'Payroll'], ['reports', 'Reports']];
   let active = Session.get('tab_#fleet') || 'dash'; if (!tabs.some(x => x[0] === active)) active = 'dash';
   app.innerHTML = adminShell({ title: 'Fleet management portal', sub: 'Every truck, bus and car in one place: where it is, who drives it and what it needs next.', tabs, active, base: 'transports' });
   const body = $('#admin-body', app);
@@ -104,6 +104,7 @@ route('fleet', app => {
     if (tab === 'fstaff') flStaff(body);
     if (tab === 'rates') flRates(body);
     if (tab === 'pay') flPayroll(body, () => show('pay'));
+    if (tab === 'reports') flReports(body, () => show('reports'));
     if (tab === 'maint') renderCrud(body, { key: 'maintenance', single: 'Service record', plural: 'Service records', idPrefix: 'MNT', label: r => r.work,
       fields: () => [{ name: 'vehicleId', label: 'Vehicle', type: 'select', options: Store.get('vehicles').map(v => [v.id, `${v.regNo} · ${v.type}`]) }, { name: 'date', label: 'Date', type: 'date', default: todayISO(), required: true }, { name: 'work', label: 'Work done', required: true, full: true }, { name: 'cost', label: 'Cost (₹)', type: 'number', min: 0, required: true }, { name: 'state', label: 'State', type: 'select', options: ['In progress', 'Done'] }],
       validate: d => { Store.update('vehicles', d.vehicleId, v => d.state === 'In progress' ? { status: 'Maintenance' } : (v.status === 'Maintenance' ? { status: 'Available', nextServiceKm: (+v.odometer) + 10000 } : {})); return null; },
