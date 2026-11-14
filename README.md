@@ -162,3 +162,9 @@ need an API change. Not included: channel manager / OTA sync, door-lock and rout
   day; printable duty sheet.
 - **Payroll:** drivers and cleaners are paid for completed duties (wage + batta); office staff monthly salary less unpaid
   days; bonus, deductions and advance recovery; printable payslip. Collections: `fl_staff`, `fl_rates`, `fl_duties`, `fl_advances`, `fl_payroll`.
+
+**Fleet duties (updated):** a duty is one trip of one vehicle with Driver 1, optional Driver 2, conductor and cleaner; duty type
+Bus / Cargo van / Truck / Car; from and to place; starting km (from the odometer) and ending km (becomes the vehicle's odometer).
+The rate card sets wage and per-trip bata by vehicle kind and route; a driver alone on a trip gets the additional single-driver
+bata. Vehicles no longer carry a fixed driver. Staff keep Aadhaar, PAN and bank details plus photo and document images
+(`fl_docs`, visible only to fleet/logistics managers and the administrator).

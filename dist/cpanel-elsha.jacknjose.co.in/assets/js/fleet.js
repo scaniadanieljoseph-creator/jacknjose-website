@@ -17,7 +17,7 @@ SEED.vehicles = () => [
   ['MH-04-KT-2290', '19 ft truck', 'Tata LPT 1412', 9000, 'Santosh Jadhav', 'On Trip', 'Mumbai', 51, 132600, 330, 135000],
   ['KL-07-DE-5521', 'Sedan (staff car)', 'Maruti Ciaz', 4, 'Office pool', 'Inactive', 'Kochi', 35, 66010, 400, 70000],
 ].map(([regNo, type, model, capacity, driver, status, location, fuel, odometer, insDays, nextServiceKm], i) => ({
-  id: 'VEH' + (501 + i), regNo, type, model, capacity, driver, driverPhone: '+91 95' + String(26000000 + i * 457123).slice(0, 8), status, location, fuel, odometer, insuranceExpiry: todayISO(insDays), fitnessExpiry: todayISO(insDays + 180), nextServiceKm, createdAt: new Date().toISOString() }));
+  id: 'VEH' + (501 + i), regNo, type, model, capacity, status, location, fuel, odometer, insuranceExpiry: todayISO(insDays), fitnessExpiry: todayISO(insDays + 180), nextServiceKm, createdAt: new Date().toISOString() }));
 SEED.trips = () => {
   const plan = { VEH501: ['Kochi', 'Delhi', 'Spices & coir products, 14.2 T', 30], VEH503: ['Coimbatore', 'Hyderabad', 'Textile bales, 3.6 T', 9], VEH506: ['Bengaluru', 'Mumbai', 'Machinery, 22 T', 14], VEH507: ['Kochi', 'Bengaluru', 'Passengers · JJ sleeper service', 5], VEH511: ['Mumbai', 'Pune', 'FMCG cartons, 7.8 T', 1.5] };
   const out = Object.entries(plan).map(([vid, [from, to, cargo, hoursAgo]], i) => ({ id: 'TRP' + (9001 + i), vehicleId: vid, from, to, cargo, startedAt: new Date(Date.now() - hoursAgo * 3600e3).toISOString(), status: 'Ongoing', km: roadKm(from, to), createdAt: new Date().toISOString() }));
@@ -83,11 +83,11 @@ route('fleet', app => {
     }
     if (tab === 'vehicles') renderCrud(body, { key: 'vehicles', single: 'Vehicle', plural: 'Vehicles', idPrefix: 'VEH', label: r => r.regNo,
       fields: [{ name: 'regNo', label: 'Registration no.', required: true, placeholder: 'KL-07-AB-1234' }, { name: 'type', label: 'Vehicle type', type: 'select', options: VEHICLE_TYPES }, { name: 'model', label: 'Make & model', required: true }, { name: 'capacity', label: 'Capacity (kg or seats)', type: 'number', min: 1, required: true },
-        { name: 'driver', label: 'Driver', required: true }, { name: 'driverPhone', label: 'Driver phone' }, { name: 'status', label: 'Status', type: 'select', options: VEHICLE_STATUS }, { name: 'location', label: 'Current / base city', list: 'dl-india', required: true },
+        { name: 'status', label: 'Status', type: 'select', options: VEHICLE_STATUS }, { name: 'location', label: 'Current / base city', list: 'dl-india', required: true },
         { name: 'fuel', label: 'Fuel level %', type: 'number', min: 0, max: 100, default: 80 }, { name: 'odometer', label: 'Odometer (km)', type: 'number', min: 0, default: 0 }, { name: 'nextServiceKm', label: 'Next service at (km)', type: 'number', min: 0, default: 10000 },
         { name: 'insuranceExpiry', label: 'Insurance valid till', type: 'date', required: true, default: todayISO(365) }, { name: 'fitnessExpiry', label: 'Fitness / permit valid till', type: 'date', default: todayISO(365) }],
       validate: (d, row) => { d.regNo = d.regNo.toUpperCase(); return Store.get('vehicles').some(v => v.regNo === d.regNo && v.id !== row?.id) ? `${d.regNo} is already registered` : null; },
-      columns: [{ label: 'Vehicle', render: r => `<b class="mono">${esc(r.regNo)}</b><div class="muted small">${esc(r.type)} · ${esc(r.model)}</div>` }, { label: 'Driver', render: r => `${esc(r.driver)}<div class="muted small">${esc(r.driverPhone)}</div>` }, { label: 'Location', field: 'location' },
+      columns: [{ label: 'Vehicle', render: r => `<b class="mono">${esc(r.regNo)}</b><div class="muted small">${esc(r.type)} · ${esc(r.model)}</div>` }, { label: 'On duty today', render: r => esc(flCrew(r.id)) || '<span class="muted">No duty</span>' }, { label: 'Location', field: 'location' },
         { label: 'Fuel', render: r => `<span class="fuel"><i class="${r.fuel < 20 ? 'low' : ''}" style="width:${r.fuel}%"></i></span>${r.fuel}%` }, { label: 'Odometer', render: r => `${(+r.odometer).toLocaleString('en-IN')} km` }, { label: 'Insurance', render: r => { const d = daysBetween(todayISO(), r.insuranceExpiry); return `${fmtDate(r.insuranceExpiry)}${d < 0 ? ' <span class="chip danger">Expired</span>' : d <= 30 ? ' <span class="chip warn">' + d + 'd</span>' : ''}`; } }, { label: 'Status', render: r => statusChip(r.status) }],
       actions: [{ id: 'card', label: 'View', run: r => vehicleCard(r) }] });
     if (tab === 'trips') {
@@ -113,7 +113,7 @@ route('fleet', app => {
   function vehicleCard(v) {
     const trips = Store.get('trips').filter(t => t.vehicleId === v.id), m = Store.get('maintenance').filter(x => x.vehicleId === v.id);
     openModal(v.regNo, `<div class="kv"><div><span>Type</span><b>${esc(v.type)}</b></div><div><span>Model</span><b>${esc(v.model)}</b></div><div><span>Capacity</span><b>${(+v.capacity).toLocaleString('en-IN')} ${/bus|Traveller|Sedan/.test(v.type) ? 'seats' : 'kg'}</b></div><div><span>Status</span><b>${statusChip(v.status)}</b></div>
-      <div><span>Driver</span><b>${esc(v.driver)}</b></div><div><span>Location</span><b>${esc(v.location)}</b></div><div><span>Fuel</span><b>${v.fuel}%</b></div><div><span>Odometer</span><b>${(+v.odometer).toLocaleString('en-IN')} km</b></div>
+      <div><span>Crew today</span><b>${esc(flCrew(v.id) || 'No duty assigned')}</b></div><div><span>Location</span><b>${esc(v.location)}</b></div><div><span>Fuel</span><b>${v.fuel}%</b></div><div><span>Odometer</span><b>${(+v.odometer).toLocaleString('en-IN')} km</b></div>
       <div><span>Insurance till</span><b>${fmtDate(v.insuranceExpiry)}</b></div><div><span>Fitness till</span><b>${fmtDate(v.fitnessExpiry)}</b></div><div><span>Next service</span><b>${(+v.nextServiceKm).toLocaleString('en-IN')} km</b></div></div>
       <div><h4 style="margin-bottom:8px">Trips</h4>${trips.map(t => `<div class="line-item"><span>${esc(t.from)} → ${esc(t.to)} · ${esc(t.cargo)}</span>${statusChip(t.status)}</div>`).join('') || '<p class="muted small">No trips recorded.</p>'}</div>
       <div><h4 style="margin-bottom:8px">Service history</h4>${m.map(x => `<div class="line-item"><span>${fmtDate(x.date)} · ${esc(x.work)}</span><span>${inr(x.cost)}</span></div>`).join('') || '<p class="muted small">No service records.</p>'}</div>`, { wide: true });
