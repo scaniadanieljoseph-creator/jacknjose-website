@@ -286,7 +286,7 @@ function go(name) { if (location.hash === '#' + name) render(); else location.ha
 let fleetTimer = null;
 function render() {
   // On the Elsha subdomain (elsha.jacknjose.co.in) the site opens on the Elsha page; the logo still leads to the group home.
-  const startPage = /^elsha\./i.test(location.hostname) ? 'elsha' : 'home';
+  const startPage = 'home';
   const name = (location.hash || '#' + startPage).slice(1) || startPage;
   const fn = ROUTES[name] || ROUTES.home;
   if (fleetTimer) { clearInterval(fleetTimer); fleetTimer = null; }
