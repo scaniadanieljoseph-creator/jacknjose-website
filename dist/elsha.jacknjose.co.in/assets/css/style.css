@@ -649,3 +649,9 @@ table.roster td { padding: 6px 8px; }
 .shift.s-N { background: var(--blue-deep); color: var(--bg); border-color: transparent; }
 .shift.s-G { background: var(--surface-2); color: var(--ink); border-color: transparent; }
 .shift.s-OFF { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+
+/* Trip sheet print */
+.tripsheet .ts-title { display: inline-block; margin-top: 6px; padding: 3px 14px; background: #111111; color: #ffffff; letter-spacing: .12em; font-size: 13px; border-radius: 3px; }
+.tripsheet .ts-head { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; font-size: 13px; }
+.tripsheet .ts-table th { width: 26%; background: #ffffff; text-transform: none; font-size: 12.5px; letter-spacing: 0; }
+.tripsheet .ts-table td { width: 24%; height: 26px; font-size: 13px; }

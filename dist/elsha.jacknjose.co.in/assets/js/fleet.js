@@ -44,7 +44,7 @@ function vehicleAlerts() {
 }
 function fleetMap() {
   const W = 420, H = 470, P = ([lat, lon]) => [((lon - 67.5) / 30) * W, H - ((lat - 6) / 31) * H];
-  const V = Store.get('vehicles'), T = Store.get('trips').filter(t => t.status === 'Ongoing');
+  const V = Store.get('vehicles'), T = flOngoing();
   const cityDots = Object.entries(INDIA_CITIES).map(([n, c]) => { const [x, y] = P(c); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.2" fill="rgba(255,255,255,.35)"><title>${n}</title></circle>`; }).join('');
   const labels = ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Kochi', 'Hyderabad', 'Ahmedabad', 'Guwahati'].map(n => { const [x, y] = P(INDIA_CITIES[n]); return `<text x="${(x + 6).toFixed(1)}" y="${(y + 4).toFixed(1)}" fill="rgba(255,255,255,.6)" font-size="11" font-family="Plus Jakarta Sans, sans-serif">${n}</text>`; }).join('');
   const routes = T.map(t => { const a = P(ALL_PLACES[cityKey(t.from)] || INDIA_CITIES.Kochi), b = P(ALL_PLACES[cityKey(t.to)] || INDIA_CITIES.Kochi); return `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="rgba(159,240,200,.5)" stroke-dasharray="4 5" stroke-width="1.5"/>`; }).join('');
@@ -61,8 +61,8 @@ function fleetMap() {
 
 ROUTE_TITLES.fleet = 'Fleet portal';
 route('fleet', app => {
-  const tabs = [['dash', 'Live overview'], ['vehicles', 'Vehicles'], ['trips', 'Trips'], ['maint', 'Maintenance'], ['duty', 'Duty list'], ['fstaff', 'Staff'], ['rates', 'Daily wages'], ['pay', 'Payroll']];
-  const active = Session.get('tab_#fleet') || 'dash';
+  const tabs = [['dash', 'Live overview'], ['vehicles', 'Vehicles'], ['duty', 'Duty list & trip sheets'], ['maint', 'Maintenance'], ['fstaff', 'Staff'], ['rates', 'Daily wages'], ['pay', 'Payroll']];
+  let active = Session.get('tab_#fleet') || 'dash'; if (!tabs.some(x => x[0] === active)) active = 'dash';
   app.innerHTML = adminShell({ title: 'Fleet management portal', sub: 'Every truck, bus and car in one place: where it is, who drives it and what it needs next.', tabs, active, base: 'transports' });
   const body = $('#admin-body', app);
   const vName = id => Store.find('vehicles', id)?.regNo || id;
@@ -70,7 +70,7 @@ route('fleet', app => {
     if (fleetTimer) { clearInterval(fleetTimer); fleetTimer = null; }
     const V = Store.get('vehicles');
     if (tab === 'dash') {
-      const cnt = s => V.filter(v => v.status === s).length, alerts = vehicleAlerts(), T = Store.get('trips').filter(t => t.status === 'Ongoing');
+      const cnt = s => V.filter(v => v.status === s).length, alerts = vehicleAlerts(), T = flOngoing();
       body.innerHTML = `<div class="kpis">${kpi('Total vehicles', V.length)}${kpi('On trip', cnt('On Trip'), `${Math.round(cnt('On Trip') / Math.max(1, V.length - cnt('Inactive')) * 100)}% utilisation`)}${kpi('Available', cnt('Available'))}${kpi('In maintenance', cnt('Maintenance'))}${kpi('Alerts', alerts.length, 'insurance, fuel, service', alerts.some(a => a[0] === 'crit'))}</div>
         <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));margin-top:18px"><div class="map-box" id="fmap">${fleetMap()}</div>
         <div class="stack" style="align-content:start"><div class="card"><h3 style="margin-bottom:12px">Trips in progress</h3><div class="stack" id="trip-prog"></div></div>
@@ -111,7 +111,7 @@ route('fleet', app => {
       actions: [{ id: 'fin', label: 'Mark done', show: r => r.state === 'In progress', run: (r, rr) => { Store.update('maintenance', r.id, { state: 'Done' }); Store.update('vehicles', r.vehicleId, v => ({ status: 'Available', nextServiceKm: (+v.odometer) + 10000 })); toast('Vehicle back in service'); rr(); } }] });
   };
   function vehicleCard(v) {
-    const trips = Store.get('trips').filter(t => t.vehicleId === v.id), m = Store.get('maintenance').filter(x => x.vehicleId === v.id);
+    const trips = FL.list('duties').filter(d => d.vehicleId === v.id && d.status !== 'Cancelled').sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8).map(d => ({ from: d.from, to: d.to, cargo: `${fmtDate(d.date)} · ${[d.driverId, d.driver2Id].filter(Boolean).map(FL.name).join(' & ')}${d.endKm > d.startKm ? ' · ' + (d.endKm - d.startKm).toLocaleString('en-IN') + ' km' : ''}`, status: d.status === 'Assigned' ? 'On Trip' : d.status })), m = Store.get('maintenance').filter(x => x.vehicleId === v.id);
     openModal(v.regNo, `<div class="kv"><div><span>Type</span><b>${esc(v.type)}</b></div><div><span>Model</span><b>${esc(v.model)}</b></div><div><span>Capacity</span><b>${(+v.capacity).toLocaleString('en-IN')} ${/bus|Traveller|Sedan/.test(v.type) ? 'seats' : 'kg'}</b></div><div><span>Status</span><b>${statusChip(v.status)}</b></div>
       <div><span>Crew today</span><b>${esc(flCrew(v.id) || 'No duty assigned')}</b></div><div><span>Location</span><b>${esc(v.location)}</b></div><div><span>Fuel</span><b>${v.fuel}%</b></div><div><span>Odometer</span><b>${(+v.odometer).toLocaleString('en-IN')} km</b></div>
       <div><span>Insurance till</span><b>${fmtDate(v.insuranceExpiry)}</b></div><div><span>Fitness till</span><b>${fmtDate(v.fitnessExpiry)}</b></div><div><span>Next service</span><b>${(+v.nextServiceKm).toLocaleString('en-IN')} km</b></div></div>

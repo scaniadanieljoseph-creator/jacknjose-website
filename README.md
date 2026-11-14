@@ -168,3 +168,10 @@ Bus / Cargo van / Truck / Car; from and to place; starting km (from the odometer
 The rate card sets wage and per-trip bata by vehicle kind and route; a driver alone on a trip gets the additional single-driver
 bata. Vehicles no longer carry a fixed driver. Staff keep Aadhaar, PAN and bank details plus photo and document images
 (`fl_docs`, visible only to fleet/logistics managers and the administrator).
+
+**Fleet trip sheets (updated):** the separate Trips tab is gone; every duty has a trip sheet (Duty list → Trip sheet) with
+starting/closing km, diesel, mileage, Ad-Blue, timings, advance, the expense rows (Pooja, Driver Beta 1/2, Attender Beta,
+Parking, Police, RTO, Luggage, Grease, Air, Food, Other) and income, printable in the paper layout. Entering the closing km
+completes the trip, updates the odometer and becomes the next trip's starting km. One crew role besides drivers: Cleaner
+(attender). A driver alone on a trip is paid the single-driver wage (Rs 2,400 by default, `FL_SOLO_WAGE` / rate card).
+Bata paid in cash on the trip sheet is deducted from the bata due in payroll.
