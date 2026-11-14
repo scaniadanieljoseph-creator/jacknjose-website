@@ -153,3 +153,12 @@ Billing (folio, charges, payments, tax invoice) · Staff (directory, duty roster
 WiFi (networks with QR card, guest access codes).
 Data lives in collections prefixed `hc_`. The API (version 2+) accepts module collections by prefix, so new modules do not
 need an API change. Not included: channel manager / OTA sync, door-lock and router control, biometric attendance devices.
+
+## Fleet staff, duty list and payroll (`assets/js/fleetpay.js`, Fleet portal)
+- **Staff:** drivers, cleaners, office staff, mechanics, supervisors; daily-wage or monthly pay; driving-licence expiry; salary advances.
+- **Daily wages:** rate card by vehicle type and duty type (Local, Outstation, Night halt, Standby): driver wage, cleaner wage, batta.
+- **Duty list:** per date, assign a driver and cleaner to each vehicle; the day's pay is filled from the rate card and can be
+  overridden; a vehicle, driver or cleaner cannot be double-booked; an expired licence blocks assignment; copy the previous
+  day; printable duty sheet.
+- **Payroll:** drivers and cleaners are paid for completed duties (wage + batta); office staff monthly salary less unpaid
+  days; bonus, deductions and advance recovery; printable payslip. Collections: `fl_staff`, `fl_rates`, `fl_duties`, `fl_advances`, `fl_payroll`.
