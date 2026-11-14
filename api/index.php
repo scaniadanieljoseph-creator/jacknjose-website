@@ -20,6 +20,11 @@ const PUBLIC_READ   = ['buses', 'hotels', 'branches', 'media', 'reviews', 'agent
 const PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews', 'payments', 'notifications'];
 const PUBLIC_ONE    = ['busBookings', 'hotelBookings', 'parcels', 'shipments'];
 const MAX_DOC_BYTES = 700000;
+const API_VERSION = 2;
+/* Module collections are recognised by prefix, so new portal modules need no change here.
+   prefix => [roles that may read and write them] (the administrator always can). They are never public. */
+const MODULE_PREFIXES = ['hc_' => ['hotels'], 'tr_' => ['travels'], 'lg_' => ['logistics'], 'fl_' => ['fleet', 'logistics'], 'el_' => ['*'], 'x_' => []];
+function moduleRoles(string $c): ?array { foreach (MODULE_PREFIXES as $p => $roles) if (strncmp($c, $p, strlen($p)) === 0) return $roles; return null; }
 
 function respond(int $code, array $body): void { http_response_code($code); header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store'); echo json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); exit; }
 function fail(int $code, string $error, string $message): void { respond($code, ['error' => $error, 'message' => $message]); }
@@ -59,7 +64,8 @@ function currentUser(): ?array {
   $u = getDoc('staffUsers', $r['user_id']); return ($u && ($u['status'] ?? '') === 'Active') ? $u : null;
 }
 function publicUser(array $u): array { return ['id' => $u['id'], 'name' => $u['name'] ?? '', 'username' => $u['username'] ?? '', 'role' => $u['role'] ?? '']; }
-function canWrite(?array $u, string $c): bool { if (!$u) return false; if (($u['role'] ?? '') === 'admin') return true; $r = STAFF_WRITE[$c] ?? null; return $r !== null && (in_array('*', $r, true) || in_array($u['role'], $r, true)); }
+function canWrite(?array $u, string $c): bool { if (!$u) return false; if (($u['role'] ?? '') === 'admin') return true; $r = STAFF_WRITE[$c] ?? moduleRoles($c); return $r !== null && (in_array('*', $r, true) || in_array($u['role'], $r, true)); }
+function moduleCollections(): array { global $db, $T; $out = []; foreach ($db->query("SELECT DISTINCT collection FROM {$T}records") as $r) if (moduleRoles($r['collection']) !== null) $out[] = $r['collection']; return $out; }
 
 /* ---- what the public may see of each collection ---- */
 function publicView(string $c, array $list): array {
@@ -79,7 +85,7 @@ $a = $_GET['a'] ?? ''; $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $in = []; if ($method === 'POST') { $raw = file_get_contents('php://input') ?: ''; if (strlen($raw) > 6000000) fail(413, 'too_large', 'That is too much data in one request.'); $in = json_decode($raw, true); if (!is_array($in)) fail(400, 'bad_json', 'The request was not valid JSON.'); }
 $needPost = fn() => $method === 'POST' || fail(405, 'post_only', 'Use POST for this action.');
 $validId = fn($id) => is_string($id) && preg_match('/^[A-Za-z0-9_.\-]{2,80}$/', $id);
-$validC  = fn($c) => is_string($c) && array_key_exists($c, STAFF_WRITE);
+$validC  = fn($c) => is_string($c) && (array_key_exists($c, STAFF_WRITE) || (preg_match('/^[a-z]{1,3}_[A-Za-z0-9]{1,30}$/', $c) && moduleRoles($c) !== null));
 
 switch ($a) {
 
@@ -89,7 +95,8 @@ case 'boot': { /* everything the caller is allowed to see, in one request */
     if ($u) { if ($c === 'staffUsers' && $u['role'] !== 'admin') continue; $cols[$c] = rows($c); }
     elseif (in_array($c, PUBLIC_READ, true)) $cols[$c] = publicView($c, rows($c));
   }
-  respond(200, ['user' => $u ? publicUser($u) : null, 'collections' => $cols, 'time' => gmdate('c')]);
+  if ($u) foreach (moduleCollections() as $c) if (canWrite($u, $c)) $cols[$c] = rows($c); // module data only for the roles that run that module
+  respond(200, ['user' => $u ? publicUser($u) : null, 'collections' => $cols, 'apiVersion' => API_VERSION, 'time' => gmdate('c')]);
 }
 
 case 'one': { /* look a single record up by its exact ID (PNR, booking ID, airway bill, shipment ID) */
@@ -97,6 +104,7 @@ case 'one': { /* look a single record up by its exact ID (PNR, booking ID, airwa
   if (!$validC($c) || !$validId($id)) fail(400, 'bad_request', 'Unknown record.');
   if (!$u && !in_array($c, PUBLIC_ONE, true)) fail(403, 'forbidden', 'Sign in to see this.');
   if ($u && $c === 'staffUsers' && $u['role'] !== 'admin') fail(403, 'forbidden', 'Administrators only.');
+  if (moduleRoles($c) !== null && !canWrite($u, $c)) fail(403, 'forbidden', 'Your role cannot see this.');
   $d = getDoc($c, $id); if (!$d) fail(404, 'not_found', 'No record with that ID.');
   respond(200, ['doc' => $d, 'pid' => pid($id)]);
 }
@@ -178,9 +186,9 @@ case 'import': { $needPost(); /* administrator: load many records at once (start
 
 case 'export': { /* administrator: full backup as JSON */
   $u = currentUser(); if (!$u || $u['role'] !== 'admin') fail(403, 'forbidden', 'Administrators only.');
-  $cols = []; foreach (array_keys(STAFF_WRITE) as $c) $cols[$c] = rows($c); respond(200, ['exportedAt' => gmdate('c'), 'collections' => $cols]);
+  $cols = []; foreach (array_merge(array_keys(STAFF_WRITE), moduleCollections()) as $c) $cols[$c] = rows($c); respond(200, ['exportedAt' => gmdate('c'), 'collections' => $cols]);
 }
 
-case 'ping': respond(200, ['ok' => true, 'time' => gmdate('c')]);
+case 'ping': respond(200, ['ok' => true, 'apiVersion' => API_VERSION, 'time' => gmdate('c')]);
 default: fail(404, 'unknown_action', 'Unknown action.');
 }

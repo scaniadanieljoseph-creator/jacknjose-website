@@ -28,15 +28,15 @@ const passHash = (username, password) => sha256(String(username).trim().toLowerC
 
 /* Roles → which portals they can open. 'admin' opens everything and manages staff. */
 const ROLES = {
-  admin: { label: 'Group administrator', portals: ['travels-admin', 'hotels-admin', 'logistics-admin', 'fleet', 'payments-admin', 'notify-admin', 'admin'] },
+  admin: { label: 'Group administrator', portals: ['travels-admin', 'hotels-admin', 'logistics-admin', 'hotel-crm', 'fleet', 'payments-admin', 'notify-admin', 'admin'] },
   finance: { label: 'Accounts & payments', portals: ['payments-admin', 'admin'] },
   travels: { label: 'Travels manager', portals: ['travels-admin', 'admin'] },
-  hotels: { label: 'Hotels manager', portals: ['hotels-admin', 'admin'] },
+  hotels: { label: 'Hotels manager', portals: ['hotels-admin', 'hotel-crm', 'admin'] },
   logistics: { label: 'Logistics manager', portals: ['logistics-admin', 'fleet', 'admin'] },
   fleet: { label: 'Fleet manager', portals: ['fleet', 'admin'] },
 };
-const PROTECTED = ['travels-admin', 'hotels-admin', 'logistics-admin', 'fleet', 'payments-admin', 'notify-admin', 'admin'];
-const PORTAL_LABEL = { 'travels-admin': 'Travels portal', 'hotels-admin': 'Hotels portal', 'logistics-admin': 'Logistics portal', fleet: 'Fleet portal', 'payments-admin': 'Payments portal', 'notify-admin': 'Notifications portal', admin: 'Staff dashboard' };
+const PROTECTED = ['travels-admin', 'hotels-admin', 'logistics-admin', 'fleet', 'payments-admin', 'notify-admin', 'hotel-crm', 'admin'];
+const PORTAL_LABEL = { 'travels-admin': 'Travels portal', 'hotels-admin': 'Hotels portal', 'logistics-admin': 'Logistics portal', fleet: 'Fleet portal', 'payments-admin': 'Payments portal', 'notify-admin': 'Notifications portal', 'hotel-crm': 'Hotel CRM', admin: 'Staff dashboard' };
 const DEMO_LOGINS = [['admin', 'Admin@123', 'admin', 'Group Administrator'], ['travels.manager', 'Travels@123', 'travels', 'Travels Desk'], ['hotels.manager', 'Hotels@123', 'hotels', 'Hotels Desk'], ['logistics.manager', 'Logistics@123', 'logistics', 'Logistics Desk'], ['fleet.manager', 'Fleet@123', 'fleet', 'Fleet Control'], ['accounts', 'Accounts@123', 'finance', 'Accounts Team']];
 SEED.staffUsers = () => DEMO_LOGINS.map(([username, pw, role, name], i) => ({ id: 'USR' + (101 + i), name, username, role, passHash: passHash(username, pw), status: 'Active', lastLogin: '', createdAt: new Date().toISOString(), sample: true }));
 
@@ -86,7 +86,7 @@ route('login', app => {
     <div class="login-side"><canvas data-routes></canvas><div style="position:relative;display:grid;gap:16px">
       <div class="eyebrow" style="color:#9ff0c8">Staff only</div><h1 style="font-size:clamp(1.6rem,3vw,2.2rem)">Jack &amp; Jose master portals</h1>
       <p style="color:#d6e6f5">Sign in with the account your administrator gave you. You'll only see the portals your role allows.</p>
-      <ul class="login-list">${PROTECTED.map(p => `<li>${icon({ 'travels-admin': 'bus', 'hotels-admin': 'hotel', 'logistics-admin': 'box', fleet: 'fleet', 'payments-admin': 'chart', 'notify-admin': 'mail', admin: 'grid' }[p])}<span>${PORTAL_LABEL[p]}</span></li>`).join('')}</ul></div></div>
+      <ul class="login-list">${PROTECTED.map(p => `<li>${icon({ 'travels-admin': 'bus', 'hotels-admin': 'hotel', 'logistics-admin': 'box', fleet: 'fleet', 'payments-admin': 'chart', 'notify-admin': 'mail', 'hotel-crm': 'building', admin: 'grid' }[p])}<span>${PORTAL_LABEL[p]}</span></li>`).join('')}</ul></div></div>
     <form class="login-form" id="login-form" autocomplete="on" novalidate>
       <div><h2>Sign in</h2>${want ? `<p class="muted" style="margin-top:6px">Sign in to open the <b>${esc(PORTAL_LABEL[want] || 'portal')}</b>.</p>` : ''}</div>
       <div class="notice" id="login-err" role="alert" hidden style="background:var(--danger-soft);color:var(--danger)"></div>

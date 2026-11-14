@@ -19,7 +19,7 @@ const Remote = {
   },
   /* Load everything this visitor (or signed-in staff member) may see */
   async load() {
-    const data = await this.call('boot'); this.offline = false; this.lastBoot = Date.now();
+    const data = await this.call('boot'); this.offline = false; this.lastBoot = Date.now(); this.apiVersion = data.apiVersion || 1;
     const sig = JSON.stringify(data.collections).length + ':' + hashStr(JSON.stringify(data.collections));
     const changed = sig !== this.lastSig; this.lastSig = sig;
     if (this.token && !data.user) this.forget(); // session expired on the server

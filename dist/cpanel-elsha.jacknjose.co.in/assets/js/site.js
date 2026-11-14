@@ -10,7 +10,7 @@ const VERTICALS = [
   { id: 'media', venture: 'el', icon: 'camera', title: 'Media & Design', text: 'Photography, videography, drone aerials and design studio by Elsha.' },
   { id: 'eee', venture: 'el', icon: 'bolt', title: 'EEE · Energy Efficiency', text: 'Energy audits, consultation and efficient appliances for hostels and companies.' },
 ];
-const PORTALS = [['travels-admin', 'bus', 'Travels portal', 'Buses, agents and ticket bookings'], ['hotels-admin', 'hotel', 'Hotels portal', 'Partner hotels, rates and guest bookings'], ['logistics-admin', 'box', 'Logistics portal', 'Parcels, loading sheets and branches'], ['fleet', 'fleet', 'Fleet portal', 'Vehicles, trips, maintenance and alerts'], ['payments-admin', 'chart', 'Payments portal', 'Collections, refunds and settlements'], ['notify-admin', 'mail', 'Notifications portal', 'SMS & email log, templates and providers']];
+const PORTALS = [['travels-admin', 'bus', 'Travels portal', 'Buses, agents and ticket bookings'], ['hotels-admin', 'hotel', 'Hotels portal', 'Partner hotels, rates and guest bookings'], ['hotel-crm', 'building', 'Hotel CRM', 'Front desk, rooms, restaurant, bar, staff and accounts'], ['logistics-admin', 'box', 'Logistics portal', 'Parcels, loading sheets and branches'], ['fleet', 'fleet', 'Fleet portal', 'Vehicles, trips, maintenance and alerts'], ['payments-admin', 'chart', 'Payments portal', 'Collections, refunds and settlements'], ['notify-admin', 'mail', 'Notifications portal', 'SMS & email log, templates and providers']];
 
 function headerHtml() {
   const dd = (items) => items.map(v => `<a href="#${v.id}"><span class="dd-icon ${v.venture === 'el' ? 'g' : ''}">${icon(v.icon)}</span><div><b>${v.title}</b><span>${v.text.split('.')[0]}.</span></div></a>`).join('');

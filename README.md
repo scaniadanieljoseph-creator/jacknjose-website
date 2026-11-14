@@ -142,3 +142,14 @@ fare use the bus fare. Customers see each price on the seat map and pay the exac
 
 **Only real buses are listed:** bus search shows the buses added in the Travels portal; no partner buses or booked seats are
 invented. Sample occupancy appears only in the browser-only demo (`bookingMode: 'demo'` with no `api`).
+
+## Hotel CRM (`#hotel-crm`, `assets/js/hotelcrm.js`)
+A property-management portal for the Hotels manager and the administrator. Pick a property at the top; every record belongs
+to that hotel. Modules: Dashboard (occupancy, ADR, RevPAR, arrivals/departures, tax settings) · Front desk (reservations with
+advance, booking chart, website bookings, check-in and check-out procedures) · Rooms (rack by floor, add a whole floor) ·
+Guests (profiles, ID, history, spend) · Housekeeping (cleaning board, tasks, maintenance, lost & found) · Restaurant & kitchen
+(menu, chef's specials, KOT, kitchen board, bills to table or room) · Bar (stock, reorder alerts, stock-in, bills, customers) ·
+Billing (folio, charges, payments, tax invoice) · Staff (directory, duty roster, attendance, payroll) · Income & expenses ·
+WiFi (networks with QR card, guest access codes).
+Data lives in collections prefixed `hc_`. The API (version 2+) accepts module collections by prefix, so new modules do not
+need an API change. Not included: channel manager / OTA sync, door-lock and router control, biometric attendance devices.
