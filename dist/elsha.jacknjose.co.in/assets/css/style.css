@@ -665,3 +665,70 @@ table.roster td { padding: 6px 8px; }
 .report-print .ph-table { font-size: 11px; }
 .report-print .ph-table th, .report-print .ph-table td { padding: 3px 5px; }
 @media (max-width: 640px) { .rep-bar .field { flex: 1 1 45%; min-width: 0; } .rep-quick { margin-left: 0 !important; } }
+
+/* ---------- Trip sheet cards and duty sheet print ---------- */
+.ts-card { display: grid; gap: 10px; border-left: 4px solid var(--green); }
+.ts-card.open { border-left-color: var(--warn, #f5a524); }
+.ts-card-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: start; }
+.ts-card-head .ts-no { background: var(--blue-soft); color: var(--blue-deep); padding: 2px 8px; border-radius: 6px; margin-right: 6px; }
+.ts-card-foot { display: flex; gap: 6px 22px; flex-wrap: wrap; font-size: .86rem; color: var(--muted); }
+.ts-card-foot b { color: var(--ink); }
+.duty-print, .duty-print .ph-table, .duty-print .ph-brand b { font-family: Arial, Helvetica, sans-serif; }
+.duty-print { font-size: 13px; }
+.duty-print .ph-table td { padding: 7px 7px; }
+.duty-print .dp-place { font-weight: 800; font-size: 14.5px; text-transform: uppercase; letter-spacing: .02em; }
+.duty-print .dp-veh { font-weight: 700; white-space: nowrap; }
+
+#fd-list, .ts-card { min-width: 0; }
+/* ---------- Waiter portal, kitchen display, billing counter ---------- */
+.tbl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tbl { display: grid; gap: 4px; align-content: start; text-align: left; min-height: 96px; padding: 12px 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; font: inherit; }
+.tbl b { font-size: 1.05rem; }
+.tbl span { font-size: .8rem; color: var(--muted); }
+.tbl.busy { border-color: var(--blue); background: var(--blue-soft); }
+.tbl.ready { border-color: var(--green); background: var(--green-soft); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 25%, transparent); }
+.tbl.req { border-style: dashed; }
+.tbl-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tbl-tags .chip { font-style: normal; font-size: .7rem; padding: 2px 7px; }
+.pos-item { position: relative; }
+.pos-item.picked { border-color: var(--green); background: var(--green-soft); }
+.pos-item em { position: absolute; top: -7px; right: -7px; min-width: 22px; height: 22px; border-radius: 11px; background: var(--green); color: #fff; font-style: normal; font-weight: 700; font-size: .78rem; display: grid; place-items: center; padding: 0 5px; }
+.w-line { display: grid; gap: 4px; padding-bottom: 6px; border-bottom: 1px dashed var(--line); }
+.w-note { padding: 6px 10px; font-size: .82rem; }
+.kds { display: grid; gap: 12px; }
+.kds.full { position: fixed; inset: 0; z-index: 60; background: #0b1622; color: #f2f6fa; padding: 14px; overflow: auto; align-content: start; }
+.kds-bar { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.kds-title { font-size: 1.05rem; align-self: center; }
+.kds-clock { font-weight: 700; font-variant-numeric: tabular-nums; align-self: center; }
+.kds-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.kds-col { display: grid; gap: 10px; align-content: start; background: var(--surface-2); border-radius: 14px; padding: 12px; min-height: 180px; border-top: 5px solid var(--danger); }
+.kds-col.preparing { border-top-color: var(--warn, #f5a524); } .kds-col.ready { border-top-color: var(--green); }
+.kds.full .kds-col { background: #14273a; }
+.kds-col h3 { display: flex; justify-content: space-between; margin: 0; font-size: 1rem; }
+.kds-col h3 span { background: var(--surface); color: var(--ink); border-radius: 10px; padding: 0 9px; font-size: .9rem; }
+.kds-card { display: grid; gap: 6px; background: var(--surface); color: var(--ink); border-radius: 12px; padding: 12px; border: 2px solid transparent; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.kds-card.late { border-color: var(--danger); }
+.kds-top { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.kds-top b { font-size: 1.25rem; } .kds-top span { font-weight: 700; font-variant-numeric: tabular-nums; }
+.kds-card.late .kds-top span { color: var(--danger); }
+.kds-meta { font-size: .78rem; color: var(--muted); }
+.kds-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 1.02rem; }
+.kds-card li b { font-variant-numeric: tabular-nums; }
+.kds-card li em { display: block; font-size: .82rem; color: var(--danger); font-style: normal; font-weight: 600; padding-left: 28px; }
+.kds-none { color: var(--muted); font-size: .88rem; margin: 0; }
+@media (max-width: 760px) { .kds-cols { grid-template-columns: 1fr; } }
+.receipt { min-width: 0 !important; max-width: 320px; margin: 0 auto; font-family: "Courier New", ui-monospace, monospace; font-size: 12.5px; gap: 8px; }
+.rc-head { display: grid; justify-items: center; text-align: center; gap: 1px; } .rc-head b { font-size: 16px; }
+.rc-kind { margin-top: 4px; border-top: 1px dashed #111; border-bottom: 1px dashed #111; padding: 2px 10px; letter-spacing: .1em; }
+.rc-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; } .rc-meta span:nth-child(even) { text-align: right; }
+.rc-items { width: 100%; border-collapse: collapse; } .rc-items th { text-align: left; border-top: 1px dashed #111; border-bottom: 1px dashed #111; padding: 3px 0; font-weight: 700; }
+.rc-items td { padding: 2px 0; vertical-align: top; } .rc-items th:not(:first-child), .rc-items td:not(:first-child) { text-align: right; padding-left: 8px; white-space: nowrap; }
+.rc-tot { display: grid; gap: 2px; border-top: 1px dashed #111; padding-top: 4px; } .rc-tot div { display: flex; justify-content: space-between; }
+.rc-grand { font-weight: 700; font-size: 15px; border-top: 1px dashed #111; border-bottom: 1px dashed #111; padding: 3px 0; margin: 2px 0; }
+.rc-foot { text-align: center; margin: 0; }
+body.kds-on .site-header, body.kds-on .footer, body.kds-on .wa-fab, body.kds-on .admin-top { display: none; }
+body.kds-on { overflow: hidden; }
+.kds.full .btn-outline { color: #f2f6fa; border-color: #5b7088; }
+.ts-card-head .row-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; white-space: normal; }
+.ts-card-head > div { min-width: 0; }
+.kds.full .kds-card .btn-outline { color: var(--ink); border-color: var(--line); }

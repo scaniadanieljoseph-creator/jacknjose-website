@@ -70,18 +70,20 @@ function hcWeekStart(iso) { const d = new Date(iso + 'T00:00:00'); return hcAddD
 /* =============================== PORTAL =============================== */
 ROUTE_TITLES['hotel-crm'] = 'Hotel CRM';
 route('hotel-crm', app => {
-  const hotels = Store.get('hotels');
-  const tabs = [['dash', 'Dashboard'], ['front', 'Front desk'], ['rooms', 'Rooms'], ['guests', 'Guests'], ['hk', 'Housekeeping'], ['rest', 'Restaurant & kitchen'], ['bar', 'Bar'], ['bill', 'Billing'], ['staff', 'Staff'], ['acc', 'Income & expenses'], ['wifi', 'WiFi']];
-  const active = Session.get('tab_#hotel-crm') || 'dash';
-  app.innerHTML = adminShell({ title: 'Hotel CRM', sub: 'Run one property end to end: rooms, guests, restaurant, bar, billing, staff and accounts.', tabs, active, base: 'hotels' });
+  const acc = hcAccess() || { hotelId: '', level: 'manager' }, hotels = Store.get('hotels').filter(h => !acc.hotelId || h.id === acc.hotelId);
+  const tabs = [['dash', 'Dashboard'], ['front', 'Front desk'], ['rooms', 'Rooms'], ['guests', 'Guests'], ['hk', 'Housekeeping'], ['waiter', 'Waiter'], ['kds', 'Kitchen display'], ['counter', 'Billing counter'], ['rest', 'Restaurant & kitchen'], ['bar', 'Bar'], ['bill', 'Room billing'], ['staff', 'Staff'], ['acc', 'Income & expenses'], ['wifi', 'WiFi']].filter(t => hcCanTab(t[0]));
+  const first = HC_LEVELS[acc.level][1] === '*' ? tabs[0][0] : HC_LEVELS[acc.level][1][0];
+  let active = Session.get('tab_#hotel-crm') || first; if (!tabs.some(t => t[0] === active)) active = first;
+  app.innerHTML = adminShell({ title: 'Hotel CRM', sub: acc.level === 'manager' ? 'Run one property end to end: rooms, guests, restaurant, bar, billing, staff and accounts.' : `${HC_LEVELS[acc.level][0]} screen`, tabs, active, base: 'hotels' });
   const outer = $('#admin-body', app);
   if (typeof Remote !== 'undefined' && Remote.on && (Remote.apiVersion || 1) < 2) { outer.innerHTML = `<div class="card stack"><h3>One update needed on your server</h3><p>The Hotel CRM stores new kinds of records, so the database program needs its latest version.</p><ol style="padding-left:20px;display:grid;gap:6px"><li>In cPanel → Files, open the <b>api.jacknjose.co.in</b> folder.</li><li>Click <b>Upload</b>, tick <b>Overwrite existing files</b>, and choose the new <b>index.php</b> file.</li><li>Reload this page.</li></ol><p class="muted small">Your data is not affected. This is needed once.</p></div>`; return; }
+  if (!hotels.length && acc.hotelId) { outer.innerHTML = `<div class="card empty-state"><h3>Your hotel is not available</h3><p style="margin-top:6px">Ask the group administrator to check which hotel your login belongs to.</p></div>`; return; }
   if (!hotels.length) { outer.innerHTML = `<div class="card empty-state"><h3>Add your hotel first</h3><p style="margin-top:6px">Create the property in the Hotels portal, then come back to manage it here.</p><p style="margin-top:12px"><a class="btn btn-primary" href="#hotels-admin">Open Hotels portal</a></p></div>`; return; }
   if (!hotels.some(h => h.id === HC.H())) Session.set('crmHotel', hotels[0].id);
-  outer.innerHTML = `<div class="crm-bar"><label class="field" style="flex:1 1 260px;max-width:420px"><span>Property</span><select class="input" id="crm-hotel">${hotels.map(h => `<option value="${h.id}" ${h.id === HC.H() ? 'selected' : ''}>${esc(h.name)} · ${esc(h.city)}</option>`).join('')}</select></label><span class="muted small">${fmtDate(todayISO())}</span></div><div id="crm-body"></div>`;
+  outer.innerHTML = `<div class="crm-bar"><label class="field" style="flex:1 1 260px;max-width:420px"><span>Property</span><select class="input" id="crm-hotel" ${hotels.length < 2 ? 'disabled' : ''}>${hotels.map(h => `<option value="${h.id}" ${h.id === HC.H() ? 'selected' : ''}>${esc(h.name)} · ${esc(h.city)}</option>`).join('')}</select></label><span class="muted small">${fmtDate(todayISO())}</span></div><div id="crm-body"></div>`;
   const body = $('#crm-body', outer);
-  $('#crm-hotel', outer).onchange = e => { Session.set('crmHotel', e.target.value); show(Session.get('tab_#hotel-crm') || 'dash'); };
-  const show = tab => ({ dash: hcDash, front: hcFront, rooms: hcRooms, guests: hcGuests, hk: hcHousekeeping, rest: b => hcPos(b, 'Restaurant'), bar: b => hcPos(b, 'Bar'), bill: hcBilling, staff: hcStaff, acc: hcAccounts, wifi: hcWifi }[tab] || hcDash)(body, () => show(tab));
+  $('#crm-hotel', outer).onchange = e => { Session.set('crmHotel', e.target.value); show($('.admin-tabs button.on', app)?.dataset.tab || active); };
+  const show = tab => { document.body.classList.toggle('kds-on', false); return ({ dash: hcDash, front: hcFront, rooms: hcRooms, guests: hcGuests, hk: hcHousekeeping, rest: b => hcPos(b, 'Restaurant'), bar: b => hcPos(b, 'Bar'), bill: hcBilling, staff: hcStaff, acc: hcAccounts, wifi: hcWifi, waiter: hcWaiter, kds: hcKds, counter: hcCounter }[hcCanTab(tab) ? tab : active] || hcDash)(body, () => show(tab)); };
   bindTabs(app, show); show(active);
 });
 

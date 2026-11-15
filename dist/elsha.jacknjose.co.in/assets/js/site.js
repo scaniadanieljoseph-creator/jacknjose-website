@@ -118,7 +118,8 @@ route('admin', app => {
       const admins = (except) => Store.get('staffUsers').filter(u => u.role === 'admin' && u.status === 'Active' && u.id !== except).length;
       renderCrud(body, { key: 'staffUsers', single: 'Staff user', plural: 'Staff users', idPrefix: 'USR', label: r => r.username,
         fields: [{ name: 'name', label: 'Full name', required: true }, { name: 'username', label: 'Username', required: true, placeholder: 'e.g. kochi.branch' }, { name: 'role', label: 'Role', type: 'select', options: Object.entries(ROLES).map(([k, v]) => [k, v.label]) },
-          { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'] }, { name: 'password', label: 'Password (leave blank to keep current)', type: 'password', full: true, placeholder: 'At least 8 characters with a number' }],
+          { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'] },
+          { name: 'hotelId', label: 'Hotel (only for the Hotels role)', type: 'select', options: [['', 'All hotels'], ...Store.get('hotels').map(h => [h.id, `${h.name} · ${h.city}`])] }, { name: 'hotelLevel', label: 'Hotel job (only for the Hotels role)', type: 'select', options: Object.entries(HC_LEVELS).map(([k, v]) => [k, v[0]]) }, { name: 'password', label: 'Password (leave blank to keep current)', type: 'password', full: true, placeholder: 'At least 8 characters with a number' }],
         validate: (d, row) => {
           d.username = d.username.toLowerCase();
           if (!/^[a-z0-9._-]{3,30}$/.test(d.username)) return 'Username: 3–30 characters, letters, numbers, dot, dash or underscore';
@@ -130,10 +131,10 @@ route('admin', app => {
           if (row && row.username !== d.username && !d.password) return 'Changing the username needs a new password too';
           return null;
         },
-        transform: (d, row) => { if (d.password) d.passHash = passHash(d.username, d.password); delete d.password; },
+        transform: (d, row) => { if (d.password) d.passHash = passHash(d.username, d.password); delete d.password; if (d.role !== 'hotels') { d.hotelId = ''; d.hotelLevel = ''; } }, onChange: hcSyncAccess,
         beforeDelete: r => r.id === me.id ? 'You can’t delete the account you’re signed in with' : (r.role === 'admin' && admins(r.id) === 0 ? 'Keep at least one active group administrator' : null),
-        columns: [{ label: 'User', render: r => `<b>${esc(r.name)}</b><div class="muted small mono">${esc(r.username)}${r.id === me.id ? ' · you' : ''}</div>` }, { label: 'Role', render: r => `<span class="chip ${r.role === 'admin' ? 'green' : 'blue'}">${esc(ROLES[r.role]?.label || r.role)}</span>` },
-          { label: 'Portals', render: r => (ROLES[r.role]?.portals || []).map(p => PORTAL_LABEL[p].replace(' portal', '')).join(', ') }, { label: 'Last sign-in', render: r => r.lastLogin ? fmtDateTime(r.lastLogin) : '—' }, { label: 'Status', render: r => statusChip(r.status) }] });
+        columns: [{ label: 'User', render: r => `<b>${esc(r.name)}</b><div class="muted small mono">${esc(r.username)}${r.id === me.id ? ' · you' : ''}</div>` }, { label: 'Role', render: r => `<span class="chip ${r.role === 'admin' ? 'green' : 'blue'}">${esc(ROLES[r.role]?.label || r.role)}</span>${r.role === 'hotels' && (r.hotelId || (r.hotelLevel && r.hotelLevel !== 'manager')) ? `<div class="muted small">${esc(HC_LEVELS[r.hotelLevel]?.[0] || 'Hotel manager')} · ${esc(Store.find('hotels', r.hotelId)?.name || 'all hotels')}</div>` : ''}` },
+          { label: 'Portals', render: r => r.role === 'hotels' && (r.hotelId || (r.hotelLevel && r.hotelLevel !== 'manager')) ? 'Hotel CRM' : (ROLES[r.role]?.portals || []).map(p => PORTAL_LABEL[p].replace(' portal', '')).join(', ') }, { label: 'Last sign-in', render: r => r.lastLogin ? fmtDateTime(r.lastLogin) : '—' }, { label: 'Status', render: r => statusChip(r.status) }] });
     }
   };
   bindTabs(app, show); show(active);

@@ -235,8 +235,8 @@ function adminShell({ title, sub, tabs, active, base, green = false }) {
   return `<section class="admin-top ${green ? 'g' : ''}"><div class="wrap">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:end">
       <div><div class="eyebrow">Master portal</div><h1 style="margin-top:6px">${title}</h1><p style="margin-top:6px">${sub}</p></div>
-      <div class="admin-user">${typeof Auth !== 'undefined' && Auth.user() ? `<span class="user-chip"><span class="avatar">${esc(Auth.user().name.split(' ').map(w => w[0]).slice(0, 2).join(''))}</span><span><b>${esc(Auth.user().name)}</b><small>${esc(ROLES[Auth.user().role].label)}</small></span></span>
-        <select class="input portal-switch" aria-label="Switch portal" onchange="go(this.value)">${ROLES[Auth.user().role].portals.map(p => `<option value="${p}" ${location.hash === '#' + p ? 'selected' : ''}>${PORTAL_LABEL[p]}</option>`).join('')}</select>
+      <div class="admin-user">${typeof Auth !== 'undefined' && Auth.user() ? `<span class="user-chip"><span class="avatar">${esc(Auth.user().name.split(' ').map(w => w[0]).slice(0, 2).join(''))}</span><span><b>${esc(Auth.user().name)}</b><small>${esc((typeof hcRoleLabel === 'function' && hcRoleLabel(Auth.user())) || ROLES[Auth.user().role].label)}</small></span></span>
+        <select class="input portal-switch" aria-label="Switch portal" onchange="go(this.value)">${ROLES[Auth.user().role].portals.filter(p => Auth.can(p)).map(p => `<option value="${p}" ${location.hash === '#' + p ? 'selected' : ''}>${PORTAL_LABEL[p]}</option>`).join('')}</select>
         <button class="btn btn-outline btn-sm on-dark" data-logout>Sign out</button>` : ''}
       <a class="btn btn-light btn-sm" href="#${base}">← Booking site</a></div></div>
     <nav class="admin-tabs" role="tablist">${tabs.map(([id, label]) => `<button role="tab" data-tab="${id}" class="${id === active ? 'on' : ''}">${label}</button>`).join('')}</nav>
@@ -285,6 +285,7 @@ const route = (name, fn) => { ROUTES[name] = fn; };
 function go(name) { if (location.hash === '#' + name) render(); else location.hash = name; }
 let fleetTimer = null;
 function render() {
+  document.body.classList.toggle('kds-on', false);
   // On the Elsha subdomain (elsha.jacknjose.co.in) the site opens on the Elsha page; the logo still leads to the group home.
   const startPage = 'home';
   const name = (location.hash || '#' + startPage).slice(1) || startPage;

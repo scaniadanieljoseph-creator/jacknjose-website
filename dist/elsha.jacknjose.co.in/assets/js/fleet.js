@@ -61,6 +61,7 @@ function fleetMap() {
 
 ROUTE_TITLES.fleet = 'Fleet portal';
 route('fleet', app => {
+  if (typeof flMigrate === 'function' && !(typeof Remote !== 'undefined' && Remote.on && (Remote.apiVersion || 1) < 2)) flMigrate();
   const tabs = [['dash', 'Live overview'], ['vehicles', 'Vehicles'], ['duty', 'Duty list & trip sheets'], ['maint', 'Maintenance'], ['fstaff', 'Staff'], ['rates', 'Daily wages'], ['pay', 'Payroll'], ['reports', 'Reports']];
   let active = Session.get('tab_#fleet') || 'dash'; if (!tabs.some(x => x[0] === active)) active = 'dash';
   app.innerHTML = adminShell({ title: 'Fleet management portal', sub: 'Every truck, bus and car in one place: where it is, who drives it and what it needs next.', tabs, active, base: 'transports' });
@@ -112,7 +113,7 @@ route('fleet', app => {
       actions: [{ id: 'fin', label: 'Mark done', show: r => r.state === 'In progress', run: (r, rr) => { Store.update('maintenance', r.id, { state: 'Done' }); Store.update('vehicles', r.vehicleId, v => ({ status: 'Available', nextServiceKm: (+v.odometer) + 10000 })); toast('Vehicle back in service'); rr(); } }] });
   };
   function vehicleCard(v) {
-    const trips = FL.list('duties').filter(d => d.vehicleId === v.id && d.status !== 'Cancelled').sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8).map(d => ({ from: d.from, to: d.to, cargo: `${fmtDate(d.date)} · ${[d.driverId, d.driver2Id].filter(Boolean).map(FL.name).join(' & ')}${d.endKm > d.startKm ? ' · ' + (d.endKm - d.startKm).toLocaleString('en-IN') + ' km' : ''}`, status: d.status === 'Assigned' ? 'On Trip' : d.status })), m = Store.get('maintenance').filter(x => x.vehicleId === v.id);
+    const trips = FL.list('duties').filter(d => d.vehicleId === v.id && d.status !== 'Cancelled').sort((a, b) => b.date.localeCompare(a.date)).slice(0, 8).map(d => ({ from: d.from, to: d.to, cargo: `${fmtDate(d.date)} · ${[d.driverId, d.driver2Id].filter(Boolean).map(FL.name).join(' & ')}${d.sheetId ? ' · ' + d.sheetId : ''}`, status: d.status === 'Assigned' ? 'On Trip' : d.status })), m = Store.get('maintenance').filter(x => x.vehicleId === v.id);
     openModal(v.regNo, `<div class="kv"><div><span>Type</span><b>${esc(v.type)}</b></div><div><span>Model</span><b>${esc(v.model)}</b></div><div><span>Capacity</span><b>${(+v.capacity).toLocaleString('en-IN')} ${/bus|Traveller|Sedan/.test(v.type) ? 'seats' : 'kg'}</b></div><div><span>Status</span><b>${statusChip(v.status)}</b></div>
       <div><span>Crew today</span><b>${esc(flCrew(v.id) || 'No duty assigned')}</b></div><div><span>Location</span><b>${esc(v.location)}</b></div><div><span>Fuel</span><b>${v.fuel}%</b></div><div><span>Odometer</span><b>${(+v.odometer).toLocaleString('en-IN')} km</b></div>
       <div><span>Insurance till</span><b>${fmtDate(v.insuranceExpiry)}</b></div><div><span>Fitness till</span><b>${fmtDate(v.fitnessExpiry)}</b></div><div><span>Next service</span><b>${(+v.nextServiceKm).toLocaleString('en-IN')} km</b></div></div>
