@@ -101,7 +101,7 @@ function startBackground() {
   const size = () => { w = c.width = Math.max(160, Math.round(innerWidth / 5)); h = c.height = Math.max(120, Math.round(innerHeight / 5)); };
   size(); addEventListener('resize', size);
   addEventListener('pointermove', e => { mx = e.clientX / innerWidth; my = e.clientY / innerHeight; }, { passive: true });
-  const dark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+  const dark = () => false; // one look on every device
   function frame(t) {
     if (!reduce) requestAnimationFrame(frame);
     if (document.hidden || t - last < 40) return; last = t;
