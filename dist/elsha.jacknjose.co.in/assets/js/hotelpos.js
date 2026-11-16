@@ -17,7 +17,7 @@ function hcAccess() {
   const u = typeof Auth !== 'undefined' ? Auth.user() : null; if (!u) return null;
   if (u.role === 'admin') return { hotelId: '', level: 'manager' };
   if (u.role !== 'hotels') return null;
-  const a = Store.get('hc_access').find(x => x.id === u.id) || { hotelId: u.hotelId, level: u.hotelLevel };
+  const a = u.hotelLevel || u.hotelId ? { hotelId: u.hotelId, level: u.hotelLevel } : (Store.get('hc_access').find(x => x.id === u.id) || {}); // the server sends the login's own hotel and job
   return { hotelId: a.hotelId || '', level: HC_LEVELS[a.level] ? a.level : 'manager' };
 }
 const hcRestricted = () => { const a = hcAccess(); return !!a && (!!a.hotelId || a.level !== 'manager'); };
@@ -28,7 +28,7 @@ function hcSyncAccess() {
   const U = Store.get('staffUsers'), A = Store.get('hc_access');
   U.filter(u => u.role === 'hotels').forEach(u => { const want = { hotelId: u.hotelId || '', level: HC_LEVELS[u.hotelLevel] ? u.hotelLevel : 'manager', name: u.name }, cur = A.find(a => a.id === u.id);
     if (!cur) Store.add('hc_access', { id: u.id, ...want }); else if (cur.hotelId !== want.hotelId || cur.level !== want.level || cur.name !== want.name) Store.update('hc_access', u.id, want); });
-  A.filter(a => !U.some(u => u.id === a.id && u.role === 'hotels')).forEach(a => Store.remove('hc_access', a.id));
+  const me = hcAccess(); A.filter(a => !U.some(u => u.id === a.id && u.role === 'hotels') && a.id !== Auth.user()?.id && (Auth.user()?.role === 'admin' || (me?.hotelId && a.hotelId === me.hotelId))).forEach(a => Store.remove('hc_access', a.id)); // a hotel manager only sees, and so only tidies, their own hotel's logins
 }
 
 (() => { // sample data for the browser-only demo
@@ -39,6 +39,28 @@ function hcSyncAccess() {
     const mk = (id, dept, table, items, status, mins, extra = {}) => { const sub = items.reduce((s, i) => s + i.price * i.qty, 0), tax = Math.round(items.reduce((s, i) => s + i.price * i.qty * i.gstPct / 100, 0) * 100) / 100; return { id, hotelId: H, dept, table, stayId: '', guestName: '', covers: 2, waiter: 'Suresh', items, sub, tax, total: Math.round(sub + tax), status, createdAt: ago(mins), sample: true, ...extra }; };
     return [...base, mk('KOT51001', 'Restaurant', 'Table 2', [it(M[2], 1, 5), it(M[4], 2, 5, 'Less spicy')], 'Ready', 14), mk('KOT51002', 'Restaurant', 'Table 2', [it(M[9] || M[1], 2, 5)], 'New', 2), mk('KOT51003', 'Restaurant', 'Table 7', [it(M[0], 3, 5), it(M[1], 1, 5, 'No onion')], 'Preparing', 9, { covers: 4 }), mk('KOT51004', 'Restaurant', 'Table 9', [it(M[3], 1, 5), it(M[5] || M[2], 2, 5)], 'Served', 38, { billReq: true }), mk('BAR51005', 'Bar', 'Bar 3', [it(B[0], 2, 18), it(B[4] || B[1], 1, 18)], 'New', 3)]; };
 })();
+
+/* ---------- Logins: the hotel manager creates logins for their own staff ---------- */
+function hcLogins(body) {
+  const me = Auth.user(), admin = me.role === 'admin', H = HC.H(), h = HC.hotel();
+  if (!admin && typeof Remote !== 'undefined' && Remote.on && (Remote.apiVersion || 1) < 3) { body.innerHTML = `<div class="card stack"><h3>One update needed on your server</h3><p>To let hotel managers create logins, the database program needs its latest version. Until then the group administrator creates them under Staff dashboard → Staff users.</p><ol style="padding-left:20px;display:grid;gap:6px"><li>In cPanel → Files, open the <b>api.jacknjose.co.in</b> folder.</li><li>Click <b>Upload</b>, tick <b>Overwrite existing files</b>, and choose the new <b>index.php</b> file.</li><li>Reload this page.</li></ol></div>`; return; }
+  const jobs = Object.entries(HC_LEVELS).map(([k, v]) => [k, v[0]]);
+  body.innerHTML = `<div class="notice" style="margin-bottom:12px">Logins for <b>${esc(h?.name || 'this hotel')}</b>. Each person signs in at the Staff sign-in page and sees only the screens for their job.</div><div id="lg-crud"></div>
+    <div class="table-wrap" style="margin-top:16px"><table class="table"><thead><tr><th>Job</th><th>Screens this login can open</th></tr></thead><tbody>${Object.values(HC_LEVELS).map(([l, t]) => `<tr><td><b>${esc(l)}</b></td><td>${t === '*' ? 'Everything for this hotel, including these logins' : t.map(x => ({ dash: 'Dashboard', front: 'Front desk', rooms: 'Rooms', guests: 'Guests', hk: 'Housekeeping', bill: 'Room billing', wifi: 'WiFi', counter: 'Billing counter', waiter: 'Waiter', kds: 'Kitchen display', bar: 'Bar' }[x])).join(', ')}</td></tr>`).join('')}</tbody></table></div>`;
+  renderCrud($('#lg-crud', body), { key: 'staffUsers', rows: () => Store.get('staffUsers').filter(u => u.role === 'hotels' && u.hotelId === H), single: 'Login', plural: 'Logins', idPrefix: 'USR', label: r => r.username, onChange: hcSyncAccess,
+    fields: [{ name: 'name', label: 'Full name', required: true }, { name: 'username', label: 'Username', required: true, placeholder: 'e.g. ravi.waiter' }, { name: 'hotelLevel', label: 'Job', type: 'select', options: jobs, default: 'waiter' }, { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'] }, { name: 'password', label: 'Password (leave blank to keep current)', type: 'password', full: true, placeholder: 'At least 8 characters with a number' }],
+    validate: (d, row) => { d.username = d.username.toLowerCase();
+      if (row && row.id === me.id) return 'You can’t change your own login here. Ask the group administrator.';
+      if (!/^[a-z0-9._-]{3,30}$/.test(d.username)) return 'Username: 3–30 characters, letters, numbers, dot, dash or underscore';
+      if (Store.get('staffUsers').some(u => u.username === d.username && u.id !== row?.id)) return `Username ${d.username} is taken`;
+      if (!row && !d.password) return 'Set a password for the new login';
+      if (d.password && (d.password.length < 8 || !/\d/.test(d.password))) return 'Password needs at least 8 characters including a number';
+      if (row && row.username !== d.username && !d.password) return 'Changing the username needs a new password too';
+      return null; },
+    transform: d => { if (d.password) d.passHash = passHash(d.username, d.password); delete d.password; d.role = 'hotels'; d.hotelId = H; },
+    beforeDelete: r => r.id === me.id ? 'You can’t delete the login you’re signed in with' : null,
+    columns: [{ label: 'Name', render: r => `<b>${esc(r.name)}</b><div class="muted small mono">${esc(r.username)}${r.id === me.id ? ' · you' : ''}</div>` }, { label: 'Job', render: r => `<span class="chip blue">${esc(HC_LEVELS[r.hotelLevel]?.[0] || 'Hotel manager')}</span>` }, { label: 'Last sign-in', render: r => r.lastLogin ? fmtDateTime(r.lastLogin) : '—' }, { label: 'Status', render: r => statusChip(r.status) }] });
+}
 
 /* ---------- shared helpers ---------- */
 const hcOpenOrders = dept => HC.list('orders').filter(o => (!dept || o.dept === dept) && !['Billed', 'Cancelled'].includes(o.status));
@@ -96,7 +118,7 @@ function hcWaiter(body, again) {
   $('#w-send', body).onclick = () => { keep();
     const o = HC.add('orders', { id: genNum(bar ? 'BAR' : 'KOT', 5), dept: st.dept, table: st.table, stayId: stay?.id || '', guestName: stay?.guestName || cart.name, covers: +cart.covers || 0, waiter: me, items: lines.map(l => ({ id: l.it.id, name: l.it.name, qty: l.n, price: +l.it.price, gstPct: taxOf(l.it), note: (cart.notes[l.it.id] || '').trim() })), sub, tax: Math.round(tax * 100) / 100, total: Math.round(sub + tax), status: 'New' });
     if (bar) lines.forEach(l => HC.upd('bar', l.it.id, { stock: +l.it.stock - l.n }));
-    cart.lines.clear(); cart.notes = {}; toast(`${o.id} sent to the ${bar ? 'bar' : 'kitchen'} · ${st.table}`); again(); };
+    cart.lines.clear(); cart.notes = {}; toast(`${o.id} sent to the ${bar ? 'bar' : 'kitchen'} · ${st.table}`); again(); if (POS.cfg().kot && SITE_CONFIG.allowPrint !== false) posPrintKot(HC.find('orders', o.id) || o); };
   $$('[data-served]', body).forEach(b => b.onclick = () => { HC.upd('orders', b.dataset.served, { status: 'Served', servedAt: hcNow() }); redraw(); });
   $$('[data-void]', body).forEach(b => b.onclick = () => { const o = HC.find('orders', b.dataset.void); confirmBox(`Cancel ${o.id}?`, () => { if (o.dept === 'Bar') o.items.forEach(i => { const it = HC.find('bar', i.id); if (it) HC.upd('bar', it.id, { stock: +it.stock + i.qty }); }); HC.upd('orders', o.id, { status: 'Cancelled' }); redraw(); }, 'Cancel order'); });
   const wb = $('#w-bill', body); if (wb) wb.onclick = () => { mine.forEach(o => HC.upd('orders', o.id, { billReq: true })); toast(`Bill for ${st.table} requested at the billing counter`); redraw(); };
@@ -124,12 +146,7 @@ function hcKds(body, again) {
 /* ---------- Billing counter: restaurant and bar bills ---------- */
 const hcBillNo = dept => { const pre = dept === 'Bar' ? 'BB' : 'RB', n = HC.list('bills').filter(b => b.dept === dept).reduce((m, b) => Math.max(m, +b.no || 0), 0) + 1; return { no: n, id: `${pre}-${String(n).padStart(5, '0')}` }; };
 function hcBillPrint(b) {
-  const h = Store.find('hotels', b.hotelId) || HC.hotel() || {}, food = b.dept !== 'Bar', half = Math.round(b.tax * 50) / 100;
-  openModal(`Bill ${b.id}`, `${printBar('bill')}<div class="print-sheet"><section class="copy receipt"><div class="rc-head"><b>${esc(h.name || SITE_CONFIG.name)}</b><span>${esc([h.area, h.city].filter(Boolean).join(', '))}</span>${SITE_CONFIG.gstin ? `<span>GSTIN ${esc(SITE_CONFIG.gstin)}</span>` : ''}<span class="rc-kind">${food ? 'RESTAURANT' : 'BAR'} BILL</span></div>
-    <div class="rc-meta"><span>Bill no: <b>${esc(b.id)}</b></span><span>${fmtDateTime(b.createdAt)}</span><span>${esc(b.table)}${b.guestName ? ' · ' + esc(b.guestName) : ''}</span><span>${b.waiter ? 'Waiter: ' + esc(b.waiter) : ''}</span></div>
-    <table class="rc-items"><tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>${b.items.map(i => `<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td>${(+i.price).toLocaleString('en-IN')}</td><td>${(i.price * i.qty).toLocaleString('en-IN')}</td></tr>`).join('')}</table>
-    <div class="rc-tot"><div><span>Subtotal</span><span>${inr(b.sub)}</span></div>${b.discount ? `<div><span>Discount</span><span>− ${inr(b.discount)}</span></div>` : ''}${b.service ? `<div><span>Service charge</span><span>${inr(b.service)}</span></div>` : ''}${food ? `<div><span>CGST</span><span>₹${half.toFixed(2)}</span></div><div><span>SGST</span><span>₹${(b.tax - half).toFixed(2)}</span></div>` : `<div><span>Tax</span><span>₹${(+b.tax).toFixed(2)}</span></div>`}<div class="rc-grand"><span>TOTAL</span><span>${inr(b.total)}</span></div><div><span>${b.settled === 'Room' ? 'Posted to room folio' : 'Paid by'}</span><span>${b.settled === 'Room' ? esc(b.table) : esc(b.method || '')}</span></div></div>
-    <p class="rc-foot">Cashier: ${esc(b.cashier || '')}<br>Thank you. Please visit again.</p></section></div>`);
+  openModal(`Bill ${b.id}`, `<div class="no-print" style="display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;margin-bottom:12px"><span class="muted small">${POS.cfg().paper} mm paper · ${POS.cfg().mode === 'direct' ? 'direct to the printer' : 'through the print box'}</span><button class="btn btn-outline btn-sm" id="bp-set">Printer settings</button><button class="btn btn-primary" id="bp-go">Print bill</button></div>${posPreview(posBillLines(b))}`, { onMount: m => { $('#bp-go', m).onclick = () => posPrintBill(b, { reprint: true }); $('#bp-set', m).onclick = () => posSettings(() => hcBillPrint(b)); } });
 }
 function hcMakeBill(dept, table, after) {
   const O = hcOpenOrders(dept).filter(o => o.table === table), inH = HC.list('stays').filter(s => s.status === 'Checked-in'), map = new Map();
@@ -148,7 +165,7 @@ function hcMakeBill(dept, table, after) {
         if (room) HC.add('charges', { stayId: st.id, date: todayISO(), dept, desc: `${dept} · ${n.id} · ${items.map(i => i.qty + '× ' + i.name).join(', ').slice(0, 80)}`, amount: sub - c.discount + c.service, gstPct: sub - c.discount + c.service ? Math.round(c.tax / (sub - c.discount + c.service) * 1000) / 10 : 0 }, 'CH');
         else HC.add('payments', { stayId: '', date: todayISO(), amount: c.total, method: f.method.value, dept, note: `${n.id} · ${table}` }, 'PY');
         O.forEach(o => HC.upd('orders', o.id, { status: 'Billed', settled: room ? 'Room' : 'Paid', method: room ? '' : f.method.value, billId: n.id }));
-        closeModal(); toast(room ? `${n.id} posted to room ${hcRoomNo(st.roomId)}` : `${n.id} paid · ${inr(c.total)}`); after && after(); hcBillPrint(HC.find('bills', n.id)); }; } });
+        closeModal(); toast(room ? `${n.id} posted to room ${hcRoomNo(st.roomId)}` : `${n.id} paid · ${inr(c.total)}`); after && after(); const bill = HC.find('bills', n.id); hcBillPrint(bill); if (POS.cfg().auto && SITE_CONFIG.allowPrint !== false) posPrintBill(bill); }; } });
 }
 function hcCounter(body, again) {
   const st = Object.assign({ day: todayISO() }, Session.get('hcCounter') || {}), open = hcOpenOrders(), B = HC.list('bills'), day = B.filter(b => b.date === st.day).sort((x, y) => String(y.createdAt).localeCompare(String(x.createdAt))), groups = new Map();
@@ -157,10 +174,11 @@ function hcCounter(body, again) {
   const paid = day.filter(b => b.settled === 'Paid'), by = m => hcSum(paid.filter(b => b.method === m), b => b.total);
   body.innerHTML = `<div class="kpis">${kpi('Tables to bill', G.length, `${G.filter(g => g.req).length} asked for the bill`, G.some(g => g.req))}${kpi('Running amount', inr(hcSum(G, g => g.total)))}${kpi('Restaurant sales', inr(hcSum(day.filter(b => b.dept !== 'Bar'), b => b.total)), fmtDate(st.day))}${kpi('Bar sales', inr(hcSum(day.filter(b => b.dept === 'Bar'), b => b.total)), fmtDate(st.day))}${kpi('Collected', inr(hcSum(paid, b => b.total)), `Cash ${inr(by('Cash'))} · UPI ${inr(by('UPI'))} · Card ${inr(by('Card'))}`)}${kpi('Posted to rooms', inr(hcSum(day.filter(b => b.settled === 'Room'), b => b.total)))}</div>
     <h3 style="margin:18px 0 10px">Tables to bill</h3><div class="table-wrap"><table class="table"><thead><tr><th>Table</th><th>Section</th><th>Orders</th><th>Items</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody>${G.map((g, i) => `<tr class="${g.req ? 'row-low' : ''}"><td><b>${esc(g.table)}</b>${g.O.find(o => o.guestName) ? `<div class="muted small">${esc(g.O.find(o => o.guestName).guestName)}</div>` : ''}</td><td>${esc(g.dept)}</td><td>${g.O.map(o => `<span class="mono small">${esc(o.id)}</span>`).join('<br>')}</td><td>${g.O.flatMap(o => o.items).map(x => `${x.qty} × ${esc(x.name)}`).join('<br>')}</td><td><b>${inr(g.total)}</b></td><td>${g.req ? '<span class="chip blue">Bill asked</span> ' : ''}${g.pending ? `<span class="chip warn">${g.pending} not served</span>` : '<span class="chip green">All served</span>'}</td><td class="row-actions"><button class="btn btn-sm btn-green" data-bill="${i}">Make bill</button></td></tr>`).join('') || '<tr><td class="empty" colspan="7">No open tables. Orders taken by the waiters appear here.</td></tr>'}</tbody></table></div>
-    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:22px 0 10px"><h3 style="margin:0">Bills</h3><label class="field"><span>Date</span><input class="input" type="date" id="c-day" value="${st.day}"></label><button class="btn btn-outline" id="c-sum">Day summary</button></div>
+    <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:22px 0 10px"><h3 style="margin:0">Bills</h3><label class="field"><span>Date</span><input class="input" type="date" id="c-day" value="${st.day}"></label><button class="btn btn-outline" id="c-sum">Day summary</button><button class="btn btn-outline" id="c-pos">POS printer settings</button></div>
     <div class="table-wrap"><table class="table"><thead><tr><th>Bill no.</th><th>Time</th><th>Table</th><th>Section</th><th>Items</th><th>Total</th><th>Settled</th><th>Cashier</th><th></th></tr></thead><tbody>${day.map(b => `<tr><td class="mono">${esc(b.id)}</td><td>${fmtDateTime(b.createdAt)}</td><td>${esc(b.table)}${b.guestName ? `<div class="muted small">${esc(b.guestName)}</div>` : ''}</td><td>${esc(b.dept)}</td><td>${b.items.reduce((s, i) => s + i.qty, 0)}</td><td><b>${inr(b.total)}</b></td><td>${b.settled === 'Room' ? '<span class="chip blue">Room folio</span>' : `<span class="chip green">${esc(b.method)}</span>`}</td><td>${esc(b.cashier || '')}</td><td class="row-actions"><button class="btn btn-sm btn-ghost" data-print="${b.id}">Print</button></td></tr>`).join('') || '<tr><td class="empty" colspan="9">No bills on this date.</td></tr>'}</tbody></table></div>`;
   $$('[data-bill]', body).forEach(b => b.onclick = () => { const g = G[+b.dataset.bill]; hcMakeBill(g.dept, g.table, again); });
   $$('[data-print]', body).forEach(b => b.onclick = () => hcBillPrint(HC.find('bills', b.dataset.print)));
+  $('#c-pos', body).onclick = () => posSettings(again);
   $('#c-day', body).onchange = e => { Session.set('hcCounter', { day: e.target.value || todayISO() }); again(); };
   $('#c-sum', body).onclick = () => { const items = new Map(); day.forEach(b => b.items.forEach(i => { const c = items.get(i.name) || { qty: 0, amt: 0, dept: b.dept }; c.qty += i.qty; c.amt += i.qty * i.price; items.set(i.name, c); })); const h = HC.hotel() || {};
     openModal(`Day summary · ${fmtDate(st.day)}`, `${printBar('summary')}<div class="print-sheet"><section class="copy"><header><div class="ph-brand"><b>${esc(h.name || '')}</b><span>${esc([h.area, h.city].filter(Boolean).join(', '))}</span></div><div class="ph-kind"><b>DAY SALES SUMMARY</b><span>${fmtDate(st.day)}</span></div></header>

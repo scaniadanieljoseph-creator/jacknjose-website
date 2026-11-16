@@ -33,20 +33,8 @@
   --gutter-l: max(16px, env(safe-area-inset-left, 0px));
   --gutter-r: max(16px, env(safe-area-inset-right, 0px));
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --ink: #e6eef7; --ink-soft: #b3c2d3; --muted: #8597ab; --bg: #07131f; --surface: #0e1f30; --surface-2: #132a40;
-    --line: #213a52; --blue: #5aa2f5; --blue-deep: #a9cdf8; --blue-soft: #12304f; --green: #3fd394; --green-bright: #5ce2a7;
-    --green-soft: #0f3527; --teal: #3cc4cf; --warn: #f0b350; --warn-soft: #3a2a10; --danger: #f2777a; --danger-soft: #3d1618;
-    --on-accent: #04111d; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --ink: #e6eef7; --ink-soft: #b3c2d3; --muted: #8597ab; --bg: #07131f; --surface: #0e1f30; --surface-2: #132a40;
-  --line: #213a52; --blue: #5aa2f5; --blue-deep: #a9cdf8; --blue-soft: #12304f; --green: #3fd394; --green-bright: #5ce2a7;
-  --green-soft: #0f3527; --teal: #3cc4cf; --warn: #f0b350; --warn-soft: #3a2a10; --danger: #f2777a; --danger-soft: #3d1618;
-  --on-accent: #04111d; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark;
-}
+/* One look on every device: the site keeps its own colours even when the phone or PC is set to dark mode. */
+:root { color-scheme: only light; }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -732,3 +720,18 @@ body.kds-on { overflow: hidden; }
 .ts-card-head .row-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-start; white-space: normal; }
 .ts-card-head > div { min-width: 0; }
 .kds.full .kds-card .btn-outline { color: var(--ink); border-color: var(--line); }
+
+/* ---------- Home: seven services in two even rows (3 large + 4) ---------- */
+.svc-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px; }
+.svc-grid > .svc { grid-column: span 3; }
+.svc-grid > .svc:nth-child(-n+3) { grid-column: span 4; }
+.svc-grid > .svc:nth-child(-n+3) h3 { font-size: 1.25rem; }
+@media (max-width: 1020px) { .svc-grid > .svc, .svc-grid > .svc:nth-child(-n+3) { grid-column: span 6; } .svc-grid > .svc:last-child:nth-child(odd) { grid-column: span 12; } }
+@media (max-width: 600px) { .svc-grid > .svc, .svc-grid > .svc:nth-child(-n+3), .svc-grid > .svc:last-child:nth-child(odd) { grid-column: span 12; } }
+
+/* ---------- POS receipt preview ---------- */
+.pos-paper { background: #ffffff; color: #111111; margin: 0 auto; padding: 14px 12px 22px; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.12); width: max-content; max-width: 100%; overflow-x: auto; }
+.pos-paper .tk { font-family: "Courier New", ui-monospace, monospace; font-weight: 600; white-space: pre; font-size: 12.5px; }
+.pos-paper.p58 .tk { font-size: 13px; }
+.pos-paper .tk div { min-height: 1.25em; line-height: 1.25; }
+.pos-paper .tk .c { text-align: center; } .pos-paper .tk .b { font-weight: 800; } .pos-paper .tk .g { font-size: 200%; line-height: 1.15; }

@@ -20,7 +20,7 @@ const PUBLIC_READ   = ['buses', 'hotels', 'branches', 'media', 'reviews', 'agent
 const PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews', 'payments', 'notifications'];
 const PUBLIC_ONE    = ['busBookings', 'hotelBookings', 'parcels', 'shipments'];
 const MAX_DOC_BYTES = 700000;
-const API_VERSION = 2;
+const API_VERSION = 3;
 /* Module collections are recognised by prefix, so new portal modules need no change here.
    prefix => [roles that may read and write them] (the administrator always can). They are never public. */
 const MODULE_PREFIXES = ['hc_' => ['hotels'], 'tr_' => ['travels'], 'lg_' => ['logistics'], 'fl_' => ['fleet', 'logistics'], 'el_' => ['*'], 'x_' => []];
@@ -63,7 +63,10 @@ function currentUser(): ?array {
   $s = $db->prepare("SELECT user_id FROM {$T}sessions WHERE token = ? AND expires_at > ?"); $s->execute([hash('sha256', $tok), now()]); $r = $s->fetch(); if (!$r) return null;
   $u = getDoc('staffUsers', $r['user_id']); return ($u && ($u['status'] ?? '') === 'Active') ? $u : null;
 }
-function publicUser(array $u): array { return ['id' => $u['id'], 'name' => $u['name'] ?? '', 'username' => $u['username'] ?? '', 'role' => $u['role'] ?? '']; }
+function publicUser(array $u): array { return ['id' => $u['id'], 'name' => $u['name'] ?? '', 'username' => $u['username'] ?? '', 'role' => $u['role'] ?? '', 'hotelId' => $u['hotelId'] ?? '', 'hotelLevel' => $u['hotelLevel'] ?? '']; }
+/* A hotel manager may create and manage the hotel logins of their own hotel (never administrators or other departments). */
+function isHotelManager(?array $u): bool { return $u && ($u['role'] ?? '') === 'hotels' && in_array($u['hotelLevel'] ?? '', ['', 'manager'], true); }
+function managesLogin(?array $u, ?array $doc): bool { if (!isHotelManager($u) || !$doc || ($doc['role'] ?? '') !== 'hotels' || ($doc['id'] ?? '') === $u['id']) return false; $h = $u['hotelId'] ?? ''; return $h === '' || ($doc['hotelId'] ?? '') === $h; }
 function canWrite(?array $u, string $c): bool { if (!$u) return false; if (($u['role'] ?? '') === 'admin') return true; $r = STAFF_WRITE[$c] ?? moduleRoles($c); return $r !== null && (in_array('*', $r, true) || in_array($u['role'], $r, true)); }
 function moduleCollections(): array { global $db, $T; $out = []; foreach ($db->query("SELECT DISTINCT collection FROM {$T}records") as $r) if (moduleRoles($r['collection']) !== null) $out[] = $r['collection']; return $out; }
 
@@ -92,7 +95,7 @@ switch ($a) {
 case 'boot': { /* everything the caller is allowed to see, in one request */
   $u = currentUser(); $cols = [];
   foreach (array_keys(STAFF_WRITE) as $c) {
-    if ($u) { if ($c === 'staffUsers' && $u['role'] !== 'admin') continue; $cols[$c] = rows($c); }
+    if ($u) { if ($c === 'staffUsers' && $u['role'] !== 'admin') { if (isHotelManager($u)) $cols[$c] = array_values(array_filter(rows($c), fn($d) => managesLogin($u, $d) || $d['id'] === $u['id'])); continue; } $cols[$c] = rows($c); }
     elseif (in_array($c, PUBLIC_READ, true)) $cols[$c] = publicView($c, rows($c));
   }
   if ($u) foreach (moduleCollections() as $c) if (canWrite($u, $c)) $cols[$c] = rows($c); // module data only for the roles that run that module
@@ -117,7 +120,14 @@ case 'save': { $needPost();
   if (strlen(json_encode($doc)) > MAX_DOC_BYTES) fail(413, 'too_large', 'That record is too large. Use a smaller photo.');
   $old = getDoc($c, $doc['id']); $secret = null;
 
-  if (canWrite($u, $c)) {
+  $mgr = false;
+  if ($c === 'staffUsers' && $u && $u['role'] !== 'admin') { /* hotel manager adding or changing a login of their own hotel */
+    $doc['role'] = 'hotels'; if (($u['hotelId'] ?? '') !== '') $doc['hotelId'] = $u['hotelId'];
+    if (!managesLogin($u, $doc) || ($old && !managesLogin($u, $old))) fail(403, 'forbidden', 'You can only manage the logins of your own hotel.');
+    if (!in_array($doc['hotelLevel'] ?? '', ['manager', 'frontdesk', 'cashier', 'waiter', 'kitchen', 'bar', 'housekeeping'], true)) fail(400, 'bad_job', 'Choose the hotel job for this login.');
+    $mgr = true;
+  }
+  if ($mgr || canWrite($u, $c)) {
     if ($c === 'staffUsers') {
       if (!preg_match('/^[a-z0-9._-]{3,30}$/', $doc['username'] ?? '')) fail(400, 'bad_username', 'Username: 3–30 letters, numbers, dot, dash or underscore.');
       foreach (rows('staffUsers') as $o) if ($o['id'] !== $doc['id'] && ($o['username'] ?? '') === $doc['username']) fail(409, 'taken', 'That username is taken.');
@@ -154,7 +164,7 @@ case 'save': { $needPost();
 case 'delete': { $needPost();
   $c = $in['c'] ?? ''; $id = $in['id'] ?? ''; $u = currentUser();
   if (!$validC($c) || !$validId($id)) fail(400, 'bad_request', 'Unknown record.');
-  if (!canWrite($u, $c)) fail(403, 'forbidden', $u ? 'Your role cannot delete this.' : 'Sign in to delete.');
+  if (!canWrite($u, $c) && !($c === 'staffUsers' && managesLogin($u, getDoc($c, $id)))) fail(403, 'forbidden', $u ? 'Your role cannot delete this.' : 'Sign in to delete.');
   if ($c === 'staffUsers') { if ($id === $u['id']) fail(409, 'self', 'You cannot delete your own account.'); $db->prepare("DELETE FROM {$T}sessions WHERE user_id = ?")->execute([$id]); }
   delDoc($c, $id); respond(200, ['ok' => true]);
 }

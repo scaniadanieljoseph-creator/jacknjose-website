@@ -71,7 +71,7 @@ function hcWeekStart(iso) { const d = new Date(iso + 'T00:00:00'); return hcAddD
 ROUTE_TITLES['hotel-crm'] = 'Hotel CRM';
 route('hotel-crm', app => {
   const acc = hcAccess() || { hotelId: '', level: 'manager' }, hotels = Store.get('hotels').filter(h => !acc.hotelId || h.id === acc.hotelId);
-  const tabs = [['dash', 'Dashboard'], ['front', 'Front desk'], ['rooms', 'Rooms'], ['guests', 'Guests'], ['hk', 'Housekeeping'], ['waiter', 'Waiter'], ['kds', 'Kitchen display'], ['counter', 'Billing counter'], ['rest', 'Restaurant & kitchen'], ['bar', 'Bar'], ['bill', 'Room billing'], ['staff', 'Staff'], ['acc', 'Income & expenses'], ['wifi', 'WiFi']].filter(t => hcCanTab(t[0]));
+  const tabs = [['dash', 'Dashboard'], ['front', 'Front desk'], ['rooms', 'Rooms'], ['guests', 'Guests'], ['hk', 'Housekeeping'], ['waiter', 'Waiter'], ['kds', 'Kitchen display'], ['counter', 'Billing counter'], ['rest', 'Restaurant & kitchen'], ['bar', 'Bar'], ['bill', 'Room billing'], ['staff', 'Staff'], ['acc', 'Income & expenses'], ['wifi', 'WiFi'], ['logins', 'Logins']].filter(t => hcCanTab(t[0]));
   const first = HC_LEVELS[acc.level][1] === '*' ? tabs[0][0] : HC_LEVELS[acc.level][1][0];
   let active = Session.get('tab_#hotel-crm') || first; if (!tabs.some(t => t[0] === active)) active = first;
   app.innerHTML = adminShell({ title: 'Hotel CRM', sub: acc.level === 'manager' ? 'Run one property end to end: rooms, guests, restaurant, bar, billing, staff and accounts.' : `${HC_LEVELS[acc.level][0]} screen`, tabs, active, base: 'hotels' });
@@ -83,7 +83,7 @@ route('hotel-crm', app => {
   outer.innerHTML = `<div class="crm-bar"><label class="field" style="flex:1 1 260px;max-width:420px"><span>Property</span><select class="input" id="crm-hotel" ${hotels.length < 2 ? 'disabled' : ''}>${hotels.map(h => `<option value="${h.id}" ${h.id === HC.H() ? 'selected' : ''}>${esc(h.name)} · ${esc(h.city)}</option>`).join('')}</select></label><span class="muted small">${fmtDate(todayISO())}</span></div><div id="crm-body"></div>`;
   const body = $('#crm-body', outer);
   $('#crm-hotel', outer).onchange = e => { Session.set('crmHotel', e.target.value); show($('.admin-tabs button.on', app)?.dataset.tab || active); };
-  const show = tab => { document.body.classList.toggle('kds-on', false); return ({ dash: hcDash, front: hcFront, rooms: hcRooms, guests: hcGuests, hk: hcHousekeeping, rest: b => hcPos(b, 'Restaurant'), bar: b => hcPos(b, 'Bar'), bill: hcBilling, staff: hcStaff, acc: hcAccounts, wifi: hcWifi, waiter: hcWaiter, kds: hcKds, counter: hcCounter }[hcCanTab(tab) ? tab : active] || hcDash)(body, () => show(tab)); };
+  const show = tab => { document.body.classList.toggle('kds-on', false); return ({ dash: hcDash, front: hcFront, rooms: hcRooms, guests: hcGuests, hk: hcHousekeeping, rest: b => hcPos(b, 'Restaurant'), bar: b => hcPos(b, 'Bar'), bill: hcBilling, staff: hcStaff, acc: hcAccounts, wifi: hcWifi, waiter: hcWaiter, kds: hcKds, counter: hcCounter, logins: hcLogins }[hcCanTab(tab) ? tab : active] || hcDash)(body, () => show(tab)); };
   bindTabs(app, show); show(active);
 });
 
