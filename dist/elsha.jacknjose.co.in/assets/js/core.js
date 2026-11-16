@@ -221,7 +221,7 @@ function renderCrud(el, o) {
   };
 }
 const statusChip = (s) => {
-  const map = { Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Requested: 'warn', Reserved: 'blue', 'No-show': 'danger', Published: 'green', Challenged: 'warn', Upheld: 'blue', Removed: 'danger', Received: 'green', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
+  const map = { Phone: 'warn', Blocked: '', Confirmed: 'green', Active: 'green', Available: 'green', Delivered: 'green', Completed: 'green', 'Checked-in': 'blue', 'On Trip': 'blue', 'In Transit': 'blue', Ongoing: 'blue', Booked: 'blue', Loaded: 'blue', 'Picked Up': 'blue', Unloaded: 'blue', 'Out for Delivery': 'blue', New: 'blue', Maintenance: 'warn', Requested: 'warn', Reserved: 'blue', 'No-show': 'danger', Published: 'green', Challenged: 'warn', Upheld: 'blue', Removed: 'danger', Received: 'green', Captured: 'green', Sent: 'blue', Queued: 'warn', Processed: 'green', Scheduled: 'blue', Refunded: '', 'Partially refunded': 'warn', Failed: 'danger', Pending: 'warn', Contacted: 'warn', Inactive: 'danger', Cancelled: 'danger', 'Checked-out': '' };
   return `<span class="chip ${map[s] ?? ''}">${esc(s)}</span>`;
 };
 

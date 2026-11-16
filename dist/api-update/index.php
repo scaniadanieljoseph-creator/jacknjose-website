@@ -20,7 +20,7 @@ const PUBLIC_READ   = ['buses', 'hotels', 'branches', 'media', 'reviews', 'agent
 const PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews', 'payments', 'notifications'];
 const PUBLIC_ONE    = ['busBookings', 'hotelBookings', 'parcels', 'shipments'];
 const MAX_DOC_BYTES = 700000;
-const API_VERSION = 3;
+const API_VERSION = 4;
 /* Module collections are recognised by prefix, so new portal modules need no change here.
    prefix => [roles that may read and write them] (the administrator always can). They are never public. */
 const MODULE_PREFIXES = ['hc_' => ['hotels'], 'tr_' => ['travels'], 'lg_' => ['logistics'], 'fl_' => ['fleet', 'logistics'], 'el_' => ['*'], 'x_' => []];
@@ -74,7 +74,7 @@ function moduleCollections(): array { global $db, $T; $out = []; foreach ($db->q
 function publicView(string $c, array $list): array {
   $out = [];
   foreach ($list as $d) switch ($c) {
-    case 'busBookings': if (($d['status'] ?? '') === 'Confirmed') $out[] = ['id' => pid($d['id']), 'busId' => $d['busId'] ?? '', 'date' => $d['date'] ?? '', 'status' => 'Confirmed', 'seats' => $d['seats'] ?? [], 'passengers' => array_map(fn($p) => ['seat' => $p['seat'] ?? '', 'gender' => $p['gender'] ?? ''], $d['passengers'] ?? [])]; break;
+    case 'busBookings': if (in_array($d['status'] ?? '', ['Confirmed', 'Phone', 'Blocked'], true)) $out[] = ['id' => pid($d['id']), 'busId' => $d['busId'] ?? '', 'date' => $d['date'] ?? '', 'status' => 'Confirmed', 'seats' => $d['seats'] ?? [], 'passengers' => array_map(fn($p) => ['seat' => $p['seat'] ?? '', 'gender' => $p['gender'] ?? ''], $d['passengers'] ?? [])]; break;
     case 'hotelBookings': if (in_array($d['status'] ?? '', ['Confirmed', 'Checked-in'], true)) $out[] = ['id' => pid($d['id']), 'hotelId' => $d['hotelId'] ?? '', 'checkIn' => $d['checkIn'] ?? '', 'checkOut' => $d['checkOut'] ?? '', 'rooms' => $d['rooms'] ?? 1, 'status' => $d['status']]; break;
     case 'agents': if (($d['status'] ?? '') === 'Active') $out[] = ['id' => $d['id'], 'name' => $d['name'] ?? '', 'agency' => $d['agency'] ?? '', 'city' => $d['city'] ?? '', 'status' => 'Active']; break;
     case 'reviews': if (($d['status'] ?? '') !== 'Removed') { unset($d['resolution']); if (isset($d['challenge'])) $d['challenge'] = ['reason' => 'under review']; $out[] = $d; } break;

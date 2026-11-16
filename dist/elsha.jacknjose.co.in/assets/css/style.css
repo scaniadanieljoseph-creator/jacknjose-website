@@ -773,3 +773,41 @@ body.kds-on { overflow: hidden; }
 .memo .mm-check { display: grid; justify-items: center; gap: 2px; text-align: center; }
 .memo .mm-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .memo .mm-sign i { display: block; height: 30px; border-bottom: 1px solid #111111; margin-bottom: 2px; }
+
+/* ---------- Bus operator portal ---------- */
+.bo-dash { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 18px; align-items: start; }
+@media (max-width: 980px) { .bo-dash { grid-template-columns: 1fr; } }
+.bo-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+.bo-tile { display: grid; justify-items: center; gap: 8px; padding: 18px 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); font: inherit; font-weight: 600; font-size: .86rem; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.bo-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--blue); }
+.bo-tile svg { width: 26px; height: 26px; padding: 9px; box-sizing: content-box; border-radius: 10px; background: var(--blue); color: #fff; }
+.bo-tile:nth-child(2) svg { background: #b8324f; } .bo-tile:nth-child(3) svg { background: var(--danger); } .bo-tile:nth-child(even) svg { background: var(--green); } .bo-tile:nth-child(2) svg { background: #b8324f; }
+.bo-quick { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.bo-quick .input { flex: 1 1 150px; min-width: 0; } .bo-quick input[type=date] { flex: 0 1 170px; }
+.bo-days { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; } .bo-days .chip { white-space: nowrap; flex: none; }
+.bo-box { display: grid; gap: 10px; align-content: start; padding: 14px; }
+.bo-big { font-size: 1.5rem; margin-right: 6px; font-family: var(--font-display); }
+.bo-two, .bo-four { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; } .bo-four { grid-template-columns: repeat(4, 1fr); }
+.bo-two > div, .bo-four > div { display: grid; gap: 2px; border-left: 3px solid var(--blue); padding-left: 8px; } .bo-two > div:nth-child(2) { border-left-color: var(--green); } .bo-four > div { border-left: 0; padding-left: 0; }
+.bo-two span, .bo-four span { font-size: .78rem; color: var(--muted); }
+.bo-meter { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--surface-2); }
+.bo-meter i { background: var(--teal, #0b8f9c); } .bo-meter i.ph { background: var(--warn); } .bo-meter i.bl { background: var(--muted); } .bo-meter.sm { width: 80px; display: inline-flex; vertical-align: middle; margin-right: 6px; }
+@media (max-width: 520px) { .bo-four { grid-template-columns: 1fr 1fr; } }
+.bo-svcs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin: 14px 0; }
+.bo-svc { display: grid; gap: 4px; text-align: left; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.bo-svc b { font-size: 1.05rem; } .bo-svc span { font-size: .82rem; } .bo-svc .chip { font-style: normal; font-size: .7rem; padding: 2px 7px; }
+.bo-svc.on { border-color: var(--green); background: var(--green-soft); }
+.bo-book { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 900px) { .bo-book { grid-template-columns: 1fr; } }
+.bo-pax { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; } .bo-pax b { min-width: 34px; } .bo-pax .input { flex: 1 1 140px; min-width: 0; padding: 8px 10px; }
+.seat.bo-phone { background: var(--warn-soft); border-color: var(--warn); color: var(--warn); cursor: pointer; }
+.seat.bo-block { background: repeating-linear-gradient(45deg, var(--line), var(--line) 4px, var(--surface-2) 4px, var(--surface-2) 8px); cursor: pointer; }
+.bo-book .seat.booked { cursor: pointer; }
+.legend i.bo-lp { background: var(--warn-soft); border-color: var(--warn); } .legend i.bo-lb { background: repeating-linear-gradient(45deg, var(--line), var(--line) 3px, var(--surface-2) 3px, var(--surface-2) 6px); }
+.bo-chart .dp-route { background: var(--blue-deep); color: #fff; padding: 6px 10px; font-weight: 700; }
+.bo-ticket .bo-tk-grid { grid-template-columns: 1fr 1fr 1fr; }
+.bo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 620px) { .bo-grid { grid-template-columns: 1fr; } }
+.bo-pax { display: grid; grid-template-columns: 40px minmax(0, 1fr) 70px 100px 96px; gap: 6px; align-items: center; }
+.bo-pax .input { width: auto !important; min-width: 0; }
+@media (max-width: 560px) { .bo-pax { grid-template-columns: 40px minmax(0, 1fr) 70px; } .bo-pax select, .bo-pax [data-fare] { grid-column: span 1; } }

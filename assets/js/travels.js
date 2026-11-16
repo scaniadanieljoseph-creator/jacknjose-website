@@ -59,7 +59,7 @@ function seatLayout(bus) {
 function bookedSeats(bus, date) {
   const r = rng(hashStr(bus.id + date)), map = {};
   seatLayout(bus).forEach(d => d.rows.flat().filter(Boolean).forEach(s => { if (SITE_CONFIG.simulate() && r() < .36) map[s] = r() < .2 ? 'ladies' : 'booked'; }));
-  Store.get('busBookings').filter(b => b.busId === bus.id && b.date === date && b.status === 'Confirmed').forEach(b => b.passengers.forEach(p => { map[p.seat] = p.gender === 'Female' ? 'ladies' : 'booked'; }));
+  Store.get('busBookings').filter(b => b.busId === bus.id && b.date === date && ['Confirmed', 'Phone', 'Blocked'].includes(b.status)).forEach(b => (b.passengers?.length ? b.passengers : b.seats.map(seat => ({ seat }))).forEach(p => { map[p.seat] = p.gender === 'Female' ? 'ladies' : 'booked'; })); // phone bookings and blocked seats are not on sale either
   return map;
 }
 const totalSeats = bus => seatLayout(bus).reduce((n, d) => n + d.rows.flat().filter(Boolean).length, 0);
@@ -112,7 +112,7 @@ route('travels', app => {
   const popular = [...new Map(Store.get('buses').filter(b => b.active === 'Active').map(b => [`${b.from}|${b.to}`, [b.from, b.to]])).values()].slice(0, 12);
   app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Travels', title: 'Book bus tickets to any city in India', lead: `Our own fleet, live seat maps and instant e-tickets.` }) +
   `<section class="wrap overlap"><div class="search-box">${busSearchForm()}<div class="chips" style="margin-top:12px"><span class="muted small">Quick date:</span>
-    <button class="chip" type="button" data-qd="0">Today</button><button class="chip" type="button" data-qd="1">Tomorrow</button><button class="chip" type="button" data-qd="2">Day after</button></div></div></section>
+    <button class="chip" type="button" data-qd="0">Today</button><button class="chip" type="button" data-qd="1">Tomorrow</button><button class="chip" type="button" data-qd="2">Day after</button><a class="chip blue" href="#travels-admin" style="margin-left:auto;text-decoration:none">Office / Agent login</a></div></div></section>
   <section class="section"><div class="wrap grid g2">
     <div class="card"><div class="eyebrow">Our routes</div><h3 style="margin:6px 0 14px">${popular.length ? 'Routes we run' : 'Routes are being added'}</h3>${popular.length ? '' : `<p class="muted">Our bus schedule will appear here soon. ${SITE_CONFIG.phone ? 'Call ' + esc(SITE_CONFIG.phone) + ' to book now.' : ''}</p>`}<div class="chips">${popular.map(([a, b]) => `<button class="chip blue" data-route="${esc(a)}|${esc(b)}">${esc(a)} → ${esc(b)}</button>`).join('')}</div></div>
     <div class="card"><div class="eyebrow">Manage booking</div><h3 style="margin:6px 0 14px">View or cancel a ticket</h3>
@@ -223,13 +223,15 @@ route('bus-results', app => {
 /* ---------- Travels master portal ---------- */
 ROUTE_TITLES['travels-admin'] = 'Travels portal';
 route('travels-admin', app => {
-  const tabs = [['dash', 'Dashboard'], ['bookings', 'Bookings'], ['buses', 'Buses & vehicles'], ['reviews', 'Ratings & reviews'], ['agents', 'Agents']];
+  const tabs = [['dash', 'Dashboard'], ['book', 'Book tickets'], ['tickets', 'Tickets'], ['phone', 'Phone bookings'], ['trips', 'Trips'], ['chart', 'Trip chart'], ['reports', 'Reports'], ['bookings', 'Online bookings'], ['buses', 'Buses & vehicles'], ['reviews', 'Ratings & reviews'], ['agents', 'Agents']];
   const active = Session.get('tab_#travels-admin') || 'dash';
-  app.innerHTML = adminShell({ title: 'Travels master portal', sub: 'Buses, routes, agents and every seat sold.', tabs, active, base: 'travels' });
+  app.innerHTML = adminShell({ title: 'Bus operator portal', sub: 'Book, print and cancel tickets, run the trip chart, and see every seat sold.', tabs, active, base: 'travels' });
   const body = $('#admin-body', app);
   const agentName = id => { const a = Store.find('agents', id); return a ? a.agency : 'Website'; };
   const show = tab => {
-    if (tab === 'dash') {
+    const again = () => show(tab), ops = { dash: boDash, book: boBook, tickets: boTickets, phone: (b, a) => boTickets(b, a, true), trips: boTrips, chart: boChart, reports: boReports };
+    if (ops[tab]) return ops[tab](body, again);
+    if (tab === 'dash-old') {
       const bk = Store.get('busBookings'), conf = bk.filter(b => b.status === 'Confirmed');
       const rev = conf.reduce((s, b) => s + b.total, 0), seats = conf.reduce((s, b) => s + b.seats.length, 0);
       const byRoute = {}; conf.forEach(b => { const k = `${b.from} → ${b.to}`; byRoute[k] = (byRoute[k] || 0) + b.total; });
