@@ -400,7 +400,7 @@ function qrSvg(text) {
   return `<div class="qr-fallback mono">${esc(text)}</div>`;
 }
 const trackUrl = awb => `https://${SITE_CONFIG.siteHost || location.host || SITE_CONFIG.domain}/?awb=${encodeURIComponent(awb)}#logistics`;
-const printBar = (what) => `<div class="no-print" style="display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap">${SITE_CONFIG.allowPrint === false ? `<span class="muted small">Printing is available on the live website; this preview shows what the ${what} will look like.</span>` : `<span class="muted small">Prints on one A4 sheet.</span><button class="btn btn-primary" data-do-print>Print ${what}</button>`}</div>`;
+const printBar = (what) => `<div class="no-print" style="display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap">${SITE_CONFIG.allowPrint === false ? `<span class="muted small">Printing is available on the live website; this preview shows what the ${what} will look like.</span>` : `<span class="muted small">A4 paper. Wide sheets print in landscape.</span><button class="btn btn-primary" data-do-print>Print ${what}</button>`}</div>`;
 const letterhead = () => `<div class="ph-brand"><b>${esc(SITE_CONFIG.name)} Logistics</b><span>${esc(SITE_CONFIG.address)}</span><span>${[SITE_CONFIG.phone, SITE_CONFIG.email, SITE_CONFIG.gstin && 'GSTIN ' + SITE_CONFIG.gstin].filter(Boolean).map(esc).join(' · ')}</span></div>`;
 function parcelCopy(p, kind) {
   const delivery = kind === 'delivery', from = Store.find('branches', p.fromBranch), add = [p.addons?.pickup && 'Door pickup', p.addons?.loading && 'Loading', p.addons?.unloading && 'Unloading', p.addons?.insure && 'Insured'].filter(Boolean).join(', ') || 'None';
@@ -427,7 +427,9 @@ document.addEventListener('click', e => {
   const rv = e.target.closest('[data-reviews]'); if (rv) { const [type, id, base, name] = rv.dataset.reviews.split('|'); openModal(`Ratings & reviews${name ? ' · ' + name : ''}`, reviewsListHtml(type, id, base), { wide: true }); return; }
   const bp = e.target.closest('[data-busphotos]'); if (bp) { openModal('Bus photos', galleryHtml('bus', bp.dataset.busphotos), { wide: true }); return; }
   const pp = e.target.closest('[data-print-parcel]'); if (pp) { const p = Store.find('parcels', pp.dataset.printParcel); if (p) printParcel(p); return; }
-  if (e.target.closest('[data-do-print]')) window.print();
+  if (e.target.closest('[data-do-print]')) { // wide sheets print in landscape; the others leave the choice to the print box
+    const st = document.createElement('style'); st.textContent = $('.modal-back [data-landscape]') ? '@page { size: A4 landscape; margin: 8mm; }' : '@page { size: auto; margin: 10mm; }'; document.head.appendChild(st);
+    const done = () => { st.remove(); removeEventListener('afterprint', done); }; addEventListener('afterprint', done); setTimeout(done, 120000); window.print(); }
 });
 /* Opening the site from a parcel QR code (…/?awb=JJL…#logistics) tracks that parcel straight away */
 (() => { const base = ROUTES.logistics; if (!base) return; ROUTES.logistics = app => { base(app); const awb = new URLSearchParams(location.search).get('awb'); if (awb && $('#pt-id', app)) { $('#pt-id', app).value = awb; $('#pt', app).requestSubmit(); setTimeout(() => $('#pt', app).scrollIntoView({ block: 'center' }), 100); } }; })();
