@@ -572,7 +572,7 @@ button.rating:hover { filter: brightness(1.1); }
 .ph-terms { font-size: 10px; color: #333333; }
 .print-sheet .cut { text-align: center; font-size: 11px; color: #555555; border-top: 1px dashed #555555; padding-top: 4px; }
 @media print {
-  @page { size: A4; margin: 10mm; }
+  @page { margin: 10mm; }
   body { background: #ffffff !important; }
   body > *:not(.modal-back) { display: none !important; }
   .modal-back { position: static; display: block; padding: 0; background: none; }
@@ -735,3 +735,13 @@ body.kds-on { overflow: hidden; }
 .pos-paper.p58 .tk { font-size: 13px; }
 .pos-paper .tk div { min-height: 1.25em; line-height: 1.25; }
 .pos-paper .tk .c { text-align: center; } .pos-paper .tk .b { font-weight: 800; } .pos-paper .tk .g { font-size: 200%; line-height: 1.15; }
+
+/* ---------- Duty sheet grouped by route ---------- */
+.duty-print .dp-group { margin-bottom: 10px; break-inside: auto; }
+.duty-print .dp-group tr { break-inside: avoid; }
+.duty-print .dp-route { background: #111111; color: #ffffff; padding: 6px 9px; }
+.duty-print .dp-route .dp-place { font-size: 15px; margin-right: 10px; }
+.duty-print .dp-time { font-weight: 800; font-size: 14.5px; white-space: nowrap; }
+.duty-print .dp-sign { min-width: 70px; }
+.duty-print .copy { min-width: 760px; }
+@media print { .duty-print .dp-route { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .print-sheet .copy { min-width: 0 !important; } }
