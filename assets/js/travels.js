@@ -133,7 +133,7 @@ ROUTE_TITLES['bus-results'] = 'Bus results';
 route('bus-results', app => {
   const s = Session.get('busSearch'); if (!s) return go('travels');
   const state = { sort: 'dep', f: new Set(), slot: new Set(), open: null, sel: [] };
-  const all = busesForRoute(s.from, s.to);
+  const all = busesForRoute(s.from, s.to).map(b => boFareOn(b, s.date)); // the day's fare from Fare control
   const popular0 = [...new Map(Store.get('buses').filter(b => b.active === 'Active').map(b => [`${b.from}|${b.to}`, [b.from, b.to]])).values()].slice(0, 10);
   const km = roadKm(s.from, s.to);
   app.innerHTML = `<div class="route-summary"><div class="wrap">
@@ -223,13 +223,13 @@ route('bus-results', app => {
 /* ---------- Travels master portal ---------- */
 ROUTE_TITLES['travels-admin'] = 'Travels portal';
 route('travels-admin', app => {
-  const tabs = [['dash', 'Dashboard'], ['book', 'Book tickets'], ['tickets', 'Tickets'], ['phone', 'Phone bookings'], ['trips', 'Trips'], ['chart', 'Trip chart'], ['reports', 'Reports'], ['bookings', 'Online bookings'], ['buses', 'Buses & vehicles'], ['reviews', 'Ratings & reviews'], ['agents', 'Agents']];
+  const tabs = [['dash', 'Dashboard'], ['book', 'Book tickets'], ['tickets', 'Tickets'], ['phone', 'Phone bookings'], ['trips', 'Trips'], ['chart', 'Trip chart'], ['van', 'Van pickup chart'], ['fares', 'Fare control'], ['reports', 'Reports'], ['bookings', 'Online bookings'], ['buses', 'Buses & vehicles'], ['reviews', 'Ratings & reviews'], ['agents', 'Agents']];
   const active = Session.get('tab_#travels-admin') || 'dash';
   app.innerHTML = adminShell({ title: 'Bus operator portal', sub: 'Book, print and cancel tickets, run the trip chart, and see every seat sold.', tabs, active, base: 'travels' });
   const body = $('#admin-body', app);
   const agentName = id => { const a = Store.find('agents', id); return a ? a.agency : 'Website'; };
   const show = tab => {
-    const again = () => show(tab), ops = { dash: boDash, book: boBook, tickets: boTickets, phone: (b, a) => boTickets(b, a, true), trips: boTrips, chart: boChart, reports: boReports };
+    const again = () => show(tab), ops = { dash: boDash, book: boBook, tickets: boTickets, phone: (b, a) => boTickets(b, a, true), trips: boTrips, chart: boChart, reports: boReports, fares: boFares, van: boVanChart };
     if (ops[tab]) return ops[tab](body, again);
     if (tab === 'dash-old') {
       const bk = Store.get('busBookings'), conf = bk.filter(b => b.status === 'Confirmed');

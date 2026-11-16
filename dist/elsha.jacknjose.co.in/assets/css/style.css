@@ -811,3 +811,20 @@ body.kds-on { overflow: hidden; }
 .bo-pax { display: grid; grid-template-columns: 40px minmax(0, 1fr) 70px 100px 96px; gap: 6px; align-items: center; }
 .bo-pax .input { width: auto !important; min-width: 0; }
 @media (max-width: 560px) { .bo-pax { grid-template-columns: 40px minmax(0, 1fr) 70px; } .bo-pax select, .bo-pax [data-fare] { grid-column: span 1; } }
+
+/* ---------- Fare control and van pickup ---------- */
+.fc-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 900px) { .fc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } } @media (max-width: 520px) { .fc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fc-day { display: grid; gap: 3px; text-align: left; padding: 10px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; min-width: 0; }
+.fc-day span { font-size: .76rem; color: var(--muted); font-weight: 600; } .fc-day b { font-size: 1rem; } .fc-day i { font-style: normal; font-size: .72rem; color: var(--muted); } .fc-day small { font-size: .68rem; color: var(--muted); }
+.fc-day.we span { color: var(--blue); } .fc-day:hover { border-color: var(--blue); }
+.fc-day.up { border-color: var(--green); background: var(--green-soft); } .fc-day.up i { color: var(--green); font-weight: 700; }
+.fc-day.down { border-color: var(--warn); background: var(--warn-soft); } .fc-day.down i { color: var(--warn); font-weight: 700; }
+.fc-day .bo-meter { height: 5px; }
+.van-pts { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 14px; max-height: 240px; overflow: auto; padding: 4px 0; }
+.van-pt { background: var(--surface-2) !important; font-size: .82rem !important; text-transform: none !important; letter-spacing: 0 !important; }
+.duty-print .van-pt { background: #dddddd !important; }
+.stack > .table-wrap, .stack > .row-actions { min-width: 0; }
+.stack > .row-actions { flex-wrap: wrap; }
+.stack > .row-actions { white-space: normal; display: flex; gap: 6px; align-items: center; }
+.stack > .row-actions > span { min-width: 0; flex: 1 1 200px; }
