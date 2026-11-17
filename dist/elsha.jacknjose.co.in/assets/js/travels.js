@@ -96,7 +96,7 @@ function busTicketHtml(b) {
     <div class="ticket-perf"></div>
     <div class="ticket-body"><div class="table-wrap"><table class="table"><thead><tr><th>Seat</th><th>Passenger</th><th>Age</th><th>Gender</th></tr></thead><tbody>
     ${b.passengers.map(p => `<tr><td class="mono">${esc(p.seat)}</td><td>${esc(p.name)}</td><td>${esc(p.age)}</td><td>${esc(p.gender)}</td></tr>`).join('')}</tbody></table></div>
-    <div class="line-item total"><span>Total paid (incl. 5% GST)</span><span>${inr(b.total)}</span></div>${Notify.note(b.id)}${b.status === 'Requested' ? '<div class="notice">This is a booking request. Your seats are confirmed only when we reply with a confirmation.</div>' : ''}
+    ${b.discount ? `<div class="line-item" style="color:var(--green)"><span>Coupon ${esc(b.coupon || '')} saved</span><span>− ${inr(b.discount)}</span></div>` : ''}<div class="line-item total"><span>Total paid (incl. 5% GST)</span><span>${inr(b.total)}</span></div>${Notify.note(b.id)}${b.status === 'Requested' ? '<div class="notice">This is a booking request. Your seats are confirmed only when we reply with a confirmation.</div>' : ''}
     ${b.status === 'Cancelled' ? `<div class="notice">This booking is cancelled.${b.refund ? ` Refund of ${inr(b.refund)} goes back to the original payment method: 1–2 days for UPI and wallets, 5–7 working days for cards and net banking.` : ''}</div>` : ''}</div></div>`;
 }
 function showBusTicket(b, { allowCancel = false, after } = {}) {
@@ -113,7 +113,7 @@ route('travels', app => {
   app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Travels', title: 'Book bus tickets to any city in India', lead: `Our own fleet, live seat maps and instant e-tickets.` }) +
   `<section class="wrap overlap"><div class="search-box">${busSearchForm()}<div class="chips" style="margin-top:12px"><span class="muted small">Quick date:</span>
     <button class="chip" type="button" data-qd="0">Today</button><button class="chip" type="button" data-qd="1">Tomorrow</button><button class="chip" type="button" data-qd="2">Day after</button><a class="chip blue" href="#travels-admin" style="margin-left:auto;text-decoration:none">Office / Agent login</a></div></div></section>
-  <section class="section"><div class="wrap grid g2">
+  ${cpnOffersHtml('bus')}<section class="section"><div class="wrap grid g2">
     <div class="card"><div class="eyebrow">Our routes</div><h3 style="margin:6px 0 14px">${popular.length ? 'Routes we run' : 'Routes are being added'}</h3>${popular.length ? '' : `<p class="muted">Our bus schedule will appear here soon. ${SITE_CONFIG.phone ? 'Call ' + esc(SITE_CONFIG.phone) + ' to book now.' : ''}</p>`}<div class="chips">${popular.map(([a, b]) => `<button class="chip blue" data-route="${esc(a)}|${esc(b)}">${esc(a)} → ${esc(b)}</button>`).join('')}</div></div>
     <div class="card"><div class="eyebrow">Manage booking</div><h3 style="margin:6px 0 14px">View or cancel a ticket</h3>
       <form id="pnr-form" style="display:flex;gap:10px;flex-wrap:wrap"><input class="input mono" id="pnr" name="pnr" placeholder="PNR, e.g. JJB7301" style="flex:1 1 180px" required><button class="btn btn-primary">Find ticket</button></form>
@@ -200,17 +200,19 @@ route('bus-results', app => {
         <label class="field"><span>Email (for e-ticket)</span><input class="input" id="pmail" name="email" type="email" placeholder="you@example.com"></label>
         <label class="field"><span>Booking through</span><select class="input" id="pagent" name="agent"><option value="">Website (direct)</option>${agents.map(a => `<option value="${a.id}">${esc(a.agency)} · ${esc(a.city)}</option>`).join('')}</select></label>
         </div>
-      <div class="line-item total"><span>Amount payable</span><span>${inr(sub * 1.05)}</span></div>
+      ${cpnBox('bus')}<div class="card" style="background:var(--surface-2)" id="pay-sum"></div>
       <button class="btn btn-green btn-lg">${Launch.payLabel()}</button><p class="muted small">${Launch.payNote() || 'Pay by UPI, card, net banking or wallet on the next step. Seats are confirmed once payment succeeds.'}</p></form>`, {
-      wide: true, onMount: m => $('#pax', m).onsubmit = e => {
-        e.preventDefault(); const f = e.target;
+      wide: true, onMount: m => { let cp = null; const paint = () => { const d = cp?.discount || 0, g = Math.round((sub - d) * 5) / 100; $('#pay-sum', m).innerHTML = `<div class="line-item"><span>Fare · ${state.sel.length} seat${state.sel.length > 1 ? 's' : ''}</span><span>${inr(sub)}</span></div>${d ? `<div class="line-item" style="color:var(--green)"><span>Coupon ${esc(cp.code)}</span><span>− ${inr(d)}</span></div>` : ''}<div class="line-item"><span>GST 5%</span><span>${inr(g)}</span></div><div class="line-item total"><span>Amount payable</span><span>${inr(Math.round(sub - d + g))}</span></div>`; };
+      const cpb = cpnBind(m, () => ({ kind: 'bus', amount: sub, from: s.from, to: s.to, phone: $('#pmob', m).value }), r => { cp = r; paint(); }); paint();
+      $('#pax', m).onsubmit = e => {
+        e.preventDefault(); const f = e.target; if (cpb.get() && !cpb.recheck()?.ok) return; const disc = cpb.get()?.discount || 0;
         const bk = { id: genId('JJB', 6), busId: b.id, operator: b.operator, busNo: b.busNo, type: b.type, from: s.from, to: s.to, date: s.date, dep: b.dep, arr: addMins(b.dep, b.durationMin).t,
           seats: [...state.sel], passengers: state.sel.map((seat, i) => ({ seat, name: f['n' + i].value.trim(), age: +f['a' + i].value, gender: f['g' + i].value })),
-          boarding: boarding.split(' · ')[1], dropping: dropping.split(' · ')[1], fare: b.fare, total: Math.round(sub * 1.05), phone: f.phone.value.trim(), email: f.email.value.trim(), agentId: f.agent.value, status: 'Confirmed', createdAt: new Date().toISOString() };
+          boarding: boarding.split(' · ')[1], dropping: dropping.split(' · ')[1], fare: b.fare, sub, discount: disc, coupon: disc ? cpb.get().code : '', gst: Math.round((sub - disc) * 5) / 100, total: Math.round((sub - disc) * 1.05), phone: f.phone.value.trim(), email: f.email.value.trim(), agentId: f.agent.value, status: 'Confirmed', createdAt: new Date().toISOString() };
         const taken = bookedSeats(b, s.date); if (bk.seats.some(x => taken[x])) { closeModal(); toast('Some of these seats were just booked by someone else. Pick again.', 'err'); state.sel = []; return list(); }
         Pay.checkout({ amount: bk.total, description: `Bus ${s.from} → ${s.to} · ${fmtDate(s.date)} · ${bk.seats.length} seat(s)`, bookingType: 'bus', bookingId: bk.id, customer: { name: bk.passengers[0].name, phone: bk.phone, email: bk.email },
           onSuccess: p => { if (p.requested) bk.status = 'Requested'; else { bk.paymentId = p.id; bk.payment = PAY_METHODS[p.method]?.label; } Store.add('busBookings', bk); state.sel = []; state.open = null; list(); if (Launch.request('bus', bk)) return; Notify.event('bus_booked', bk); toast('Paid & confirmed · PNR ' + bk.id); showBusTicket(bk); } });
-      },
+      }; },
     });
   }
   $$('[data-f]').forEach(c => c.onchange = () => { c.checked ? state.f.add(c.dataset.f) : state.f.delete(c.dataset.f); list(); });
@@ -223,13 +225,13 @@ route('bus-results', app => {
 /* ---------- Travels master portal ---------- */
 ROUTE_TITLES['travels-admin'] = 'Travels portal';
 route('travels-admin', app => {
-  const tabs = [['dash', 'Dashboard'], ['book', 'Book tickets'], ['tickets', 'Tickets'], ['phone', 'Phone bookings'], ['trips', 'Trips'], ['chart', 'Trip chart'], ['van', 'Van pickup chart'], ['fares', 'Fare control'], ['reports', 'Reports'], ['gst', 'GST reports'], ['recharge', 'Recharge'], ['vouchers', 'Vouchers'], ['push', 'Push notifications'], ['bookings', 'Online bookings'], ['buses', 'Buses & vehicles'], ['reviews', 'Ratings & reviews'], ['agents', 'Agents']];
+  const tabs = [['dash', 'Dashboard'], ['book', 'Book tickets'], ['tickets', 'Tickets'], ['phone', 'Phone bookings'], ['trips', 'Trips'], ['chart', 'Trip chart'], ['van', 'Van pickup chart'], ['fares', 'Fare control'], ['reports', 'Reports'], ['gst', 'GST reports'], ['recharge', 'Recharge'], ['vouchers', 'Vouchers'], ['push', 'Push notifications'], ['bookings', 'Online bookings'], ['buses', 'Buses & vehicles'], ['reviews', 'Ratings & reviews'], ['agents', 'Agents'], ['coupons', 'Coupons']];
   const active = Session.get('tab_#travels-admin') || 'dash';
   app.innerHTML = adminShell({ title: 'Bus operator portal', sub: 'Book, print and cancel tickets, run the trip chart, and see every seat sold.', tabs, active, base: 'travels' });
   const body = $('#admin-body', app);
   const agentName = id => { const a = Store.find('agents', id); return a ? a.agency : 'Website'; };
   const show = tab => {
-    const again = () => show(tab), ops = { dash: boDash, book: boBook, tickets: boTickets, phone: (b, a) => boTickets(b, a, true), trips: boTrips, chart: boChart, reports: boReports, fares: boFares, van: boVanChart, gst: boGst, recharge: boRecharge, vouchers: boVouchers, push: boPush };
+    const again = () => show(tab), ops = { dash: boDash, book: boBook, tickets: boTickets, phone: (b, a) => boTickets(b, a, true), trips: boTrips, chart: boChart, reports: boReports, fares: boFares, van: boVanChart, gst: boGst, recharge: boRecharge, vouchers: boVouchers, push: boPush, coupons: (b, a) => cpnAdmin(b, a, 'bus') };
     if (ops[tab]) return ops[tab](body, again);
     if (tab === 'dash-old') {
       const bk = Store.get('busBookings'), conf = bk.filter(b => b.status === 'Confirmed');

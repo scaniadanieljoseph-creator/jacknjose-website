@@ -840,3 +840,16 @@ body.kds-on { overflow: hidden; }
 .push-wa:hover { border-color: var(--green); } .push-wa span { font-size: .82rem; color: var(--muted); } .push-wa i { font-style: normal; font-size: .82rem; color: var(--ink-soft); }
 .push-wa.done { background: var(--green-soft); border-color: var(--green); } .push-wa.done b::after { content: "  ✓ opened"; color: var(--green); font-size: .8rem; }
 .print-sheet .r { text-align: right; }
+
+/* ---------- Discount coupons ---------- */
+.cpn-box { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; padding: 12px; border: 1.5px dashed var(--green); border-radius: 12px; background: var(--green-soft); }
+.cpn-box .btn { margin-bottom: 1px; }
+.cpn-msg { flex: 1 1 100%; min-height: 1em; } .cpn-msg.ok { color: var(--green); font-weight: 700; } .cpn-msg.err { color: var(--danger); font-weight: 600; }
+.cpn-offers { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 100%; }
+.cpn-chip { display: grid; gap: 1px; text-align: left; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--green); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; }
+.cpn-chip b { color: var(--green); font-size: .85rem; } .cpn-chip span { font-size: .75rem; color: var(--muted); }
+.cpn-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.cpn-card { display: grid; gap: 4px; padding: 14px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--green); box-shadow: var(--shadow); }
+.cpn-off { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--green); }
+.cpn-code { justify-self: start; margin-top: 4px; padding: 4px 12px; border: 1.5px dashed var(--blue); border-radius: 8px; background: var(--blue-soft); color: var(--blue); font-weight: 700; cursor: pointer; letter-spacing: .04em; }
+.cpn-inline { display: flex; gap: 6px; } .cpn-inline .input { flex: 1; min-width: 0; }

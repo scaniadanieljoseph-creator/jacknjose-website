@@ -14,13 +14,13 @@ const STAFF_WRITE = [
   'vehicles' => ['fleet', 'logistics'], 'trips' => ['fleet', 'logistics'], 'maintenance' => ['fleet', 'logistics'],
   'shipments' => ['*'], 'mediaBookings' => ['*'], 'eeeEnquiries' => ['*'], 'messages' => ['*'], 'notifications' => ['*'],
   'media' => ['travels', 'hotels'], 'reviews' => ['travels', 'hotels'], 'payments' => ['finance', 'travels', 'hotels'],
-  'gatewaySettings' => ['finance'], 'announcements' => ['travels', 'hotels', 'logistics'], 'notifyTemplates' => [], 'notifySettings' => [], 'staffUsers' => [],
+  'gatewaySettings' => ['finance'], 'announcements' => ['travels', 'hotels', 'logistics'], 'coupons' => ['travels', 'hotels'], 'notifyTemplates' => [], 'notifySettings' => [], 'staffUsers' => [],
 ];
-const PUBLIC_READ   = ['announcements', 'buses', 'hotels', 'branches', 'media', 'reviews', 'agents', 'busBookings', 'hotelBookings', 'gatewaySettings'];
+const PUBLIC_READ   = ['announcements', 'coupons', 'buses', 'hotels', 'branches', 'media', 'reviews', 'agents', 'busBookings', 'hotelBookings', 'gatewaySettings'];
 const PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews', 'payments', 'notifications'];
 const PUBLIC_ONE    = ['busBookings', 'hotelBookings', 'parcels', 'shipments'];
 const MAX_DOC_BYTES = 700000;
-const API_VERSION = 5;
+const API_VERSION = 6;
 /* Module collections are recognised by prefix, so new portal modules need no change here.
    prefix => [roles that may read and write them] (the administrator always can). They are never public. */
 const MODULE_PREFIXES = ['hc_' => ['hotels'], 'tr_' => ['travels'], 'lg_' => ['logistics'], 'fl_' => ['fleet', 'logistics'], 'el_' => ['*'], 'x_' => []];
@@ -70,12 +70,32 @@ function managesLogin(?array $u, ?array $doc): bool { if (!isHotelManager($u) ||
 function canWrite(?array $u, string $c): bool { if (!$u) return false; if (($u['role'] ?? '') === 'admin') return true; $r = STAFF_WRITE[$c] ?? moduleRoles($c); return $r !== null && (in_array('*', $r, true) || in_array($u['role'], $r, true)); }
 function moduleCollections(): array { global $db, $T; $out = []; foreach ($db->query("SELECT DISTINCT collection FROM {$T}records") as $r) if (moduleRoles($r['collection']) !== null) $out[] = $r['collection']; return $out; }
 
+/* A customer booking that uses a coupon: the code must be live, for this kind of booking, within its limits, and the discount within what it allows. */
+function checkCoupon(string $c, array &$doc): void {
+  $code = strtoupper(preg_replace('/\s+/', '', (string)($doc['coupon'] ?? '')));
+  if ($code === '') { if ((float)($doc['discount'] ?? 0) > 0) fail(400, 'bad_discount', 'A discount needs a valid coupon code.'); return; }
+  $cp = null; foreach (rows('coupons') as $o) if (strtoupper(preg_replace('/\s+/', '', (string)($o['code'] ?? ''))) === $code) $cp = $o;
+  $today = gmdate('Y-m-d', time() + 19800);
+  if (!$cp || ($cp['status'] ?? '') !== 'Active' || (($cp['from'] ?? '') !== '' && $cp['from'] > $today) || (($cp['to'] ?? '') !== '' && $cp['to'] < $today)) fail(400, 'bad_coupon', 'This coupon code is not valid now.');
+  $kind = $c === 'busBookings' ? 'bus' : 'hotel'; $for = $cp['appliesTo'] ?? 'both';
+  if ($for !== 'both' && $for !== $kind) fail(400, 'bad_coupon', 'This coupon cannot be used for this booking.');
+  $ph = substr(preg_replace('/\D/', '', (string)($doc['phone'] ?? '')), -10); $used = 0; $mine = 0;
+  foreach (['busBookings', 'hotelBookings'] as $bc) foreach (rows($bc) as $o) if (strtoupper((string)($o['coupon'] ?? '')) === $code && ($o['status'] ?? '') !== 'Cancelled') { $used++; if ($ph !== '' && substr(preg_replace('/\D/', '', (string)($o['phone'] ?? '')), -10) === $ph) $mine++; }
+  if ((int)($cp['limit'] ?? 0) > 0 && $used >= (int)$cp['limit']) fail(409, 'coupon_used_up', 'Sorry, this coupon has been fully used.');
+  if ((int)($cp['perCustomer'] ?? 0) > 0 && $mine >= (int)$cp['perCustomer']) fail(409, 'coupon_used', 'You have already used this coupon.');
+  $amount = (float)($kind === 'bus' ? ($doc['sub'] ?? 0) : ($doc['base'] ?? 0)); $disc = (float)($doc['discount'] ?? 0); $val = (float)($cp['value'] ?? 0);
+  $max = ($cp['type'] ?? '') === 'flat' ? $val : $amount * $val / 100; if ((float)($cp['maxDiscount'] ?? 0) > 0 && ($cp['type'] ?? '') !== 'flat') $max = min($max, (float)$cp['maxDiscount']);
+  if ((float)($cp['minAmount'] ?? 0) > $amount + 0.5 || $disc > $max + 1) fail(400, 'bad_discount', 'The discount is more than this coupon allows.');
+  $doc['coupon'] = $code;
+}
+
 /* ---- what the public may see of each collection ---- */
 function publicView(string $c, array $list): array {
   $out = [];
   foreach ($list as $d) switch ($c) {
     case 'busBookings': if (in_array($d['status'] ?? '', ['Confirmed', 'Phone', 'Blocked'], true)) $out[] = ['id' => pid($d['id']), 'busId' => $d['busId'] ?? '', 'date' => $d['date'] ?? '', 'status' => 'Confirmed', 'seats' => $d['seats'] ?? [], 'passengers' => array_map(fn($p) => ['seat' => $p['seat'] ?? '', 'gender' => $p['gender'] ?? ''], $d['passengers'] ?? [])]; break;
     case 'hotelBookings': if (in_array($d['status'] ?? '', ['Confirmed', 'Checked-in'], true)) $out[] = ['id' => pid($d['id']), 'hotelId' => $d['hotelId'] ?? '', 'checkIn' => $d['checkIn'] ?? '', 'checkOut' => $d['checkOut'] ?? '', 'rooms' => $d['rooms'] ?? 1, 'status' => $d['status']]; break;
+    case 'coupons': if (($d['status'] ?? '') === 'Active' && (($d['to'] ?? '') === '' || $d['to'] >= gmdate('Y-m-d', time() - 86400))) { $code = strtoupper(preg_replace('/\s+/', '', (string)($d['code'] ?? ''))); $o = array_intersect_key($d, array_flip(['id', 'title', 'type', 'value', 'maxDiscount', 'minAmount', 'appliesTo', 'routeFrom', 'routeTo', 'city', 'from', 'to', 'perCustomer', 'show', 'status'])); if (!empty($d['show'])) $o['code'] = $code; else $o['codeHash'] = hash('sha256', 'jjcpn:' . $code); $out[] = $o; } break;
     case 'announcements': if (($d['status'] ?? '') === 'Active' && ($d['to'] ?? '') >= gmdate('Y-m-d', time() - 86400)) $out[] = ['id' => $d['id'], 'title' => $d['title'] ?? '', 'msg' => $d['msg'] ?? '', 'link' => $d['link'] ?? '', 'from' => $d['from'] ?? '', 'to' => $d['to'] ?? '', 'status' => 'Active', 'createdAt' => $d['createdAt'] ?? '']; break;
     case 'agents': if (($d['status'] ?? '') === 'Active') $out[] = ['id' => $d['id'], 'name' => $d['name'] ?? '', 'agency' => $d['agency'] ?? '', 'city' => $d['city'] ?? '', 'status' => 'Active']; break;
     case 'reviews': if (($d['status'] ?? '') !== 'Removed') { unset($d['resolution']); if (isset($d['challenge'])) $d['challenge'] = ['reason' => 'under review']; $out[] = $d; } break;
@@ -158,6 +178,7 @@ case 'save': { $needPost();
     $doc['rating'] = $r; $doc['status'] = 'Published'; unset($doc['reply'], $doc['challenge'], $doc['resolution'], $doc['sample']);
     $doc['text'] = mb_substr((string)($doc['text'] ?? ''), 0, 2000); $doc['name'] = mb_substr((string)($doc['name'] ?? 'Customer'), 0, 80);
   }
+  if (in_array($c, ['busBookings', 'hotelBookings'], true)) checkCoupon($c, $doc);
   $doc['createdAt'] = gmdate('Y-m-d\TH:i:s\Z'); unset($doc['sample']);
   putDoc($c, $doc); respond(200, ['ok' => true, 'doc' => $doc]);
 }
