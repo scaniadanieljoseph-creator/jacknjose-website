@@ -87,6 +87,7 @@ const BRAND_MARK = '<svg viewBox="0 0 64 64" role="img" aria-label="Elsha"><defs
 
 /* ---------- Icons (inline SVG, stroke style) ---------- */
 const ICONS = {
+  steer: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.2"/><path d="M12 14.2V21M9.8 12H3M14.2 12H21"/>',
   truck: '<path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
   box: '<path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"/>',
   fleet: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4M7 9h3M7 12h6"/><circle cx="17" cy="10" r="2"/>',
