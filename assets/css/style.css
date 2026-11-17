@@ -828,3 +828,15 @@ body.kds-on { overflow: hidden; }
 .stack > .row-actions { flex-wrap: wrap; }
 .stack > .row-actions { white-space: normal; display: flex; gap: 6px; align-items: center; }
 .stack > .row-actions > span { min-width: 0; flex: 1 1 200px; }
+
+/* ---------- Push notifications, recharge, vouchers ---------- */
+.push-bar { position: relative; z-index: 2; background: linear-gradient(90deg, var(--blue-deep, #06305f), #0b6f7c); color: #fff; }
+.push-bar .wrap { display: flex; align-items: center; gap: 12px; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+.push-bar .wrap > div:nth-child(2) { flex: 1 1 260px; min-width: 0; font-size: .92rem; } .push-bar b { color: #ffffff; } .push-bar span { color: #d9ecf7; }
+.push-ico svg { width: 22px; height: 22px; color: #9ff0c8; } .push-act { display: flex; gap: 8px; align-items: center; }
+.push-x { background: none; border: 0; color: #fff; font-size: 22px; line-height: 1; cursor: pointer; padding: 2px 6px; }
+.push-item { display: grid; gap: 3px; padding: 10px 0; border-bottom: 1px solid var(--line); } .push-item:last-child { border-bottom: 0; } .push-item .btn { justify-self: start; margin-top: 4px; }
+.push-wa { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink); background: var(--surface); }
+.push-wa:hover { border-color: var(--green); } .push-wa span { font-size: .82rem; color: var(--muted); } .push-wa i { font-style: normal; font-size: .82rem; color: var(--ink-soft); }
+.push-wa.done { background: var(--green-soft); border-color: var(--green); } .push-wa.done b::after { content: "  ✓ opened"; color: var(--green); font-size: .8rem; }
+.print-sheet .r { text-align: right; }
