@@ -80,7 +80,7 @@ function hotelVoucherHtml(b) {
     <div style="text-align:right"><div class="small" style="opacity:.8">Booking ID</div><b class="mono" style="font-size:1.2rem">${esc(b.id)}</b></div></div>
     <div class="ticket-body"><div class="kv"><div><span>Check-in</span><b>${fmtDate(b.checkIn)}</b><div class="muted small">from 12:00 PM</div></div><div><span>Check-out</span><b>${fmtDate(b.checkOut)}</b><div class="muted small">by 11:00 AM</div></div><div><span>Nights</span><b>${b.nights}</b></div><div><span>Status</span><b>${statusChip(b.status)}</b></div></div>
     <div class="kv"><div><span>Room</span><b>${esc(b.roomType)} × ${b.rooms}</b></div><div><span>Guests</span><b>${b.guests}</b></div><div><span>Guest name</span><b>${esc(b.guest)}</b></div><div><span>Phone</span><b>${esc(b.phone)}</b></div>${Pay.kv(b.id)}</div></div>
-    <div class="ticket-perf"></div><div class="ticket-body"><div><div class="line-item"><span>Room charges</span><span>${inr(b.base)}</span></div><div class="line-item"><span>GST</span><span>${inr(b.tax)}</span></div><div class="line-item total"><span>Total</span><span>${inr(b.total)}</span></div></div>${Notify.note(b.id)}${b.status === 'Requested' ? '<div class="notice">This is a booking request. Your room is confirmed only when we reply with a confirmation.</div>' : ''}
+    <div class="ticket-perf"></div><div class="ticket-body"><div><div class="line-item"><span>Room charges</span><span>${inr(b.base)}</span></div><div class="line-item"><span>GST</span><span>${inr(b.tax)}</span></div>${b.discount ? `<div class="line-item" style="color:var(--green)"><span>Coupon ${esc(b.coupon || '')} saved</span><span>− ${inr(b.discount)}</span></div>` : ''}<div class="line-item total"><span>Total</span><span>${inr(b.total)}</span></div></div>${Notify.note(b.id)}${b.status === 'Requested' ? '<div class="notice">This is a booking request. Your room is confirmed only when we reply with a confirmation.</div>' : ''}
     <p class="muted small">Carry a government photo ID at check-in. Free cancellation until 24 hours before check-in.</p></div></div>`;
 }
 
@@ -88,7 +88,7 @@ ROUTE_TITLES.hotels = 'Hotel booking';
 route('hotels', app => {
   const cities = [...new Set(Store.get('hotels').filter(h => h.active === 'Active').map(h => h.city))];
   app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Hotels', title: 'Stays from backwater resorts to business hotels', lead: 'Compare verified hotels, check live room availability and get a booking voucher in seconds. Free cancellation up to 24 hours before check-in.' }) +
-  `<section class="wrap overlap"><div class="search-box">${hotelSearchForm()}</div></section>
+  `<section class="wrap overlap"><div class="search-box">${hotelSearchForm()}</div></section>${cpnOffersHtml('hotel')}
   <section class="section"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Destinations</div><h2 style="margin-top:6px">Where our partner hotels are</h2></div></div>
     <div class="grid g4">${cities.map(c => { const hs = Store.get('hotels').filter(h => h.city === c && h.active === 'Active'); const min = Math.min(...hs.map(h => h.price)); return `<button class="card svc" data-city="${esc(c)}" style="text-align:left;cursor:pointer;padding:0;overflow:hidden"><div class="city-pic">${hotelPic(hs[0])}<span>${esc(c)}</span></div><div style="padding:14px 16px"><b>${hs.length} hotel${hs.length > 1 ? 's' : ''}</b><div class="muted small">from ${inr(min)} / night</div></div></button>`; }).join('')}</div></div></section>
   <section class="section-tight"><div class="wrap grid g2"><div class="card"><div class="eyebrow">Manage booking</div><h3 style="margin:6px 0 14px">Find your hotel booking</h3>
@@ -134,19 +134,20 @@ route('hotel-results', app => {
     $$('[data-hotel]').forEach(b => b.onclick = () => chooseRoom(Store.find('hotels', b.dataset.hotel)));
   }
   function chooseRoom(h) {
-    let rt = ROOM_TYPES[0];
-    const calc = () => { const per = h.price * rt.mult, base = per * nights * s.rooms, tax = base * gstRate(per); return { per, base, tax, total: Math.round(base + tax) }; };
-    const summary = () => { const c = calc(); return `<div class="line-item"><span>${inr(c.per)} × ${nights} night${nights > 1 ? 's' : ''} × ${s.rooms} room${s.rooms > 1 ? 's' : ''}</span><span>${inr(c.base)}</span></div><div class="line-item"><span>GST ${gstRate(c.per) * 100}%</span><span>${inr(c.tax)}</span></div><div class="line-item total"><span>Total</span><span>${inr(c.total)}</span></div>`; };
+    let rt = ROOM_TYPES[0], cpd = 0, cpb = null;
+    const calc = () => { const per = h.price * rt.mult, base = per * nights * s.rooms, disc = Math.min(base, cpd), tax = (base - disc) * gstRate(per); return { per, base, disc, tax, total: Math.round(base - disc + tax) }; };
+    const summary = () => { const c = calc(); return `<div class="line-item"><span>${inr(c.per)} × ${nights} night${nights > 1 ? 's' : ''} × ${s.rooms} room${s.rooms > 1 ? 's' : ''}</span><span>${inr(c.base)}</span></div>${c.disc ? `<div class="line-item" style="color:var(--green)"><span>Coupon ${esc(cpb?.get()?.code || '')}</span><span>− ${inr(c.disc)}</span></div>` : ''}<div class="line-item"><span>GST ${gstRate(c.per) * 100}%</span><span>${inr(c.tax)}</span></div><div class="line-item total"><span>Total</span><span>${inr(c.total)}</span></div>`; };
     openModal(h.name, `<div class="muted">${esc(h.area)}, ${esc(h.city)} · ${fmtDate(s.checkIn)} – ${fmtDate(s.checkOut)}</div>${galleryHtml('hotel', h.id)}
       <details class="mv-log"><summary>Guest ratings & reviews${(st => st ? ` · ★ ${st.avg.toFixed(1)}${st.count ? ` (${st.count})` : ''}` : '')(Reviews.stats('hotel', h.id, h.rating))}</summary><div style="margin-top:10px">${reviewsListHtml('hotel', h.id, h.rating)}</div></details>
       <div class="stack" id="rooms">${ROOM_TYPES.map((r, i) => `<label class="room-opt ${i === 0 ? 'on' : ''}"><div><b>${r.key} room</b><div class="muted small">${r.desc}</div></div><div style="text-align:right"><b>${inr(h.price * r.mult)}</b><div class="muted small">/ night</div><input type="radio" name="rt" value="${i}" ${i === 0 ? 'checked' : ''} style="accent-color:var(--green)"></div></label>`).join('')}</div>
       <form id="guest" class="form-grid"><label class="field"><span>Lead guest name</span><input class="input" id="g-name" name="name" required></label><label class="field"><span>Mobile</span><input class="input" id="g-phone" name="phone" required pattern="[0-9+ ]{10,15}"></label><label class="field"><span>Email</span><input class="input" id="g-mail" name="email" type="email"></label>
         <label class="field full"><span>Special requests</span><input class="input" id="g-req" name="req" placeholder="Early check-in, extra bed…"></label>
-        <div class="full card" style="background:var(--surface-2)" id="sum">${summary()}</div><button class="btn btn-green btn-lg full">${Launch.payLabel()}</button></form>`, {
+        <div class="full">${cpnBox('hotel')}</div><div class="full card" style="background:var(--surface-2)" id="sum">${summary()}</div><button class="btn btn-green btn-lg full">${Launch.payLabel()}</button></form>`, {
       wide: true, onMount: m => {
-        $$('input[name=rt]', m).forEach(r => r.onchange = () => { rt = ROOM_TYPES[+r.value]; $$('.room-opt', m).forEach((o, i) => o.classList.toggle('on', i === +r.value)); $('#sum', m).innerHTML = summary(); });
-        $('#guest', m).onsubmit = e => { e.preventDefault(); const f = e.target, c = calc();
-          const b = { id: genId('JJH', 6), hotelId: h.id, hotelName: h.name, city: h.city, checkIn: s.checkIn, checkOut: s.checkOut, nights, rooms: s.rooms, guests: s.guests, roomType: rt.key, base: c.base, tax: c.tax, total: c.total, guest: f.name.value.trim(), phone: f.phone.value.trim(), email: f.email.value.trim(), request: f.req.value.trim(), status: 'Confirmed', createdAt: new Date().toISOString() };
+        cpb = cpnBind(m, () => ({ kind: 'hotel', amount: h.price * rt.mult * nights * s.rooms, city: h.city, phone: $('#g-phone', m).value }), r => { cpd = r?.discount || 0; $('#sum', m).innerHTML = summary(); });
+        $$('input[name=rt]', m).forEach(r => r.onchange = () => { rt = ROOM_TYPES[+r.value]; $$('.room-opt', m).forEach((o, i) => o.classList.toggle('on', i === +r.value)); $('#sum', m).innerHTML = summary(); cpb.recheck(); });
+        $('#guest', m).onsubmit = e => { e.preventDefault(); if (cpb.get() && !cpb.recheck()?.ok) return; const f = e.target, c = calc();
+          const b = { id: genId('JJH', 6), hotelId: h.id, hotelName: h.name, city: h.city, checkIn: s.checkIn, checkOut: s.checkOut, nights, rooms: s.rooms, guests: s.guests, roomType: rt.key, base: c.base, discount: c.disc, coupon: c.disc ? cpb.get().code : '', tax: c.tax, total: c.total, guest: f.name.value.trim(), phone: f.phone.value.trim(), email: f.email.value.trim(), request: f.req.value.trim(), status: 'Confirmed', createdAt: new Date().toISOString() };
           if (roomsLeft(h, s.checkIn, s.checkOut) < s.rooms) { closeModal(); toast('Those rooms just sold out. Choose another hotel.', 'err'); return list(); }
           Pay.checkout({ amount: b.total, description: `${h.name} · ${fmtDate(s.checkIn)} · ${nights} night(s) · ${rt.key} × ${s.rooms}`, bookingType: 'hotel', bookingId: b.id, customer: { name: b.guest, phone: b.phone, email: b.email },
             onSuccess: p => { if (p.requested) b.status = 'Requested'; else b.paymentId = p.id; Store.add('hotelBookings', b); if (Launch.request('hotel', b)) { list(); return; } Notify.event('hotel_booked', b); toast('Paid & confirmed · ' + b.id); list(); openModal('Booking confirmed', hotelVoucherHtml(b), { wide: true }); } }); };
@@ -162,12 +163,13 @@ route('hotel-results', app => {
 
 ROUTE_TITLES['hotels-admin'] = 'Hotels portal';
 route('hotels-admin', app => {
-  const tabs = [['dash', 'Dashboard'], ['bookings', 'Bookings'], ['hotels', 'Hotels & media'], ['reviews', 'Guest reviews']];
+  const tabs = [['dash', 'Dashboard'], ['bookings', 'Bookings'], ['hotels', 'Hotels & media'], ['reviews', 'Guest reviews'], ['coupons', 'Coupons']];
   const active = Session.get('tab_#hotels-admin') || 'dash';
   app.innerHTML = adminShell({ title: 'Hotels master portal', sub: 'Partner properties, rates, room inventory and guest bookings.', tabs, active, base: 'hotels' });
   const body = $('#admin-body', app);
   const setStatus = (r, status, rr) => { Store.update('hotelBookings', r.id, { status }); if (status === 'Cancelled') Pay.refundBooking(r.id, r.total, 'Hotel booking cancelled by hotel'); const ev = { Cancelled: 'hotel_cancelled', 'Checked-in': 'hotel_checkin', 'Checked-out': 'hotel_checkout' }[status]; if (ev) Notify.event(ev, Store.find('hotelBookings', r.id)); toast(`${r.id} marked ${status}`); rr(); };
   const show = tab => {
+    if (tab === 'coupons') return cpnAdmin(body, () => show(tab), 'hotel');
     if (tab === 'dash') {
       const bk = Store.get('hotelBookings'), live = bk.filter(b => b.status !== 'Cancelled'), H = Store.get('hotels');
       const rev = live.reduce((s, b) => s + b.total, 0), nights = live.reduce((s, b) => s + b.nights * b.rooms, 0);
