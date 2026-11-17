@@ -905,3 +905,10 @@ body.kds-on { overflow: hidden; }
 @media (max-width: 1000px) { .bus-h { display: none; } .v-only { display: block; } }
 .seat-panel:has(.bus-h) { grid-template-columns: 1fr; }
 @media (min-width: 1001px) { .seat-panel:has(.bus-h) > .stack { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; align-items: start; } .seat-panel:has(.bus-h) > .stack > .card, .seat-panel:has(.bus-h) > .stack > .btn, .seat-panel:has(.bus-h) > .stack > p { grid-column: 1 / -1; } }
+
+/* ---------- Booked seats by gender: male blue, female pink (upright map on phones too) ---------- */
+.seat-grid.sg .seat.booked { background: #7cc7ec; border-color: #5fb5df; color: #0b2a44; }
+.seat-grid.sg .seat.booked.ladies { background: #f6b8d0; border-color: #ec95b8; color: #5a1030; }
+.seat-grid.sg .seat.booked.bo-phone { background: #ffd79a; border-color: #f0b350; color: #5a3a00; }
+.seat-grid.sg .seat.booked.bo-block { background: repeating-linear-gradient(45deg, #dfe6ec, #dfe6ec 4px, #f4f7f9 4px, #f4f7f9 8px); border-color: #b9c6d1; color: var(--muted); }
+.v-only .legend i.b { background: #7cc7ec; border-color: #5fb5df; } .v-only .legend i.l { background: #f6b8d0; border-color: #ec95b8; }

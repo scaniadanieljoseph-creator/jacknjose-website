@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Elsha" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">#06305F</item>
+        <item name="android:colorPrimaryDark">#06305F</item>
+        <item name="android:colorAccent">#1FBF7A</item>
+        <item name="android:statusBarColor">#06305F</item>
+        <item name="android:navigationBarColor">#06305F</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+</resources>
