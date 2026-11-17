@@ -62,7 +62,7 @@ function fleetMap() {
 ROUTE_TITLES.fleet = 'Fleet portal';
 route('fleet', app => {
   if (typeof flMigrate === 'function' && !(typeof Remote !== 'undefined' && Remote.on && (Remote.apiVersion || 1) < 2)) flMigrate();
-  const tabs = [['dash', 'Live overview'], ['vehicles', 'Vehicles'], ['duty', 'Duty list & trip sheets'], ['maint', 'Maintenance'], ['fstaff', 'Staff'], ['rates', 'Daily wages'], ['pay', 'Payroll'], ['reports', 'Reports']];
+  const tabs = [['dash', 'Live overview'], ['vehicles', 'Vehicles'], ['duty', 'Memos & duty list'], ['maint', 'Maintenance'], ['fstaff', 'Staff'], ['rates', 'Daily wages'], ['pay', 'Payroll'], ['reports', 'Reports']];
   let active = Session.get('tab_#fleet') || 'dash'; if (!tabs.some(x => x[0] === active)) active = 'dash';
   app.innerHTML = adminShell({ title: 'Fleet management portal', sub: 'Every truck, bus and car in one place: where it is, who drives it and what it needs next.', tabs, active, base: 'transports' });
   const body = $('#admin-body', app);

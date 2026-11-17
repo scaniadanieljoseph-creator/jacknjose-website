@@ -853,3 +853,8 @@ body.kds-on { overflow: hidden; }
 .cpn-off { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--green); }
 .cpn-code { justify-self: start; margin-top: 4px; padding: 4px 12px; border: 1.5px dashed var(--blue); border-radius: 8px; background: var(--blue-soft); color: var(--blue); font-weight: 700; cursor: pointer; letter-spacing: .04em; }
 .cpn-inline { display: flex; gap: 6px; } .cpn-inline .input { flex: 1; min-width: 0; }
+
+/* ---------- Memo forms ---------- */
+.fm-more { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; }
+.fm-more summary { cursor: pointer; color: var(--blue); font-weight: 600; font-size: .9rem; }
+.form-grid .field small { display: block; margin-top: 4px; }
