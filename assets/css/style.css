@@ -858,3 +858,24 @@ body.kds-on { overflow: hidden; }
 .fm-more { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; }
 .fm-more summary { cursor: pointer; color: var(--blue); font-weight: 600; font-size: .9rem; }
 .form-grid .field small { display: block; margin-top: 4px; }
+
+/* ---------- Seat map: one row unit for every deck, so a berth is always exactly two seat rows tall ---------- */
+.decks { align-items: flex-start; }
+.seat-grid.sg { --sw: 34px; --gw: 18px; --u: 34px; grid-auto-rows: var(--u); }
+.seat-grid.sg.fu { --u: 44px; }
+.seat-grid.sg > .seat.seat.seat { width: var(--sw); height: auto; min-height: 0; }
+.seat-grid.sg > .seat.span2, .seat-grid.sg.sl > * { grid-row: span 2; }
+.seat-grid.sg > .seat.sleeper small, .seat-grid.sg > .seat.span2 small { margin-top: 2px; }
+@media (max-width: 600px) {
+  .seat-panel { padding: 14px 10px; }
+  .seat-panel > div:first-child { min-width: 0; }
+  .decks { flex-wrap: nowrap; gap: 8px; justify-content: center; }
+  .deck { padding: 8px 6px; min-width: 0; }
+  .deck-title { font-size: .6rem; letter-spacing: .03em; gap: 4px; margin-bottom: 8px; }
+  .seat-grid.sg { --sw: 30px; --gw: 8px; --u: 30px; gap: 4px; }
+  .seat-grid.sg.fu { --u: 38px; }
+  .seat-grid.sg > .seat { font-size: .55rem; }
+  .seat-grid.sg > .seat small { font-size: .5rem; }
+  .legend { justify-content: center; gap: 8px; font-size: .72rem; }
+}
+@media (max-width: 360px) { .seat-grid.sg { --sw: 27px; --gw: 6px; --u: 27px; gap: 3px; } .seat-grid.sg.fu { --u: 35px; } }

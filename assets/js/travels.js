@@ -173,7 +173,7 @@ route('bus-results', app => {
   function seatPanel(b, booked) {
     const T = BUS_TYPES[b.type] || {}, stops = busStops(b, s.from, s.to), varied = fareVaries(b);
     const decks = seatLayout(b).map(d => `<div class="deck"><div class="deck-title"><span>${d.name}</span>${d.name !== 'Upper deck' ? '<span>Driver ⊙</span>' : ''}</div>
-      <div class="seat-grid" style="grid-template-columns:${d.rows[0].map(c => c === null ? '18px' : '34px').join(' ')}">${d.rows.flat().map(c => c === null ? '<span class="seat-gap"></span>' : c === '' ? '<span></span>' :
+      <div class="seat-grid sg ${d.sleeper ? 'sl' : ''} ${varied ? 'fu' : ''}" style="grid-template-columns:${d.rows[0].map(c => c === null ? 'var(--gw)' : 'var(--sw)').join(' ')}">${d.rows.flat().map(c => c === null ? '<span class="seat-gap"></span>' : c === '' ? '<span></span>' :
       `<button type="button" class="seat ${seatKindClass(d, c)} ${varied ? 'fare' : ''} ${booked[c] === 'ladies' ? 'booked ladies' : booked[c] ? 'booked' : ''} ${state.sel.includes(c) ? 'sel' : ''}" data-seat="${c}" ${booked[c] ? 'disabled' : ''} title="${seatKindClass(d, c) ? 'Sleeper berth' : 'Seat'} ${c} · ${inr(seatPrice(b, c))}" aria-label="${seatKindClass(d, c) ? 'Berth' : 'Seat'} ${c}, ${inr(seatPrice(b, c))}${booked[c] ? ', booked' : ''}">${c}${varied ? `<small>${seatPrice(b, c)}</small>` : ''}</button>`).join('')}</div></div>`).join('');
     const sub = fareTotal(b, state.sel), mixed = varied;
     return `<div class="seat-panel"><div><div class="decks">${decks}</div><div class="legend"><span><i></i>Available</span><span><i class="b"></i>Booked</span><span><i class="l"></i>Booked by ladies</span><span><i class="s"></i>Your selection</span></div></div>
