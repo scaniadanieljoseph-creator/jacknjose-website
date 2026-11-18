@@ -5,6 +5,14 @@ declare(strict_types=1);
 require __DIR__ . '/db.php';
 header('X-Content-Type-Options: nosniff'); header('X-Frame-Options: DENY'); header('Cache-Control: no-store');
 function h(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+/* cPanel puts the account name and _ in front of every database and database user */
+function cp_prefixes(): array {
+  $names = [];
+  foreach ([function_exists('get_current_user') ? get_current_user() : '', preg_match('#^/home\d*/([^/]+)/#', __DIR__, $m) ? $m[1] : ''] as $u)
+    if (preg_match('/^[a-z0-9]{1,32}$/i', (string)$u)) { $names[] = $u . '_'; if (strlen($u) > 8) $names[] = substr($u, 0, 8) . '_'; }   // older cPanel used only the first 8 letters
+  return array_values(array_unique($names));
+}
+$PFX = cp_prefixes();
 
 $cfg = jg_config(); $done = !empty($cfg['name']); $msg = ''; $ok = '';
 $sqlite = null; $owners = 0;
@@ -22,9 +30,18 @@ if (!$done && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     if (!preg_match('/^(localhost|127\.0\.0\.1)(:\d{2,5})?$/', $host)) throw new RuntimeException('The database server must be on this hosting account (usually “localhost”).');
     if (!preg_match('/^[A-Za-z0-9_]{1,64}$/', $name) || !preg_match('/^[A-Za-z0-9_]{1,64}$/', $user)) throw new RuntimeException('Copy the database name and user exactly as cPanel shows them (letters, numbers and _ only), e.g. cpuser_jothigrand.');
     $new = ['host' => $host, 'name' => $name, 'user' => $user, 'pass' => $pass];
-    try { $my = jg_connect($new); } catch (Throwable $e) {
-      $m = $e->getMessage();
-      throw new RuntimeException(stripos($m, 'denied') !== false ? 'MySQL refused the user or password, or the user has not been added to this database with ALL PRIVILEGES (cPanel → MySQL Databases → Add User To Database).' : (stripos($m, 'Unknown database') !== false ? 'There is no database with that name. Check the full name in cPanel → MySQL Databases.' : 'Could not reach MySQL. Check the server name (usually localhost).'));
+    /* try the names as typed, then with the cPanel prefix added where it is missing */
+    $tries = [[$name, $user]];
+    foreach ($PFX as $p) { $n2 = stripos($name, $p) === 0 ? $name : $p . $name; $u2 = stripos($user, $p) === 0 ? $user : $p . $user; foreach ([[$n2, $u2], [$n2, $user], [$name, $u2]] as $t) if (!in_array($t, $tries, true)) $tries[] = $t; }
+    $my = null; $why = '';
+    foreach ($tries as [$tn, $tu]) {
+      if (strlen($tn) > 64 || strlen($tu) > 64) continue;
+      try { $my = jg_connect(['host' => $host, 'name' => $tn, 'user' => $tu, 'pass' => $pass]); $new['name'] = $tn; $new['user'] = $tu; break; }
+      catch (Throwable $e) { $m = $e->getMessage(); if ($why === '' || stripos($m, 'Unknown database') !== false) $why = $m; }
+    }
+    if (!$my) {
+      $full = $PFX ? ' Your cPanel names should start with <b>' . h($PFX[0]) . '</b>, for example ' . h($PFX[0]) . 'jothigrand.' : '';
+      throw new RuntimeException((stripos($why, 'Unknown database') !== false ? 'MySQL accepted the user but cannot find that database. Copy the database name exactly from cPanel → MySQL Databases → Current Databases.' : (stripos($why, 'denied') !== false ? 'MySQL refused the login. Check three things in cPanel → MySQL Databases: (1) the user name and database name exactly as listed there, (2) the password (use “Change Password” on the user to set a new one and type it here), (3) under “Add User To Database” the user is added to the database with ALL PRIVILEGES.' : 'Could not reach MySQL. Keep the database server as localhost.')) . $full);
     }
     jg_schema($my);
     $moved = '';
@@ -42,9 +59,9 @@ if (!$done && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     $php = "<?php\n/* Hotel Jothi Grand management: MySQL connection (written by install.php). Keep this file private. */\nreturn " . var_export($new, true) . ";\n";
     if (@file_put_contents(JG_CONFIG, $php, LOCK_EX) === false) throw new RuntimeException('Connected, but could not save manage/config.php. Make the manage folder writable (permissions 755) and try again.');
     @chmod(JG_CONFIG, 0600);
-    jg_log('install', 'mysql', '', $name, $moved);
-    $ok = 'Connected to MySQL database ' . $name . '. ' . $moved; $done = true; $cfg = $new;
-  } catch (Throwable $e) { $msg = $e instanceof RuntimeException ? $e->getMessage() : 'Something went wrong while setting up the database.'; }
+    jg_log('install', 'mysql', '', $new['name'], $moved);
+    $ok = 'Connected to MySQL database ' . $new['name'] . ' as user ' . $new['user'] . '. ' . $moved; $done = true; $cfg = $new;
+  } catch (Throwable $e) { $msg = $e instanceof RuntimeException ? (strpos($e->getMessage(), '<b>') !== false ? $e->getMessage() : h($e->getMessage())) : 'Something went wrong while setting up the database.'; }
 }
 
 $status = '';
@@ -60,12 +77,13 @@ if ($done && !$ok) { try { $c = jg_db()->query('SELECT COUNT(*) FROM jg_records'
 <?php else: ?>
   <p>Connect the hotel management system to your cPanel MySQL database. Do this once.</p>
   <ol><li>In cPanel open <b>MySQL® Databases</b>.</li><li>Create a database, e.g. <b>jothigrand</b> (cPanel adds your prefix).</li><li>Create a user with a strong password.</li><li>Under <b>Add User To Database</b> add the user to the database and tick <b>ALL PRIVILEGES</b>.</li><li>Enter the names below exactly as cPanel shows them.</li></ol><hr>
-  <label>Database name<input name="name" required placeholder="cpuser_jothigrand" value="<?= h((string)($_POST['name'] ?? '')) ?>"></label>
-  <label>Database user<input name="user" required placeholder="cpuser_jguser" value="<?= h((string)($_POST['user'] ?? '')) ?>"></label>
+  <?php if ($PFX): ?><p>On this hosting account every database name and user starts with <b><?= h($PFX[0]) ?></b>. You can type it with or without that part.</p><?php endif; ?>
+  <label>Database name<input name="name" required placeholder="<?= h(($PFX[0] ?? 'cpuser_') . 'jothigrand') ?>" value="<?= h((string)($_POST['name'] ?? '')) ?>"></label>
+  <label>Database user<input name="user" required placeholder="<?= h(($PFX[0] ?? 'cpuser_') . 'jguser') ?>" value="<?= h((string)($_POST['user'] ?? '')) ?>"></label>
   <label>Database password<input name="pass" type="password" required autocomplete="new-password"></label>
   <label>Database server<input name="host" value="<?= h((string)($_POST['host'] ?? 'localhost')) ?>"></label>
   <?php if ($owners > 0): ?><hr><p>The system already has data. Confirm with the <b>owner</b> login to move it into MySQL.</p>
   <label>Owner username<input name="owner" required autocomplete="username"></label><label>Owner password<input name="ownerpass" type="password" required autocomplete="current-password"></label><?php endif; ?>
-  <div class="err"><?= h($msg) ?></div><button class="btn btn-p">Connect &amp; move data</button>
+  <div class="err"><?= $msg ?></div><button class="btn btn-p">Connect &amp; move data</button>
 <?php endif; ?>
 </form></div></body></html>
