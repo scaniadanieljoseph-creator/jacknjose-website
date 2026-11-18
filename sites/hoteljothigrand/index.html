@@ -256,13 +256,13 @@ JG.fill(); JG.booking($('[data-book]')); JG.motion();
     const S = 1100, g = document.createElement('canvas'); g.width = g.height = S; const q = g.getContext('2d'), h = S / 2;
     const dust = [sprite('rgba(255,92,154,1)'), sprite('rgba(138,109,255,1)'), sprite('rgba(91,140,255,1)'), sprite('rgba(255,170,210,1)')];
     q.globalCompositeOperation = 'lighter';
-    for (let i = 0; i < 2600; i++) {
+    for (let i = 0; i < 3400; i++) {
       const arm = i % ARMS, u = Math.pow(Math.random(), .75), a = armAngle(u, arm) + gauss() * .38 * (1 - u * .4), rr = u * h * .96 + gauss() * 18;
       const px = h + Math.cos(a) * rr, py = h + Math.sin(a) * rr, sz = rnd(18, 70) * (1 - u * .5);
-      q.globalAlpha = rnd(.025, .07) * (1 - u * .6); q.drawImage(dust[u < .25 ? 3 : (i >> 2) % 3], px - sz / 2, py - sz / 2, sz, sz);
+      q.globalAlpha = rnd(.05, .12) * (1 - u * .5); q.drawImage(dust[u < .25 ? 3 : (i >> 2) % 3], px - sz / 2, py - sz / 2, sz, sz);
     }
     const core = q.createRadialGradient(h, h, 0, h, h, h * .32);                 // warm bright core
-    core.addColorStop(0, 'rgba(255,240,225,.55)'); core.addColorStop(.25, 'rgba(255,170,205,.22)'); core.addColorStop(1, 'rgba(120,100,255,0)');
+    core.addColorStop(0, 'rgba(255,245,235,.95)'); core.addColorStop(.22, 'rgba(255,170,205,.45)'); core.addColorStop(1, 'rgba(120,100,255,0)');
     q.globalAlpha = 1; q.fillStyle = core; q.fillRect(0, 0, S, S);
     return g;
   }
@@ -276,19 +276,19 @@ JG.fill(); JG.booking($('[data-book]')); JG.motion();
       const ang = inArm ? armAngle(u, i % ARMS) + gauss() * .3 : Math.random() * TAU;
       const big = Math.random() < .045, tint = Math.random();
       return { r: u * R, a: ang, w: .9 + (1 - u) * .9,                       // inner stars orbit a little faster
-        s: big ? rnd(1.4, 2.2) : rnd(.35, 1.2), big, tw: rnd(.6, 2.4), p: Math.random() * TAU, base: big ? 1 : rnd(.35, .9),
+        s: big ? rnd(1.4, 2.2) : rnd(.35, 1.2), big, tw: rnd(.6, 2.4), p: Math.random() * TAU, base: big ? 1 : rnd(.55, 1),
         col: tint < .7 ? '#ffffff' : tint < .82 ? '#ffd3e6' : tint < .94 ? '#cfdcff' : '#ffe9b8' };
     });
   }
 
   function frame(t) {
-    const spin = t * TAU / 420000;                                             // one full turn every 7 minutes
+    const spin = t * TAU / 90000;                                              // one full turn every 90 seconds
     x.clearRect(0, 0, W, H);
-    x.save(); x.translate(cx, cy); x.rotate(spin); x.scale(1, .82); x.globalAlpha = .62; x.drawImage(galaxy, -R, -R, R * 2, R * 2); x.restore();
+    x.save(); x.translate(cx, cy); x.rotate(spin); x.scale(1, .82); x.globalAlpha = 1; x.drawImage(galaxy, -R, -R, R * 2, R * 2); x.restore();
     for (const s of stars) {
       const a = s.a + spin * s.w, px = cx + Math.cos(a) * s.r, py = cy + Math.sin(a) * s.r * .82;
       if (px < -10 || py < -10 || px > W + 10 || py > H + 10) continue;
-      const k = s.base * (.45 + .55 * (.5 + .5 * Math.sin(t / 1000 * s.tw + s.p)));
+      const k = s.base * (.35 + .65 * (.5 + .5 * Math.sin(t / 1000 * s.tw + s.p)));
       x.globalAlpha = k; x.fillStyle = s.col;
       if (s.big) {
         const g = s.s * 9; x.drawImage(glow, px - g / 2, py - g / 2, g, g);
