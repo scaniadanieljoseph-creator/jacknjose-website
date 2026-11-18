@@ -20,7 +20,7 @@ const genNum = (prefix, len = 9) => prefix + Array.from({ length: len }, () => M
 const SEED = {};
 const Store = (() => {
   const mem = {};
-  const NS = 'jj_v1_';
+  const NS = SITE_CONFIG.demoSite ? 'jjdemo_' : 'jj_v1_';
   return {
     get(k) {
       if (k in mem) return mem[k];
@@ -40,8 +40,8 @@ const Store = (() => {
 })();
 const Session = { // per-tab state such as current search
   _m: {},
-  get(k) { if (k in this._m) return this._m[k]; try { const v = sessionStorage.getItem('jj_' + k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
-  set(k, v) { this._m[k] = v; try { sessionStorage.setItem('jj_' + k, JSON.stringify(v)); } catch (e) { } },
+  get(k) { if (k in this._m) return this._m[k]; try { const v = sessionStorage.getItem((SITE_CONFIG.demoSite ? 'jjd_' : 'jj_') + k); return v ? JSON.parse(v) : null; } catch (e) { return null; } },
+  set(k, v) { this._m[k] = v; try { sessionStorage.setItem((SITE_CONFIG.demoSite ? 'jjd_' : 'jj_') + k, JSON.stringify(v)); } catch (e) { } },
 };
 
 /* ---------- Geography ---------- */

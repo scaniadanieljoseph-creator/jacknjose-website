@@ -38,7 +38,8 @@ const ROLES = {
 const PROTECTED = ['travels-admin', 'hotels-admin', 'logistics-admin', 'fleet', 'payments-admin', 'notify-admin', 'hotel-crm', 'admin'];
 const PORTAL_LABEL = { 'travels-admin': 'Travels portal', 'hotels-admin': 'Hotels portal', 'logistics-admin': 'Logistics portal', fleet: 'Fleet portal', 'payments-admin': 'Payments portal', 'notify-admin': 'Notifications portal', 'hotel-crm': 'Hotel CRM', admin: 'Staff dashboard' };
 const DEMO_LOGINS = [['admin', 'Admin@123', 'admin', 'Group Administrator'], ['travels.manager', 'Travels@123', 'travels', 'Travels Desk'], ['hotels.manager', 'Hotels@123', 'hotels', 'Hotels Desk'], ['logistics.manager', 'Logistics@123', 'logistics', 'Logistics Desk'], ['fleet.manager', 'Fleet@123', 'fleet', 'Fleet Control'], ['accounts', 'Accounts@123', 'finance', 'Accounts Team'],
-  ['hotel1.manager', 'Hotel@123', 'hotels', 'Divya Menon', 'Hotel manager (one hotel)'], ['hotel1.waiter', 'Waiter@123', 'hotels', 'Suresh', 'Waiter'], ['hotel1.kitchen', 'Kitchen@123', 'hotels', 'Chef Babu', 'Kitchen display'], ['hotel1.cashier', 'Cashier@123', 'hotels', 'Arun Kumar', 'Cashier / billing']];
+  ['hotel1.manager', 'Hotel@123', 'hotels', 'Divya Menon', 'Hotel manager (one hotel)'], ['hotel1.waiter', 'Waiter@123', 'hotels', 'Suresh', 'Waiter'], ['hotel1.kitchen', 'Kitchen@123', 'hotels', 'Chef Babu', 'Kitchen display'], ['hotel1.cashier', 'Cashier@123', 'hotels', 'Arun Kumar', 'Cashier / billing'],
+  ['demo', 'Demo@123', 'admin', 'Demo Admin', 'Demo · every module']];
 SEED.staffUsers = () => DEMO_LOGINS.map(([username, pw, role, name], i) => ({ id: 'USR' + (101 + i), name, username, role, passHash: passHash(username, pw), ...(username.startsWith('hotel1.') ? { hotelId: 'HTL301', hotelLevel: username.split('.')[1] } : {}), status: 'Active', lastLogin: '', createdAt: new Date().toISOString(), sample: true }));
 
 /* Add demo accounts introduced after a browser already saved the staff list. */
@@ -47,10 +48,10 @@ function ensureDemoStaff() {
   SEED.staffUsers().filter(d => !U.some(u => u.username === d.username)).forEach(d => Store.add('staffUsers', d));
 }
 /* Set to false in the live build (tools/build-dist.js) so demo passwords are not shown publicly. */
-const SHOW_DEMO_LOGINS = false;
+const SHOW_DEMO_LOGINS = SITE_CONFIG.demoSite === true;
 const SESSION_HOURS = 8, MAX_TRIES = 5, LOCK_MIN = 2;
 const Auth = {
-  _key: 'jj_v1_auth',
+  _key: SITE_CONFIG.demoSite ? 'jjdemo_auth' : 'jj_v1_auth',
   _read(store) { try { const v = JSON.parse(store.getItem(this._key) || 'null'); return v && v.exp > Date.now() ? v : null; } catch (e) { return null; } },
   session() {
     if (this._mem && this._mem.exp > Date.now()) return this._mem;
@@ -96,8 +97,8 @@ route('login', app => {
       <label class="check"><input type="checkbox" id="lg-rem" name="remember"> Keep me signed in on this device for ${SESSION_HOURS} hours</label>
       <button class="btn btn-primary btn-lg">Sign in</button>
       <p class="muted small">Forgot your password? The group administrator can reset it from Staff dashboard → Staff users.</p>
-      ${SHOW_DEMO_LOGINS ? `<details class="demo-creds"><summary>Demo accounts (remove before launch)</summary><div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Role</th><th>Username</th><th>Password</th><th></th></tr></thead><tbody>
-        ${DEMO_LOGINS.map(([u, p, r, n, l]) => `<tr><td>${l || ROLES[r].label}</td><td class="mono">${u}</td><td class="mono">${p}</td><td><button type="button" class="btn btn-ghost btn-sm" data-fill="${u}|${p}">Use</button></td></tr>`).join('')}</tbody></table></div></details>` : ''}
+      ${SHOW_DEMO_LOGINS ? `<details class="demo-creds" ${SITE_CONFIG.demoSite ? 'open' : ''}><summary>${SITE_CONFIG.demoSite ? 'Demo accounts: tap “Use”, then Sign in' : 'Demo accounts (remove before launch)'}</summary><div class="table-wrap" style="margin-top:10px"><table class="table"><thead><tr><th>Role</th><th>Username</th><th>Password</th><th></th></tr></thead><tbody>
+        ${[...DEMO_LOGINS].sort((a, b) => (b[0] === 'demo') - (a[0] === 'demo')).map(([u, p, r, n, l]) => `<tr><td>${l || ROLES[r].label}</td><td class="mono">${u}</td><td class="mono">${p}</td><td><button type="button" class="btn btn-ghost btn-sm" data-fill="${u}|${p}">Use</button></td></tr>`).join('')}</tbody></table></div></details>` : ''}
     </form></div></div></section>`;
   const f = $('#login-form', app), err = $('#login-err', app);
   $('#lg-eye', app).onclick = e => { const p = f.password; p.type = p.type === 'password' ? 'text' : 'password'; e.target.textContent = p.type === 'password' ? 'Show' : 'Hide'; };
