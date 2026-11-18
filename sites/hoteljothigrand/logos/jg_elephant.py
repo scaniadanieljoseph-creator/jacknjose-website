@@ -90,6 +90,16 @@ samples = {
     # 5 · Existing design, re-coloured: the same crown and JG, the crown's middle point replaced by an elephant raising its trunk
     'elephant-5-classic-recoloured': svg(800, 940, f'<g>{crown("url(#og)", PINK, middle=False)}</g><g transform="translate(250 30) scale(.75)">{elephant_front("url(#bg)", "url(#pg)", "url(#og)")}</g>{JG("url(#bg)", 400, 380, 270)}{name(400, 740)}', '#ffffff'),
 }
+# website assets: mark and horizontal logo for the blue header / footer, and the square app icon
+site_mark = crown("url(#og)", PINK, middle=False) + f'<g transform="translate(250 30) scale(.75)">{elephant_front()}</g>' + JG('#ffffff', 400, 380, 270)
+w1, w2 = text_path(CINZEL, "HOTEL", 34, .85)[1], text_path(CINZEL, "JOTHI GRAND", 92, .1)[1]
+site = {
+    'site-mark': svg(800, 680, site_mark),
+    'site-horizontal': svg(int(520 + max(w1, w2) + 30), 440, f'<g transform="translate(30 20) scale(.55)">{site_mark}</g><path d="M490 80V360" stroke="{ORANGE}" stroke-width="4"/>{word(CINZEL, "HOTEL", 34, "#ff8fbd", 520 + w1 / 2, 130, .85)}{word(CINZEL, "JOTHI GRAND", 92, "#ffffff", 520 + w2 / 2, 190, .1)}<path d="M524 320H{520 + w2:.0f}" stroke="url(#og)" stroke-width="6"/>'),
+    'site-icon': svg(1024, 1024, f'<rect width="1024" height="1024" rx="220" fill="url(#bg)"/><g transform="translate(152 150) scale(.9)">{site_mark}</g>'),
+}
+for k, v in site.items():
+    open(os.path.join(OUT, k + '.svg'), 'w').write(v)
 for k, v in samples.items():
     open(os.path.join(OUT, k + '.svg'), 'w').write(v)
 print('wrote', list(samples))

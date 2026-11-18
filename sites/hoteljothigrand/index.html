@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hotel Jothi Grand · A five-star stay</title>
 <meta name="description" content="Hotel Jothi Grand: elegant rooms with five-star amenities, a high-class bar, a premium rooftop lounge with Wi-Fi and secure parking.">
-<meta name="theme-color" content="#0d1424">
+<meta name="theme-color" content="#0b2257">
 <meta property="og:title" content="Hotel Jothi Grand">
 <meta property="og:description" content="Elegant rooms, a high-class bar, a premium rooftop with Wi-Fi and secure parking.">
 <meta property="og:url" content="https://hoteljothigrand.jacknjose.co.in/">
@@ -19,8 +19,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
 :root {
-  --night: #0d1424; --night-2: #141d33; --night-3: #1c2843; --ink: #f6efe2; --ink-soft: #d9cdb8; --muted: #a59a86;
-  --gold: #e2b45f; --gold-2: #c8933a; --gold-soft: rgba(226, 180, 95, .14); --ruby: #8e2a3a; --ivory: #f7f1e6; --line: rgba(226, 180, 95, .22);
+  --night: #0b2257; --night-2: #11306f; --night-3: #173d86; --ink: #fff8f0; --ink-soft: #dce6f7; --muted: #a9bcdc;
+  --gold: #f7952e; --gold-2: #e8611c; --gold-soft: rgba(247, 149, 46, .15); --ruby: #8e2a3a; --ivory: #fff7ec; --line: rgba(247, 149, 46, .28);
+  --pink: #ff5fa2; --pink-2: #e4407f; --pink-soft: rgba(255, 95, 162, .14); --blue: #2d7ff0;
   --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif; --sans: "Manrope", "Segoe UI", system-ui, sans-serif;
   --gl: max(18px, env(safe-area-inset-left, 0px)); --gr: max(18px, env(safe-area-inset-right, 0px));
   color-scheme: dark;
@@ -35,35 +36,35 @@ h2 { font-size: clamp(2.1rem, 4.6vw, 3.4rem); }
 h3 { font-size: 1.6rem; }
 p { margin: 0; }
 .wrap { width: min(1180px, 100%); margin: 0 auto; padding-left: var(--gl); padding-right: var(--gr); }
-.eyebrow { font-size: .74rem; letter-spacing: .28em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+.eyebrow { font-size: .74rem; letter-spacing: .28em; text-transform: uppercase; color: var(--pink); font-weight: 700; }
 .lead { font-size: 1.12rem; color: var(--ink-soft); max-width: 58ch; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 26px; border-radius: 999px; font: 700 .95rem var(--sans); letter-spacing: .02em; text-decoration: none; cursor: pointer; border: 1.5px solid transparent; transition: transform .2s ease, background .2s ease, color .2s ease; }
 .btn:hover { transform: translateY(-2px); }
-.btn-gold { background: linear-gradient(135deg, #f0c878, var(--gold-2)); color: #1a1205; box-shadow: 0 10px 30px rgba(226, 180, 95, .25); }
+.btn-gold { background: linear-gradient(120deg, #ffb24a, #f7792a 45%, #ec4f8f); color: #ffffff; text-shadow: 0 1px 2px rgba(120, 30, 0, .25); box-shadow: 0 10px 30px rgba(247, 149, 46, .25); }
 .btn-line { border-color: var(--gold); color: var(--gold); background: transparent; }
 .btn-line:hover { background: var(--gold-soft); }
 .btn svg { width: 20px; height: 20px; }
 section { position: relative; }
 .sec { padding: clamp(70px, 10vw, 120px) 0; }
 .sec-head { display: grid; gap: 14px; margin-bottom: 44px; max-width: 760px; }
-.divider { width: 64px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); }
+.divider { width: 84px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--pink) 60%, transparent); }
 
 /* ---- navigation ---- */
 .nav { position: fixed; inset: 0 0 auto; z-index: 50; transition: background .3s ease, box-shadow .3s ease; padding-top: env(safe-area-inset-top, 0px); }
-.nav.solid { background: rgba(13, 20, 36, .92); backdrop-filter: blur(10px); box-shadow: 0 1px 0 var(--line); }
+.nav.solid { background: rgba(11, 34, 87, .92); backdrop-filter: blur(10px); box-shadow: 0 1px 0 var(--line); }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 18px; height: 70px; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
-.brand-logo { width: 54px; height: 46px; display: block; }
+.brand-logo { display: block; }
 .brand-mark svg { width: 26px; height: 26px; }
 .brand b { font-family: var(--serif); font-size: 1.45rem; font-weight: 700; letter-spacing: .04em; display: block; line-height: 1; }
 .brand small { display: block; font-size: .62rem; letter-spacing: .32em; color: var(--gold); text-transform: uppercase; margin-top: 3px; }
 .links { display: flex; gap: 26px; align-items: center; }
 .links a { color: var(--ink-soft); text-decoration: none; font-weight: 600; font-size: .9rem; }
 .links a:hover { color: var(--gold); }
-.links a.btn-gold, .links a.btn-gold:hover { color: #1a1205; }
+.links a.btn-gold, .links a.btn-gold:hover { color: #ffffff; }
 .menu-btn { display: none; background: none; border: 1.5px solid var(--line); color: var(--ink); border-radius: 10px; width: 44px; height: 44px; font-size: 20px; cursor: pointer; }
 @media (max-width: 920px) {
-  .links { position: fixed; inset: 70px 0 auto; background: rgba(13, 20, 36, .98); flex-direction: column; padding: 18px var(--gr) 26px var(--gl); gap: 16px; align-items: stretch; transform: translateY(-120%); transition: transform .3s ease; border-bottom: 1px solid var(--line); }
+  .links { position: fixed; inset: 70px 0 auto; background: rgba(11, 34, 87, .98); flex-direction: column; padding: 18px var(--gr) 26px var(--gl); gap: 16px; align-items: stretch; transform: translateY(-120%); transition: transform .3s ease; border-bottom: 1px solid var(--line); }
   .links.open { transform: none; }
   .links a { font-size: 1.05rem; }
   .menu-btn { display: block; }
@@ -72,19 +73,19 @@ section { position: relative; }
 /* ---- hero ---- */
 .hero { min-height: 100svh; display: grid; align-items: end; overflow: hidden; isolation: isolate; }
 .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
-.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(13, 20, 36, .15) 0%, rgba(13, 20, 36, .1) 45%, rgba(13, 20, 36, .92) 100%); }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(11, 34, 87, .15) 0%, rgba(11, 34, 87, .1) 45%, rgba(11, 34, 87, .92) 100%); }
 .hero .wrap { padding-bottom: clamp(60px, 10vh, 110px); padding-top: 120px; }
 .hero h1 { font-size: clamp(2.8rem, 8vw, 6.2rem); max-width: 12ch; text-shadow: 0 6px 40px rgba(0, 0, 0, .45); }
 .hero h1 em { font-style: italic; color: var(--gold); }
 .hero .lead { margin: 18px 0 30px; color: #efe5d2; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
-.stars { color: var(--gold); letter-spacing: .3em; font-size: .95rem; margin-bottom: 14px; }
+.stars { color: var(--pink); letter-spacing: .3em; font-size: .95rem; margin-bottom: 14px; }
 .live { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 10px; }
-.live span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(13, 20, 36, .6); border: 1px solid var(--line); font-size: .82rem; color: var(--ink-soft); backdrop-filter: blur(6px); }
+.live span { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(11, 34, 87, .6); border: 1px solid var(--line); font-size: .82rem; color: var(--ink-soft); backdrop-filter: blur(6px); }
 .live i { width: 8px; height: 8px; border-radius: 50%; background: #5bd18b; box-shadow: 0 0 0 0 rgba(91, 209, 139, .7); animation: pulse 2s infinite; }
 .live i.off { background: var(--muted); animation: none; box-shadow: none; }
 @keyframes pulse { 70% { box-shadow: 0 0 0 10px rgba(91, 209, 139, 0); } 100% { box-shadow: 0 0 0 0 rgba(91, 209, 139, 0); } }
-@media (max-width: 700px) { .hero::after { background: linear-gradient(180deg, rgba(13, 20, 36, .3) 0%, rgba(13, 20, 36, .62) 40%, rgba(13, 20, 36, .96) 100%); } }
+@media (max-width: 700px) { .hero::after { background: linear-gradient(180deg, rgba(11, 34, 87, .3) 0%, rgba(11, 34, 87, .62) 40%, rgba(11, 34, 87, .96) 100%); } }
 .scroll-hint { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); width: 24px; height: 38px; border: 1.5px solid var(--line); border-radius: 14px; }
 .scroll-hint::after { content: ""; position: absolute; left: 50%; top: 8px; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: var(--gold); animation: drop 1.8s infinite; }
 @keyframes drop { 0% { opacity: 0; transform: translateY(0); } 40% { opacity: 1; } 100% { opacity: 0; transform: translateY(12px); } }
@@ -107,7 +108,7 @@ section { position: relative; }
 .room .art { aspect-ratio: 16 / 10; position: relative; overflow: hidden; } .room .tag2 { color: var(--gold); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; }
 .room .art svg { width: 100%; height: 100%; transition: transform .8s ease; }
 .room:hover .art svg { transform: scale(1.05); }
-.room .tag { position: absolute; top: 14px; left: 14px; background: rgba(13, 20, 36, .75); border: 1px solid var(--line); color: var(--gold); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; }
+.room .tag { position: absolute; top: 14px; left: 14px; background: rgba(11, 34, 87, .75); border: 1px solid var(--line); color: var(--gold); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; }
 .room .body { padding: 24px; display: grid; gap: 12px; align-content: start; }
 .room p { color: var(--ink-soft); font-size: .95rem; }
 .feat { list-style: none; padding: 0; margin: 4px 0 6px; display: grid; gap: 6px; }
@@ -125,7 +126,7 @@ section { position: relative; }
 .exp-text { display: grid; gap: 18px; }
 .exp-text p { color: var(--ink-soft); }
 .points { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; }
-.points div { border-left: 2px solid var(--gold); padding-left: 12px; }
+.points div { border-left: 3px solid var(--pink); padding-left: 12px; }
 .points b { display: block; font-family: var(--serif); font-size: 1.15rem; font-weight: 600; }
 .points span { color: var(--muted); font-size: .86rem; }
 @media (max-width: 520px) { .points { grid-template-columns: 1fr; } }
@@ -150,21 +151,21 @@ section { position: relative; }
 .amen-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media (max-width: 980px) { .amen-grid { grid-template-columns: repeat(2, 1fr); } }
 .amen-card { padding: 22px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255, 255, 255, .02); display: grid; gap: 10px; align-content: start; transition: background .3s ease, border-color .3s ease; }
-.amen-card:hover { background: var(--gold-soft); border-color: var(--gold); }
+.amen-card:hover { background: var(--pink-soft); border-color: var(--pink); }
 .amen-card svg { width: 34px; height: 34px; color: var(--gold); }
 .amen-card b { font-family: var(--serif); font-size: 1.2rem; font-weight: 600; }
 .amen-card span { color: var(--muted); font-size: .86rem; }
-.kit { margin-top: 44px; display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; padding: 28px; border-radius: 24px; background: linear-gradient(120deg, rgba(226, 180, 95, .16), rgba(142, 42, 58, .14)); border: 1px solid var(--line); }
+.kit { margin-top: 44px; display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; padding: 28px; border-radius: 24px; background: linear-gradient(120deg, rgba(247, 149, 46, .16), rgba(142, 42, 58, .14)); border: 1px solid var(--line); }
 .kit svg { width: 120px; height: 120px; }
 .kit ul { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.kit li { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: .84rem; color: var(--ink-soft); background: rgba(13, 20, 36, .5); }
+.kit li { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: .84rem; color: var(--ink-soft); background: rgba(11, 34, 87, .5); }
 @media (max-width: 620px) { .kit { grid-template-columns: 1fr; justify-items: center; text-align: center; } .kit ul { justify-content: center; } }
 
 /* ---- gallery ---- */
 .gallery { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; scrollbar-width: thin; scrollbar-color: var(--gold) transparent; }
 .gallery figure { flex: 0 0 min(78vw, 420px); margin: 0; scroll-snap-align: start; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); position: relative; aspect-ratio: 4 / 3; background: var(--night-2); }
 .gallery figure img, .gallery figure svg { width: 100%; height: 100%; object-fit: cover; }
-.gallery figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 16px 14px; background: linear-gradient(transparent, rgba(13, 20, 36, .9)); font-family: var(--serif); font-size: 1.2rem; }
+.gallery figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 30px 16px 14px; background: linear-gradient(transparent, rgba(11, 34, 87, .9)); font-family: var(--serif); font-size: 1.2rem; }
 .gal-nav { display: flex; gap: 10px; margin-top: 16px; }
 .gal-nav button { width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid var(--line); background: transparent; color: var(--gold); font-size: 20px; cursor: pointer; }
 .gal-nav button:hover { background: var(--gold-soft); }
@@ -206,16 +207,16 @@ picture, picture img { display: block; width: 100%; height: 100%; }
 picture img { object-fit: cover; }
 .hero .wrap.hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(24px, 4vw, 56px); align-items: center; }
 .hero-collage { position: relative; height: min(76vh, 660px); min-height: 460px; }
-.arch { position: absolute; right: 0; top: 0; width: 64%; height: 100%; margin: 0; border-radius: 999px 999px 26px 26px; overflow: hidden; border: 2px solid var(--gold); box-shadow: 0 40px 90px rgba(0, 0, 0, .55); }
+.arch { position: absolute; right: 0; top: 0; width: 64%; height: 100%; margin: 0; border-radius: 999px 999px 26px 26px; overflow: hidden; border: 4px solid var(--gold); outline: 3px solid var(--pink); outline-offset: 5px; box-shadow: 0 40px 90px rgba(0, 0, 0, .55); }
 .arch picture img { animation: kb 22s ease-in-out infinite alternate; transform-origin: 50% 30%; }
 @keyframes kb { from { transform: scale(1.02); } to { transform: scale(1.12) translateY(-2%); } }
-.print { position: absolute; margin: 0; padding: 8px 8px 30px; background: var(--ivory); border-radius: 6px; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); animation: floaty 7s ease-in-out infinite; }
+.print { position: absolute; margin: 0; padding: 8px 8px 30px; background: #fff7fb; outline: 3px solid var(--pink); outline-offset: -3px; border-radius: 6px; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); animation: floaty 7s ease-in-out infinite; }
 .print picture { aspect-ratio: 4 / 3; border-radius: 3px; overflow: hidden; }
 .print figcaption { position: absolute; left: 10px; right: 10px; bottom: 6px; font-family: var(--serif); font-size: 1rem; color: #3a2a12; text-align: center; font-style: italic; }
 .print.p1 { left: 0; bottom: 6%; width: 46%; transform: rotate(-5deg); }
 .print.p2 { left: 9%; top: 4%; width: 38%; transform: rotate(4deg); animation-delay: -3.5s; }
 @keyframes floaty { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
-.seal { position: absolute; right: 52%; top: 44%; width: 118px; height: 118px; border-radius: 50%; background: radial-gradient(circle, #1b2440 58%, #0d1424 60%); border: 1.5px solid var(--gold); display: grid; place-items: center; box-shadow: 0 16px 40px rgba(0, 0, 0, .5); }
+.seal { position: absolute; right: 52%; top: 44%; width: 118px; height: 118px; border-radius: 50%; background: radial-gradient(circle, #173d86 58%, #0b2257 60%); border: 1.5px solid var(--gold); display: grid; place-items: center; box-shadow: 0 16px 40px rgba(0, 0, 0, .5); }
 .seal svg.ring { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); animation: spin 26s linear infinite; }
 .seal b { font-family: var(--serif); color: var(--gold); font-size: 1.9rem; line-height: 1; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -231,13 +232,13 @@ picture img { object-fit: cover; }
 .stack-ph .sp-main { margin: 0; border-radius: 22px; overflow: hidden; aspect-ratio: 1152 / 770; box-shadow: 0 30px 70px rgba(0, 0, 0, .45); position: relative; z-index: 1; }
 .stack-ph::before { content: ""; position: absolute; left: 18px; top: 18px; right: calc(8% - 18px); bottom: calc(14% - 18px); border: 1.5px solid var(--gold); border-radius: 22px; }
 .stack-ph .sp-sub { position: absolute; right: 0; bottom: 0; width: 38%; margin: 0; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; border: 4px solid var(--night); box-shadow: 0 24px 50px rgba(0, 0, 0, .5); z-index: 2; }
-.sp-tag { position: absolute; left: 18px; bottom: calc(14% + 18px); z-index: 3; background: rgba(13, 20, 36, .85); border: 1px solid var(--line); color: var(--gold); padding: 8px 14px; border-radius: 999px; font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
+.sp-tag { position: absolute; left: 18px; bottom: calc(14% + 18px); z-index: 3; background: rgba(11, 34, 87, .85); border: 1px solid var(--line); color: var(--gold); padding: 8px 14px; border-radius: 999px; font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
 .tour { position: relative; border-radius: 26px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 26px; aspect-ratio: 1600 / 980; box-shadow: 0 30px 80px rgba(0, 0, 0, .4); }
-.tour::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(13, 20, 36, .7)); pointer-events: none; }
+.tour::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(11, 34, 87, .7)); pointer-events: none; }
 .tour-cap { position: absolute; left: 22px; bottom: 18px; z-index: 2; font-family: var(--serif); font-size: clamp(1.2rem, 2.4vw, 1.8rem); }
 .tour-cap small { display: block; font-family: var(--sans); font-size: .78rem; color: var(--ink-soft); letter-spacing: .04em; }
-.hs { position: absolute; z-index: 3; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2px solid #fff; background: rgba(226, 180, 95, .9); color: #1a1205; font: 700 15px/26px var(--sans); text-align: center; cursor: pointer; padding: 0; box-shadow: 0 0 0 0 rgba(226, 180, 95, .6); animation: hsP 2.4s infinite; }
-@keyframes hsP { 70% { box-shadow: 0 0 0 14px rgba(226, 180, 95, 0); } 100% { box-shadow: 0 0 0 0 rgba(226, 180, 95, 0); } }
+.hs { position: absolute; z-index: 3; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2px solid #fff; background: rgba(247, 149, 46, .9); color: #1a1205; font: 700 15px/26px var(--sans); text-align: center; cursor: pointer; padding: 0; box-shadow: 0 0 0 0 rgba(247, 149, 46, .6); animation: hsP 2.4s infinite; }
+@keyframes hsP { 70% { box-shadow: 0 0 0 14px rgba(247, 149, 46, 0); } 100% { box-shadow: 0 0 0 0 rgba(247, 149, 46, 0); } }
 .hs span { position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%) translateY(6px); white-space: nowrap; background: var(--ivory); color: #1a1205; font: 600 .82rem var(--sans); padding: 7px 12px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; box-shadow: 0 10px 24px rgba(0, 0, 0, .35); }
 .hs.r span { left: auto; right: -6px; transform: translateY(6px); }
 .hs:hover span, .hs:focus span, .hs.on span { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -249,22 +250,22 @@ picture img { object-fit: cover; }
 }
 .room-ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); }
 .room-ico svg { width: 24px; height: 24px; }
-.room { border-top: 3px solid var(--gold); }
+.room { border-top: 4px solid transparent; border-image: linear-gradient(90deg, var(--gold), var(--pink), var(--blue)) 1; }
 .dine { min-height: 86vh; display: grid; align-items: end; overflow: hidden; isolation: isolate; padding: 0 0 clamp(40px, 6vw, 70px); }
 .dine-photo { position: absolute; inset: -8% 0; z-index: -2; will-change: transform; }
-.dine::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(13, 20, 36, .85) 0%, rgba(13, 20, 36, .15) 30%, rgba(13, 20, 36, .2) 55%, rgba(13, 20, 36, .95) 100%); }
-.dine-card { max-width: 560px; padding: clamp(22px, 4vw, 36px); border-radius: 24px; background: rgba(13, 20, 36, .82); border: 1px solid var(--line); backdrop-filter: blur(10px); display: grid; gap: 14px; }
+.dine::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(11, 34, 87, .85) 0%, rgba(11, 34, 87, .15) 30%, rgba(11, 34, 87, .2) 55%, rgba(11, 34, 87, .95) 100%); }
+.dine-card { max-width: 560px; padding: clamp(22px, 4vw, 36px); border-radius: 24px; background: rgba(11, 34, 87, .82); border: 1px solid var(--line); backdrop-filter: blur(10px); display: grid; gap: 14px; }
 .dine-card p { color: var(--ink-soft); }
 @media (max-width: 700px) {
   .dine { min-height: 0; display: block; padding: 66vw 0 40px; }
   .dine-photo { inset: 0 0 auto 0; height: 76vw; }
-  .dine::after { background: linear-gradient(180deg, rgba(13, 20, 36, .1) 0%, rgba(13, 20, 36, 0) 40%, rgba(13, 20, 36, .95) 72vw, var(--night) 100%); }
+  .dine::after { background: linear-gradient(180deg, rgba(11, 34, 87, .1) 0%, rgba(11, 34, 87, 0) 40%, rgba(11, 34, 87, .95) 72vw, var(--night) 100%); }
 }
 .mosaic { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 190px; gap: 14px; }
 .mosaic button { position: relative; padding: 0; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; cursor: zoom-in; background: var(--night-2); color: var(--ink); }
 .mosaic button picture img, .mosaic button svg { transition: transform .8s ease; width: 100%; height: 100%; }
 .mosaic button:hover picture img, .mosaic button:hover svg { transform: scale(1.07); }
-.mosaic button span { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 12px; text-align: left; font-family: var(--serif); font-size: 1.15rem; background: linear-gradient(transparent, rgba(13, 20, 36, .9)); }
+.mosaic button span { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 12px; text-align: left; font-family: var(--serif); font-size: 1.15rem; background: linear-gradient(transparent, rgba(11, 34, 87, .9)); }
 .mosaic .t { grid-row: span 2; } .mosaic .w { grid-column: span 2; } .mosaic .b { grid-column: span 2; grid-row: span 2; }
 @media (max-width: 900px) { .mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; } .mosaic .b { grid-column: span 2; } }
 .lb { position: fixed; inset: 0; z-index: 80; background: rgba(5, 8, 16, .94); display: none; place-items: center; padding: 60px 16px; }
@@ -273,13 +274,26 @@ picture img { object-fit: cover; }
 .lb picture, .lb picture img { width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 160px); object-fit: contain; border-radius: 12px; }
 .lb .lb-art { width: min(900px, 92vw); aspect-ratio: 5 / 4; border-radius: 12px; overflow: hidden; }
 .lb figcaption { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); }
-.lb button { position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid var(--line); background: rgba(13, 20, 36, .8); color: var(--gold); font-size: 24px; cursor: pointer; }
+.lb button { position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid var(--line); background: rgba(11, 34, 87, .8); color: var(--gold); font-size: 24px; cursor: pointer; }
 .lb .x { top: 16px; right: 16px; } .lb .pv { left: 16px; top: 50%; } .lb .nx { right: 16px; top: 50%; }
+
+/* ---- elephants ---- */
+.procession { position: relative; height: 92px; overflow: hidden; background: linear-gradient(90deg, var(--night-2), var(--night-3), var(--night-2)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.procession .track { position: absolute; left: 0; top: 10px; display: flex; gap: 34px; width: max-content; animation: walk 60s linear infinite; }
+.procession svg { width: 92px; height: 72px; flex: none; }
+.procession::before { content: ""; position: absolute; left: 0; right: 0; bottom: 10px; height: 3px; background: repeating-linear-gradient(90deg, var(--gold) 0 18px, var(--pink) 18px 36px, var(--blue) 36px 54px); opacity: .7; }
+@keyframes walk { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.procession .track > svg:nth-child(odd) { animation: bob 1.4s ease-in-out infinite; } .procession .track > svg:nth-child(even) { animation: bob 1.4s ease-in-out infinite -.7s; }
+@keyframes bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+.seal .eh { width: 64%; height: 64%; position: relative; z-index: 1; }
+.watermark { position: absolute; right: -60px; bottom: -40px; width: min(520px, 70vw); opacity: .07; pointer-events: none; z-index: 0; }
+.book .wrap { position: relative; z-index: 1; }
+.brand-logo { width: 62px; height: 53px; }
 
 /* reveal on scroll */
 .rv { opacity: 0; transform: translateY(28px); transition: opacity .9s ease, transform .9s ease; }
 .rv.in-view { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } .arch picture img, .print, .seal svg.ring, .hs, .twinkle, .wave, .bubble, .signal, .sweep, .live i, .scroll-hint::after { animation: none; } html { scroll-behavior: auto; } }
+@media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } .procession .track, .procession svg, .arch picture img, .print, .seal svg.ring, .hs, .twinkle, .wave, .bubble, .signal, .sweep, .live i, .scroll-hint::after { animation: none; } html { scroll-behavior: auto; } }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140%); opacity: 0; visibility: hidden; background: var(--ivory); color: #1a1205; padding: 12px 18px; border-radius: 12px; font-weight: 600; z-index: 60; transition: transform .3s ease; max-width: calc(100% - 36px); }
 .toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
 </style>
@@ -288,7 +302,7 @@ picture img { object-fit: cover; }
 <body>
 
 <header class="nav" id="nav"><div class="wrap">
-  <a class="brand" href="#top" aria-label="Hotel Jothi Grand home"><img class="brand-logo" src="img/logo-mark.svg" alt="" width="54" height="46"><span><b>Jothi Grand</b><small>Hotel</small></span></a>
+  <a class="brand" href="#top" aria-label="Hotel Jothi Grand home"><img class="brand-logo" src="img/logo-mark.svg" alt="" width="62" height="53"><span><b>Jothi Grand</b><small>Hotel</small></span></a>
   <nav class="links" id="links"><a href="#stay">Stay</a><a href="#dining">Dining</a><a href="#bar">Freeze Bar</a><a href="#rooftop">Rooftop</a><a href="#amenities">Amenities</a><a href="#gallery">Gallery</a><a class="btn btn-gold" href="#book" style="padding:10px 20px">Book your stay</a></nav>
   <button class="menu-btn" id="menu" aria-label="Open menu" aria-expanded="false">☰</button>
 </div></header>
@@ -307,7 +321,7 @@ picture img { object-fit: cover; }
       <figure class="arch" data-pic="exterior" data-eager data-sizes="(max-width: 900px) 60vw, 34vw"></figure>
       <figure class="print p2"><div data-pic="room" data-sizes="(max-width: 900px) 40vw, 22vw"></div><figcaption>Your room</figcaption></figure>
       <figure class="print p1"><div data-pic="reception" data-sizes="(max-width: 900px) 46vw, 26vw"></div><figcaption>The front desk</figcaption></figure>
-      <div class="seal" aria-hidden="true"><svg class="ring" viewBox="0 0 100 100"><defs><path id="ringp" d="M50 50 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0"/></defs><text font-family="Manrope, sans-serif" font-size="8.6" font-weight="700" letter-spacing="2.2" fill="#e2b45f"><textPath href="#ringp">ROOMS · RESTAURANT · FREEZE BAR · </textPath></text></svg><b>JG</b></div>
+      <div class="seal" aria-hidden="true"><svg class="ring" viewBox="0 0 100 100"><defs><path id="ringp" d="M50 50 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0"/></defs><text font-family="Manrope, sans-serif" font-size="8.6" font-weight="700" letter-spacing="2.2" fill="#f7952e"><textPath href="#ringp">JOTHI GRAND · ROOMS · FREEZE BAR · </textPath></text></svg><svg class="eh" viewBox="0 0 400 400" aria-hidden="true" data-eh></svg></div>
     </div></div>
     <span class="scroll-hint" aria-hidden="true"></span>
   </section>
@@ -318,6 +332,8 @@ picture img { object-fit: cover; }
     <div class="rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/><path d="M2 9a15 15 0 0 1 20 0"/></svg><b>Rooftop Wi-Fi</b><span>Premium lounge under the sky</span></div>
     <div class="rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg><b>Secure parking</b><span>Space for every guest</span></div>
   </div></section>
+
+  <div class="procession" aria-hidden="true"><div class="track" data-walk></div></div>
 
   <section class="sec" id="welcome"><div class="wrap welcome-grid">
     <div class="stack-ph rv"><figure class="sp-main" data-pic="reception" data-sizes="(max-width: 900px) 92vw, 46vw"></figure><figure class="sp-sub" data-pic="lounge" data-sizes="(max-width: 900px) 36vw, 18vw"></figure><span class="sp-tag">Front desk open 24 hours</span></div>
@@ -368,6 +384,8 @@ picture img { object-fit: cover; }
     </div>
   </div></section>
 
+  <div class="procession" aria-hidden="true"><div class="track" data-walk></div></div>
+
   <section class="sec amen" id="amenities"><div class="wrap">
     <div class="sec-head rv"><span class="eyebrow">Amenities</span><h2>The five-star details</h2><div class="divider"></div><p class="lead">The little things make a stay feel grand. Everything you need is waiting in your room and around the hotel.</p></div>
     <div class="amen-grid" id="amen"></div>
@@ -380,7 +398,9 @@ picture img { object-fit: cover; }
     <div class="mosaic" id="gal"></div>
   </div></section>
 
-  <section class="sec book" id="book"><div class="wrap book-grid">
+  <div class="procession" aria-hidden="true"><div class="track" data-walk></div></div>
+
+  <section class="sec book" id="book"><svg class="watermark" viewBox="0 0 400 320" aria-hidden="true" data-side="#ffffff"></svg><div class="wrap book-grid">
     <div class="rv"><span class="eyebrow">Reservations</span><h2 style="margin-top:12px">Book your stay</h2><div class="divider" style="margin:18px 0"></div>
       <p class="lead">Tell us your dates and we will confirm your room and the best rate for those days. Send it on WhatsApp for the quickest reply.</p>
       <div class="contact-list" id="contact"></div></div>
@@ -437,6 +457,26 @@ const pic = (n, sizes = '100vw', eager = false) => { const [w, h, alt] = PIC[n],
 /* Room tour hotspots: [x %, y %, label] */
 const SPOTS = [[31, 11, 'Warm reading lights'], [44, 22, 'Artwork above the bed', 'mh'], [27, 44, 'Soft pillows and cushions'], [44, 63, 'Fresh towels for every guest'], [26, 78, 'Crisp white linen', 'mh'], [86, 44, 'Thick curtains for deep sleep', 'r'], [94, 6, 'Split air-conditioner', 'r'], [42, 36, 'Charging points by the bed', 'mh']];
 
+/* ---------- elephants (same drawings as the logo) ---------- */
+const EL = {
+  front: (body = '#2d7ff0', ear = '#ff6fa8', orn = '#f7952e', tusk = '#fffaf2') => `<defs><linearGradient id="ehb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4b9bff"/><stop offset="1" stop-color="${body}"/></linearGradient></defs>
+    <path d="M140 120C70 70 8 120 22 200C34 262 92 286 136 262C150 232 152 170 140 120Z" fill="${ear}"/><path d="M260 120C330 70 392 120 378 200C366 262 308 286 264 262C250 232 248 170 260 120Z" fill="${ear}"/>
+    <path d="M172 246C160 282 138 302 108 308C140 316 170 298 184 266Z" fill="${tusk}" stroke="#d9b98a" stroke-width="3"/><path d="M228 246C240 282 262 302 292 308C260 316 230 298 216 266Z" fill="${tusk}" stroke="#d9b98a" stroke-width="3"/>
+    <path d="M200 70C262 70 292 112 288 162C285 205 262 234 244 254C232 266 226 274 224 262L176 262C174 274 168 266 156 254C138 234 115 205 112 162C108 112 138 70 200 70Z" fill="url(#ehb)"/>
+    <path d="M174 252C177 300 181 330 189 352C197 374 222 384 240 373C255 364 256 343 244 337C233 332 224 343 231 352C223 355 214 348 212 333C208 310 219 288 226 252Z" fill="url(#ehb)"/>
+    <path d="M200 84L244 108L238 168L200 214L162 168L156 108Z" fill="${orn}"/><circle cx="200" cy="124" r="6" fill="#e4407f"/><circle cx="186" cy="146" r="6" fill="#e4407f"/><circle cx="214" cy="146" r="6" fill="#e4407f"/><circle cx="200" cy="168" r="6" fill="#e4407f"/>
+    <ellipse cx="160" cy="196" rx="9" ry="11" fill="#071a46"/><ellipse cx="240" cy="196" rx="9" ry="11" fill="#071a46"/>`,
+  side: (body, cloth, ear) => `<path d="M70 150C62 100 110 62 190 64C220 50 270 50 300 76C326 98 330 126 336 140C344 150 350 136 348 116C346 94 336 80 344 62C352 46 384 48 384 70C384 86 374 98 376 120C378 160 360 182 330 186L322 196C320 212 318 236 318 262L290 262L286 214C270 220 250 224 230 224L226 262L198 262L196 222C176 224 156 222 140 214L136 262L108 262L106 210C94 206 86 196 82 182C74 190 62 204 54 206C52 196 66 180 72 168Z" fill="${body}"/>
+    ${cloth ? `<path d="M262 92C232 96 222 150 248 176C266 186 286 172 288 150C290 122 282 98 262 92Z" fill="${ear}"/><path d="M118 96C150 74 210 72 238 86L232 176C200 190 152 190 120 176C108 150 106 116 118 96Z" fill="${cloth}"/><path d="M124 170C156 182 200 182 230 170" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="6"/><path d="M296 72L312 54L320 80Z" fill="${cloth}"/>` : ''}`,
+};
+function elephants() {
+  $$('[data-eh]').forEach(s => { s.innerHTML = EL.front(); });
+  $$('svg[data-side]').forEach(s => { s.innerHTML = EL.side(s.dataset.side); });
+  const colours = [['#2d7ff0', '#f7952e', '#ff6fa8'], ['#e4407f', '#2d7ff0', '#ffc06b'], ['#f7952e', '#e4407f', '#4b9bff']];
+  const one = i => { const [b, c, e] = colours[i % 3]; return `<svg viewBox="0 0 400 270">${EL.side(b, c, e)}</svg>`; };
+  $$('[data-walk]').forEach(t => { const row = Array.from({ length: 14 }, (_, i) => one(i)).join(''); t.innerHTML = row + row; });
+}
+
 /* ---------- tiny helpers ---------- */
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -456,8 +496,8 @@ const ic = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 /* ---------- illustrations (replace with photos via HOTEL.photos) ---------- */
 const ART = {
   room(h) {
-    const wall = ['#2a2238', '#1f2a3d', '#2b1d27'][h], accent = ['#e2b45f', '#c9a36a', '#e8c27a'][h];
-    return `<svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Room illustration"><defs><linearGradient id="w${h}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${wall}"/><stop offset="1" stop-color="#0d1424"/></linearGradient><radialGradient id="l${h}" cx=".5" cy=".2" r=".7"><stop offset="0" stop-color="${accent}" stop-opacity=".45"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></radialGradient></defs>
+    const wall = ['#2a2238', '#1f2a3d', '#2b1d27'][h], accent = ['#f7952e', '#c9a36a', '#e8c27a'][h];
+    return `<svg viewBox="0 0 400 250" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Room illustration"><defs><linearGradient id="w${h}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${wall}"/><stop offset="1" stop-color="#0b2257"/></linearGradient><radialGradient id="l${h}" cx=".5" cy=".2" r=".7"><stop offset="0" stop-color="${accent}" stop-opacity=".45"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></radialGradient></defs>
       <rect width="400" height="250" fill="url(#w${h})"/><rect width="400" height="250" fill="url(#l${h})"/>
       <rect x="250" y="34" width="110" height="88" rx="4" fill="#0f1a30" stroke="${accent}" stroke-opacity=".5"/>${[0, 1, 2, 3, 4, 5].map(i => `<circle class="twinkle" cx="${262 + (i * 17) % 90}" cy="${48 + (i * 23) % 60}" r="1.4" fill="#ffe7b0"/>`).join('')}
       <path d="M250 122h110" stroke="${accent}" stroke-opacity=".5"/><rect x="40" y="70" width="170" height="70" rx="10" fill="#3a2c22" stroke="${accent}" stroke-opacity=".35"/>
@@ -466,13 +506,13 @@ const ART = {
       <rect y="197" width="400" height="53" fill="#140f12"/><rect x="0" y="197" width="400" height="3" fill="${accent}" fill-opacity=".3"/>${h === 2 ? '<rect x="300" y="150" width="80" height="40" rx="8" fill="#4a3a2c"/><rect x="306" y="140" width="68" height="14" rx="6" fill="#5c4836"/>' : ''}</svg>`;
   },
   bar() {
-    return `<svg viewBox="0 0 500 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of the bar"><defs><linearGradient id="bw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1222"/><stop offset="1" stop-color="#0d0a12"/></linearGradient><linearGradient id="liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c66b"/><stop offset="1" stop-color="#b8661f"/></linearGradient><radialGradient id="glow" cx=".5" cy=".3" r=".6"><stop offset="0" stop-color="#e2b45f" stop-opacity=".35"/><stop offset="1" stop-color="#e2b45f" stop-opacity="0"/></radialGradient></defs>
+    return `<svg viewBox="0 0 500 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of the bar"><defs><linearGradient id="bw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d1222"/><stop offset="1" stop-color="#0d0a12"/></linearGradient><linearGradient id="liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c66b"/><stop offset="1" stop-color="#b8661f"/></linearGradient><radialGradient id="glow" cx=".5" cy=".3" r=".6"><stop offset="0" stop-color="#f7952e" stop-opacity=".35"/><stop offset="1" stop-color="#f7952e" stop-opacity="0"/></radialGradient></defs>
       <rect width="500" height="400" fill="url(#bw)"/><rect width="500" height="400" fill="url(#glow)"/>
-      ${[60, 130, 200].map((y, r) => `<rect x="40" y="${y + 38}" width="420" height="5" fill="#e2b45f" fill-opacity=".4"/>` + Array.from({ length: 9 }, (_, i) => { const x = 58 + i * 46, h = 30 + ((i * 7 + r * 5) % 4) * 6, c = ['#3c6b4f', '#7a2a32', '#c88b3a', '#2f4f7a', '#d9c8a0'][(i + r) % 5]; return `<rect x="${x}" y="${y + 38 - h}" width="16" height="${h}" rx="3" fill="${c}" fill-opacity=".9"/><rect x="${x + 5}" y="${y + 30 - h}" width="6" height="9" fill="${c}"/>`; }).join('')).join('')}
-      <rect x="0" y="290" width="500" height="110" fill="#2b1a14"/><rect x="0" y="282" width="500" height="12" rx="4" fill="#5a3a26"/><rect x="0" y="282" width="500" height="3" fill="#e2b45f" fill-opacity=".6"/>
+      ${[60, 130, 200].map((y, r) => `<rect x="40" y="${y + 38}" width="420" height="5" fill="#f7952e" fill-opacity=".4"/>` + Array.from({ length: 9 }, (_, i) => { const x = 58 + i * 46, h = 30 + ((i * 7 + r * 5) % 4) * 6, c = ['#3c6b4f', '#7a2a32', '#c88b3a', '#2f4f7a', '#d9c8a0'][(i + r) % 5]; return `<rect x="${x}" y="${y + 38 - h}" width="16" height="${h}" rx="3" fill="${c}" fill-opacity=".9"/><rect x="${x + 5}" y="${y + 30 - h}" width="6" height="9" fill="${c}"/>`; }).join('')).join('')}
+      <rect x="0" y="290" width="500" height="110" fill="#2b1a14"/><rect x="0" y="282" width="500" height="12" rx="4" fill="#5a3a26"/><rect x="0" y="282" width="500" height="3" fill="#f7952e" fill-opacity=".6"/>
       <g transform="translate(150 196)"><path d="M0 0h70l-35 48z" fill="none" stroke="#f3e6c8" stroke-width="3"/><clipPath id="cg"><path d="M4 3h62l-31 42z"/></clipPath><g clip-path="url(#cg)"><rect class="wave" x="-20" y="14" width="120" height="40" fill="url(#liq)"/></g><path d="M35 48v34M18 86h34" stroke="#f3e6c8" stroke-width="3" stroke-linecap="round"/><circle cx="58" cy="2" r="7" fill="#9be08f"/></g>
       <g transform="translate(300 214)"><rect x="0" y="0" width="48" height="66" rx="6" fill="none" stroke="#f3e6c8" stroke-width="3"/><clipPath id="cr"><rect x="3" y="3" width="42" height="60" rx="4"/></clipPath><g clip-path="url(#cr)"><rect class="wave" x="-20" y="22" width="90" height="50" fill="#d08a3a" fill-opacity=".85"/><circle class="bubble" cx="14" cy="58" r="2" fill="#fff4d8"/><circle class="bubble" cx="26" cy="60" r="1.6" fill="#fff4d8"/><circle class="bubble" cx="36" cy="58" r="2.2" fill="#fff4d8"/></g><rect x="9" y="26" width="16" height="14" rx="3" fill="#e8f6ff" fill-opacity=".7"/></g>
-      ${[90, 250, 410].map(x => `<path class="sweep" d="M${x} 0 L${x - 30} 190 L${x + 30} 190 Z" fill="#e2b45f" fill-opacity=".06"/><circle cx="${x}" cy="8" r="6" fill="#ffd98a"/>`).join('')}</svg>`;
+      ${[90, 250, 410].map(x => `<path class="sweep" d="M${x} 0 L${x - 30} 190 L${x + 30} 190 Z" fill="#f7952e" fill-opacity=".06"/><circle cx="${x}" cy="8" r="6" fill="#ffd98a"/>`).join('')}</svg>`;
   },
   roof() {
     return `<svg viewBox="0 0 500 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of the rooftop at dusk"><defs><linearGradient id="rs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2550"/><stop offset=".55" stop-color="#7a3d5c"/><stop offset="1" stop-color="#f0a35e"/></linearGradient></defs>
@@ -480,22 +520,22 @@ const ART = {
       ${Array.from({ length: 22 }, (_, i) => `<circle class="twinkle" cx="${(i * 97) % 500}" cy="${(i * 53) % 150 + 10}" r="${i % 3 ? 1.2 : 1.8}" fill="#fff"/>`).join('')}
       <path d="M0 250h40v-40h30v-25h28v65h20v-90h34v90h22v-55h30v55h18v-70h36v70h24v-40h26v40h30v-60h30v60h22v-30h40v30h70v150H0z" fill="#121a33"/>
       ${Array.from({ length: 40 }, (_, i) => `<rect class="twinkle" x="${(i * 37) % 480 + 8}" y="${200 + (i * 29) % 50}" width="4" height="5" fill="#ffd98a" fill-opacity=".8"/>`).join('')}
-      <rect x="0" y="300" width="500" height="100" fill="#1a1626"/><rect x="0" y="296" width="500" height="6" fill="#e2b45f" fill-opacity=".6"/>
+      <rect x="0" y="300" width="500" height="100" fill="#1a1626"/><rect x="0" y="296" width="500" height="6" fill="#f7952e" fill-opacity=".6"/>
       ${[30, 110, 190, 270, 350, 430].map(x => `<path d="M${x} 296v-38" stroke="#c9a36a" stroke-width="2"/>`).join('')}<path d="M10 262 Q90 280 170 262 T330 262 T490 262" fill="none" stroke="#c9a36a" stroke-width="1.5"/>${[50, 130, 210, 290, 370, 450].map(x => `<circle class="twinkle" cx="${x}" cy="270" r="4" fill="#ffe7a8"/>`).join('')}
-      <g transform="translate(120 318)"><ellipse cx="40" cy="44" rx="48" ry="8" fill="#000" fill-opacity=".3"/><rect x="0" y="10" width="80" height="8" rx="4" fill="#e2b45f"/><path d="M40 18v26" stroke="#e2b45f" stroke-width="4"/><rect x="-36" y="14" width="28" height="22" rx="5" fill="#4b3c5a"/><rect x="88" y="14" width="28" height="22" rx="5" fill="#4b3c5a"/></g>
+      <g transform="translate(120 318)"><ellipse cx="40" cy="44" rx="48" ry="8" fill="#000" fill-opacity=".3"/><rect x="0" y="10" width="80" height="8" rx="4" fill="#f7952e"/><path d="M40 18v26" stroke="#f7952e" stroke-width="4"/><rect x="-36" y="14" width="28" height="22" rx="5" fill="#4b3c5a"/><rect x="88" y="14" width="28" height="22" rx="5" fill="#4b3c5a"/></g>
       <g transform="translate(400 70)" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path class="signal" d="M-26 0a37 37 0 0 1 52 0"/><path class="signal" d="M-16 12a22 22 0 0 1 32 0"/><circle class="signal" cx="0" cy="26" r="3" fill="#fff"/></g></svg>`;
   },
   park() {
     return `<svg viewBox="0 0 500 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of the parking area"><rect width="500" height="400" fill="#141c30"/><rect y="250" width="500" height="150" fill="#1e273d"/>
-      ${[0, 1, 2, 3, 4].map(i => `<path d="M${30 + i * 100} 255 L${10 + i * 100} 400" stroke="#e2b45f" stroke-opacity=".7" stroke-width="4"/>`).join('')}
-      <rect x="40" y="40" width="120" height="70" rx="10" fill="#0d1424" stroke="#e2b45f"/><text x="100" y="92" text-anchor="middle" font-family="Georgia" font-size="52" font-weight="700" fill="#e2b45f">P</text>
-      <g transform="translate(70 290)"><rect x="0" y="20" width="150" height="40" rx="14" fill="#8e2a3a"/><path d="M24 20l20-24h62l20 24z" fill="#a8394b"/><path d="M50 -1h22v19H38zM80 -1h22l12 19H80z" fill="#cfe7ff" fill-opacity=".8"/><circle cx="35" cy="62" r="13" fill="#0d1424" stroke="#9aa4b8" stroke-width="3"/><circle cx="115" cy="62" r="13" fill="#0d1424" stroke="#9aa4b8" stroke-width="3"/><circle class="twinkle" cx="147" cy="34" r="4" fill="#ffe7a8"/></g>
-      <g transform="translate(290 300)"><rect x="0" y="20" width="140" height="38" rx="14" fill="#2d5a8c"/><path d="M22 20l18-22h58l18 22z" fill="#3a6da3"/><circle cx="32" cy="60" r="12" fill="#0d1424" stroke="#9aa4b8" stroke-width="3"/><circle cx="108" cy="60" r="12" fill="#0d1424" stroke="#9aa4b8" stroke-width="3"/></g>
+      ${[0, 1, 2, 3, 4].map(i => `<path d="M${30 + i * 100} 255 L${10 + i * 100} 400" stroke="#f7952e" stroke-opacity=".7" stroke-width="4"/>`).join('')}
+      <rect x="40" y="40" width="120" height="70" rx="10" fill="#0b2257" stroke="#f7952e"/><text x="100" y="92" text-anchor="middle" font-family="Georgia" font-size="52" font-weight="700" fill="#f7952e">P</text>
+      <g transform="translate(70 290)"><rect x="0" y="20" width="150" height="40" rx="14" fill="#8e2a3a"/><path d="M24 20l20-24h62l20 24z" fill="#a8394b"/><path d="M50 -1h22v19H38zM80 -1h22l12 19H80z" fill="#cfe7ff" fill-opacity=".8"/><circle cx="35" cy="62" r="13" fill="#0b2257" stroke="#9aa4b8" stroke-width="3"/><circle cx="115" cy="62" r="13" fill="#0b2257" stroke="#9aa4b8" stroke-width="3"/><circle class="twinkle" cx="147" cy="34" r="4" fill="#ffe7a8"/></g>
+      <g transform="translate(290 300)"><rect x="0" y="20" width="140" height="38" rx="14" fill="#2d5a8c"/><path d="M22 20l18-22h58l18 22z" fill="#3a6da3"/><circle cx="32" cy="60" r="12" fill="#0b2257" stroke="#9aa4b8" stroke-width="3"/><circle cx="108" cy="60" r="12" fill="#0b2257" stroke="#9aa4b8" stroke-width="3"/></g>
       <g transform="translate(410 60)"><rect x="-6" y="0" width="12" height="190" fill="#2a3552"/><rect x="-24" y="-6" width="48" height="22" rx="6" fill="#2a3552"/><circle cx="0" cy="5" r="5" fill="#ff5b5b" class="twinkle"/><path class="sweep" d="M0 16 L-70 120 L70 120 Z" fill="#9fd3ff" fill-opacity=".08"/></g></svg>`;
   },
   kit() {
-    return `<svg viewBox="0 0 120 120" role="img" aria-label="Dental kit and toiletries"><rect x="10" y="22" width="100" height="78" rx="16" fill="#f7f1e6"/><rect x="10" y="22" width="100" height="18" rx="9" fill="#e2b45f"/><text x="60" y="35" text-anchor="middle" font-family="Georgia" font-size="9" font-weight="700" fill="#1a1205">JOTHI GRAND</text>
-      <rect x="22" y="50" width="10" height="40" rx="5" fill="#8e2a3a"/><rect x="22" y="44" width="10" height="10" rx="3" fill="#2f4f7a"/><rect x="40" y="58" width="44" height="12" rx="6" fill="#7cc7ec"/><rect x="84" y="61" width="8" height="6" rx="2" fill="#fff"/><rect x="40" y="76" width="56" height="5" rx="2.5" fill="#c8933a"/><rect x="40" y="76" width="16" height="5" rx="2.5" fill="#fff"/><circle cx="98" cy="50" r="5" fill="#9be08f"/></svg>`;
+    return `<svg viewBox="0 0 120 120" role="img" aria-label="Dental kit and toiletries"><rect x="10" y="22" width="100" height="78" rx="16" fill="#f7f1e6"/><rect x="10" y="22" width="100" height="18" rx="9" fill="#f7952e"/><text x="60" y="35" text-anchor="middle" font-family="Georgia" font-size="9" font-weight="700" fill="#1a1205">JOTHI GRAND</text>
+      <rect x="22" y="50" width="10" height="40" rx="5" fill="#8e2a3a"/><rect x="22" y="44" width="10" height="10" rx="3" fill="#2f4f7a"/><rect x="40" y="58" width="44" height="12" rx="6" fill="#7cc7ec"/><rect x="84" y="61" width="8" height="6" rx="2" fill="#fff"/><rect x="40" y="76" width="56" height="5" rx="2.5" fill="#e8611c"/><rect x="40" y="76" width="16" height="5" rx="2.5" fill="#fff"/><circle cx="98" cy="50" r="5" fill="#9be08f"/></svg>`;
   },
 };
 
@@ -515,7 +555,7 @@ function sky() {
     wins = []; const cols = 9, rows = 18, narrow = innerWidth < 700, bw = narrow ? W * .36 : Math.min(W * .26, 340), bx = narrow ? W * .8 - bw / 2 : W * .62 - bw / 2, by = H * .22; for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) wins.push({ x: bx + 14 + i * (bw - 28) / cols, y: by + 70 + j * (H * .7 - 70) / rows, on: Math.random() < .55, next: Math.random() * 8000 }); c.dataset.b = JSON.stringify([bx, by, bw]); };
   size(); addEventListener('resize', size);
   const phase = () => { const n = new Date(), h = n.getHours() + n.getMinutes() / 60; return h < 5 || h >= 19.5 ? 'night' : h < 7 ? 'dawn' : h < 17 ? 'day' : 'dusk'; };
-  const SK = { night: ['#060a18', '#111b38', '#2a2350'], dawn: ['#1c2a55', '#6d4a7a', '#f2a46a'], day: ['#123a6d', '#2f6aa6', '#9cc6e6'], dusk: ['#141f45', '#6b3a62', '#f39a58'] };
+  const SK = { night: ['#071a46', '#14347a', '#3b2a7a'], dawn: ['#14347a', '#9a4a8e', '#ffab6b'], day: ['#1b5fc4', '#3d8ff0', '#a9d0f5'], dusk: ['#14347a', '#a1407f', '#ff9a52'] };
   function frame(now) {
     const ph = phase(), [a, b, d] = SK[ph], g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, a); g.addColorStop(.6, b); g.addColorStop(1, d); x.fillStyle = g; x.fillRect(0, 0, W, H);
     const t = (now - t0) / 1000;
@@ -525,10 +565,10 @@ function sky() {
     const sg = x.createRadialGradient(W * .2, sunY, 0, W * .2, sunY, H * .25); sg.addColorStop(0, sunC); sg.addColorStop(.12, sunC); sg.addColorStop(.13, 'rgba(255,220,150,.25)'); sg.addColorStop(1, 'rgba(255,220,150,0)'); x.fillStyle = sg; x.fillRect(0, 0, W, H);
     x.fillStyle = ph === 'day' ? '#1f3556' : '#0b1124'; for (let i = 0; i < 26; i++) { const bw = W / 22, bh = H * (.12 + ((i * 37) % 23) / 100); x.fillRect(i * bw - 10, H - bh, bw - 4, bh); }
     if (false) { const [bx, by, bw] = JSON.parse(c.dataset.b);
-    const tg = x.createLinearGradient(bx, 0, bx + bw, 0); tg.addColorStop(0, '#0b1222'); tg.addColorStop(.5, '#16213b'); tg.addColorStop(1, '#0b1222'); x.fillStyle = tg; x.fillRect(bx, by, bw, H - by);
-    x.fillStyle = '#e2b45f'; x.fillRect(bx - 10, by, bw + 20, 6); x.globalAlpha = .55 + .45 * Math.abs(Math.sin(t * 1.2)); x.fillRect(bx + bw * .15, by - 26, bw * .7, 3); x.globalAlpha = 1;
+    const tg = x.createLinearGradient(bx, 0, bx + bw, 0); tg.addColorStop(0, '#0a1d4a'); tg.addColorStop(.5, '#16213b'); tg.addColorStop(1, '#0a1d4a'); x.fillStyle = tg; x.fillRect(bx, by, bw, H - by);
+    x.fillStyle = '#f7952e'; x.fillRect(bx - 10, by, bw + 20, 6); x.globalAlpha = .55 + .45 * Math.abs(Math.sin(t * 1.2)); x.fillRect(bx + bw * .15, by - 26, bw * .7, 3); x.globalAlpha = 1;
     for (let k = 0; k < 7; k++) { x.fillStyle = `rgba(255,214,140,${.5 + .5 * Math.abs(Math.sin(t * 2 + k))})`; x.beginPath(); x.arc(bx + 10 + k * (bw - 20) / 6, by - 12, 3, 0, 7); x.fill(); }
-    x.font = `600 ${Math.max(13, bw * .07)}px Cormorant Garamond, Georgia, serif`; x.textAlign = 'center'; x.fillStyle = '#e2b45f'; x.fillText('JOTHI GRAND', bx + bw / 2, by + 40);
+    x.font = `600 ${Math.max(13, bw * .07)}px Cormorant Garamond, Georgia, serif`; x.textAlign = 'center'; x.fillStyle = '#f7952e'; x.fillText('JOTHI GRAND', bx + bw / 2, by + 40);
     wins.forEach(w => { if (now > w.next) { if (Math.random() < .3) w.on = !w.on; w.next = now + 2000 + Math.random() * 9000; } x.fillStyle = w.on ? (ph === 'day' ? 'rgba(200,225,255,.35)' : 'rgba(255,214,140,.85)') : 'rgba(255,255,255,.06)'; x.fillRect(w.x, w.y, Math.max(6, bw / 30), Math.max(8, H / 90)); }); }
     if (!reduce) requestAnimationFrame(frame);
   }
@@ -594,7 +634,7 @@ function ui() {
   $$('.rv').forEach((el, i) => { if (io) { el.style.transitionDelay = `${(i % 4) * 80}ms`; io.observe(el); } else el.classList.add('in-view'); });
 }
 
-build(); booking(); ui(); live(); setInterval(live, 60000); sky();
+build(); booking(); elephants(); ui(); live(); setInterval(live, 60000); sky();
 </script>
 </body>
 </html>
