@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hotel Jothi Grand · Option 1 · Royal Classic</title>
+<link rel="icon" type="image/svg+xml" href="../img/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@300;400;500;600&display=swap">
+<style>
+:root { --ivory: #faf6f0; --ivory-2: #f3ece2; --navy: #13254f; --navy-2: #0c1a3a; --rose: #d64a85; --rose-2: #b8346c; --blush: #f7dfe9; --sky: #dfe8f8; --ink: #22283d; --soft: #646b80; --line: #e6dccf;
+  --serif: 'Cormorant Garamond', Georgia, serif; --sans: 'Jost', system-ui, sans-serif; }
+* { box-sizing: border-box; } html { scroll-behavior: smooth; } body { margin: 0; background: var(--ivory); color: var(--ink); font: 300 17px/1.75 var(--sans); overflow-x: hidden; }
+img, svg { display: block; max-width: 100%; } a { color: inherit; } main { overflow-x: clip; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.08; margin: 0; color: var(--navy); }
+h2 { font-size: clamp(2.3rem, 5vw, 3.8rem); } h3 { font-size: 1.9rem; }
+p { margin: 0; } .wrap { width: min(1200px, 100% - 40px); margin-inline: auto; }
+.kicker { font: 500 .78rem var(--sans); letter-spacing: .34em; text-transform: uppercase; color: var(--rose); }
+.orn { display: flex; align-items: center; justify-content: center; gap: 14px; color: var(--rose); margin: 18px auto; }
+.orn::before, .orn::after { content: ""; width: 70px; height: 1px; background: currentColor; opacity: .5; }
+.orn svg { width: 16px; height: 16px; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 30px; font: 500 .8rem var(--sans); letter-spacing: .2em; text-transform: uppercase; text-decoration: none; border: 1px solid currentColor; transition: .35s; cursor: pointer; background: none; }
+.btn.solid { background: var(--rose); border-color: var(--rose); color: #fff; } .btn.solid:hover { background: var(--navy); border-color: var(--navy); }
+.btn.line:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+.rv { opacity: 0; transform: translateY(30px); transition: opacity 1s, transform 1s; } .rv.in { opacity: 1; transform: none; }
+
+/* nav */
+.nav { position: fixed; inset: 0 0 auto; z-index: 50; transition: background .4s, box-shadow .4s; }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 92px; transition: height .4s; }
+.nav .logo { height: 54px; } .nav .logo.dark { display: none; }
+.nav.scrolled { background: rgba(250, 246, 240, .96); box-shadow: 0 1px 0 var(--line); } .nav.scrolled .wrap { height: 74px; }
+.nav.scrolled .logo.light { display: none; } .nav.scrolled .logo.dark { display: block; }
+.links { display: flex; gap: 30px; align-items: center; }
+.links a { text-decoration: none; color: #fff; font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 400; }
+.nav.scrolled .links a { color: var(--navy); }
+.links a.btn { padding: 11px 20px; border-color: var(--rose); background: var(--rose); color: #fff !important; }
+.menu { display: none; background: none; border: 1px solid #fff; color: #fff; width: 46px; height: 46px; font-size: 1.2rem; cursor: pointer; } .nav.scrolled .menu { color: var(--navy); border-color: var(--navy); }
+
+/* hero */
+.hero { position: relative; height: 100svh; min-height: 640px; color: #fff; display: grid; place-items: center; text-align: center; overflow: hidden; background: var(--navy-2); }
+.hero .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s; } .hero .slide.on { opacity: 1; }
+.hero .slide img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.1); transition: transform 7s ease-out; } .hero .slide.on img { transform: scale(1); }
+.hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12, 26, 58, .55), rgba(12, 26, 58, .35) 40%, rgba(12, 26, 58, .8)); }
+.hero-in { position: relative; z-index: 2; padding: 0 20px; }
+.hero .kicker { color: #fff; opacity: .9; }
+.hero h1 { color: #fff; font-size: clamp(3.2rem, 9vw, 7.4rem); font-weight: 500; margin: 16px 0 10px; letter-spacing: .01em; }
+.hero h1 i { color: #ffc3db; }
+.hero p { font-size: 1.15rem; max-width: 620px; margin: 0 auto; opacity: .92; }
+.stars { color: #ffc3db; letter-spacing: .5em; font-size: .9rem; }
+.hero .btn { margin-top: 34px; color: #fff; }
+.hero .btn.line:hover { background: #fff; color: var(--navy); }
+
+/* booking strip */
+.strip { position: relative; z-index: 5; margin-top: -60px; }
+.strip form { background: #fff; box-shadow: 0 30px 60px -30px rgba(12, 26, 58, .45); display: grid; grid-template-columns: repeat(4, 1fr) auto; }
+.strip label { display: grid; padding: 18px 22px; border-right: 1px solid var(--line); font: 500 .7rem var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--rose); }
+.strip input, .strip select { border: 0; background: none; font: 400 1.05rem var(--sans); color: var(--navy); padding: 6px 0 0; outline: 0; width: 100%; }
+.strip button { background: var(--navy); color: #fff; border: 0; padding: 0 34px; font: 500 .78rem var(--sans); letter-spacing: .2em; text-transform: uppercase; cursor: pointer; transition: background .3s; } .strip button:hover { background: var(--rose); }
+
+/* intro */
+.sec { padding: clamp(80px, 10vw, 140px) 0; }
+.intro { text-align: center; max-width: 820px; margin: auto; }
+.intro p.big { font-family: var(--serif); font-size: clamp(1.5rem, 2.6vw, 2.1rem); line-height: 1.5; color: var(--navy); font-style: italic; }
+.nums { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 60px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.nums div { padding: 26px 10px; text-align: center; } .nums div + div { border-left: 1px solid var(--line); }
+.nums b { display: block; font: 500 2.6rem var(--serif); color: var(--rose); line-height: 1; } .nums span { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--soft); }
+
+/* rooms */
+.rooms-sec { background: #fff; }
+.head { text-align: center; margin-bottom: 70px; }
+.room { display: grid; grid-template-columns: 1.25fr 1fr; gap: 70px; align-items: center; margin-bottom: 100px; }
+.room:nth-child(even) { grid-template-columns: 1fr 1.25fr; } .room:nth-child(even) .ph { order: 2; }
+.room .ph { position: relative; height: 520px; } .room .ph picture, .room .ph img { width: 100%; height: 100%; object-fit: cover; }
+.room .ph::before { content: ""; position: absolute; inset: 24px -24px -24px 24px; border: 1px solid var(--rose); z-index: -1; }
+.room:nth-child(even) .ph::before { inset: 24px 24px -24px -24px; }
+.room .no { font: 500 5rem var(--serif); color: var(--blush); line-height: .8; }
+.room h3 { font-size: 2.6rem; margin: 6px 0 16px; } .room p { color: var(--soft); }
+.room ul { list-style: none; padding: 0; margin: 22px 0 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; font-size: .95rem; }
+.room li { display: flex; gap: 10px; align-items: center; } .room li svg { width: 16px; color: var(--rose); flex: none; }
+.room .meta { font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
+
+/* experiences */
+.xps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.xp { text-align: center; }
+.xp .arch { height: 460px; border-radius: 300px 300px 0 0; overflow: hidden; position: relative; box-shadow: 0 30px 60px -40px rgba(12, 26, 58, .6); }
+.xp .arch > * { width: 100%; height: 100%; } .xp .arch img, .xp .arch svg { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s; }
+.xp:hover .arch img, .xp:hover .arch svg { transform: scale(1.07); }
+.xp h3 { margin: 26px 0 8px; } .xp p { color: var(--soft); max-width: 340px; margin: 0 auto 10px; }
+.xp small { display: block; color: var(--rose); letter-spacing: .14em; text-transform: uppercase; font-size: .72rem; margin-bottom: 16px; font-weight: 500; }
+.xp a { font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--navy); text-underline-offset: 6px; }
+
+/* amenities band */
+.band { background: var(--navy); color: #fff; padding: 90px 0; position: relative; overflow: hidden; }
+.band::before { content: ""; position: absolute; inset: 0; background: radial-gradient(600px 300px at 90% 0%, rgba(214, 74, 133, .35), transparent 70%), radial-gradient(600px 300px at 0% 100%, rgba(80, 130, 230, .3), transparent 70%); }
+.band h2 { color: #fff; } .band .kicker { color: #ffb3d1; }
+.amen { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 36px 20px; margin-top: 54px; }
+.amen div { text-align: center; font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; color: #dbe3f7; }
+.amen svg { width: 38px; height: 38px; margin: 0 auto 14px; color: #ffb3d1; }
+.kitline { position: relative; margin-top: 60px; text-align: center; font-family: var(--serif); font-style: italic; font-size: 1.5rem; color: #fff; }
+
+/* gallery */
+.gal { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 280px 280px; gap: 14px; }
+.gal > div { overflow: hidden; } .gal > div:first-child { grid-row: span 2; }
+.gal img, .gal svg { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s; } .gal > div:hover img { transform: scale(1.06); }
+
+/* booking */
+.book { background: var(--ivory-2); }
+.book-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 70px; }
+.contact { margin-top: 30px; display: grid; gap: 18px; }
+.contact div { display: flex; gap: 16px; } .contact svg { width: 22px; color: var(--rose); flex: none; margin-top: 4px; }
+.contact small { display: block; font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; color: var(--soft); }
+.contact a { text-decoration: none; color: var(--navy); font-weight: 400; }
+.form { background: #fff; padding: 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; position: relative; box-shadow: 0 30px 60px -40px rgba(12, 26, 58, .5); }
+.form::before { content: ""; position: absolute; inset: 12px; border: 1px solid var(--line); pointer-events: none; }
+.form label { display: grid; gap: 6px; font: 500 .7rem var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--soft); position: relative; }
+.form .full { grid-column: 1 / -1; }
+.form input, .form select { border: 0; border-bottom: 1px solid var(--line); background: none; font: 400 1rem var(--sans); color: var(--navy); padding: 10px 0; outline: 0; letter-spacing: 0; text-transform: none; width: 100%; }
+.form input:focus, .form select:focus { border-color: var(--rose); }
+.pair { display: flex; gap: 10px; }
+.jg-sum { font-size: .9rem; color: var(--soft); background: var(--ivory); padding: 12px 16px; position: relative; }
+.form button { background: var(--rose); color: #fff; border: 0; padding: 18px; font: 500 .82rem var(--sans); letter-spacing: .22em; text-transform: uppercase; cursor: pointer; position: relative; transition: background .3s; } .form button:hover { background: var(--navy); }
+.jg-msg { font-size: .95rem; position: relative; } .jg-msg.ok { color: #1c7a4a; background: #eaf7ef; padding: 14px 16px; } .jg-msg.err { color: #a12a3c; background: #fdecef; padding: 14px 16px; }
+
+footer { background: var(--navy-2); color: #b9c4e0; padding: 70px 0 30px; font-size: .92rem; }
+footer .top { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255, 255, 255, .1); }
+footer h4 { color: #fff; font: 500 .75rem var(--sans); letter-spacing: .24em; text-transform: uppercase; margin: 0 0 14px; }
+footer a { text-decoration: none; color: #dbe3f7; } footer .bot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 24px; font-size: .8rem; }
+
+@media (max-width: 960px) {
+  .links { position: fixed; inset: 74px 0 auto; background: var(--ivory); flex-direction: column; padding: 24px; gap: 18px; display: none; } .links.open { display: flex; } .links a { color: var(--navy) !important; }
+  .menu { display: block; } .nav .wrap { height: 74px; }
+  .strip form { grid-template-columns: 1fr 1fr; } .strip button { grid-column: 1 / -1; padding: 18px; } .strip label { border-bottom: 1px solid var(--line); }
+  .room, .room:nth-child(even) { grid-template-columns: 1fr; gap: 40px; } .room:nth-child(even) .ph { order: 0; } .room .ph { height: 360px; margin-right: 24px; }
+  .xps { grid-template-columns: 1fr; max-width: 440px; margin: auto; gap: 60px; }
+  .amen { grid-template-columns: repeat(3, 1fr); }
+  .gal { grid-template-columns: 1fr 1fr; grid-template-rows: 240px 160px 160px; } .gal > div:first-child { grid-column: span 2; grid-row: auto; }
+  .book-grid, footer .top { grid-template-columns: 1fr; gap: 40px; }
+  .nums { grid-template-columns: 1fr 1fr; } .nums div:nth-child(3) { border-left: 0; } .nums div:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+@media (max-width: 560px) { body { font-size: 16px; } .form { padding: 28px 22px; grid-template-columns: 1fr; } .room ul { grid-template-columns: 1fr; } .xp .arch { height: 380px; } .amen { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<header class="nav" data-nav><div class="wrap">
+  <a href="#top" aria-label="Hotel Jothi Grand home"><img class="logo light" src="../img/logo-horizontal-light.svg" alt="Hotel Jothi Grand"><img class="logo dark" src="../img/logo-horizontal.svg" alt=""></a>
+  <nav class="links" data-links><a href="#rooms">Rooms</a><a href="#dining">Dining &amp; Bar</a><a href="#amenities">Amenities</a><a href="#gallery">Gallery</a><a class="btn" href="#book">Book now</a></nav>
+  <button class="menu" data-menu aria-label="Menu">☰</button>
+</div></header>
+<main id="top">
+  <section class="hero" data-slides="6000">
+    <div class="slide on" data-pic="exterior" data-eager></div><div class="slide" data-pic="reception"></div><div class="slide" data-pic="restaurant"></div><div class="slide" data-pic="room"></div>
+    <div class="hero-in">
+      <div class="stars">★★★★★</div>
+      <div class="kicker" style="margin-top:14px">Saravanampatti · Coimbatore</div>
+      <h1>Hotel Jothi <i>Grand</i></h1>
+      <p>Elegant rooms, the Freeze Bar and a premium rooftop with Wi-Fi: a five-star welcome near KCT Tech Park.</p>
+      <a class="btn line" href="#rooms">Discover the hotel</a>
+    </div>
+  </section>
+  <div class="wrap strip"><form id="quick">
+    <label>Check-in<input type="date" name="ci"></label><label>Check-out<input type="date" name="co"></label>
+    <label>Guests<select name="g"><option value="1">1 guest</option><option value="2" selected>2 guests</option><option value="3">3 guests</option><option value="4">4 guests</option></select></label>
+    <label>Room<select name="r"></select></label><button>Check availability</button>
+  </form></div>
+
+  <section class="sec"><div class="wrap intro rv">
+    <div class="kicker">Welcome</div>
+    <div class="orn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg></div>
+    <p class="big">“Step in from busy Thudiyalur Road to a calm, bright lobby, where our team is ready day and night to make your stay feel grand.”</p>
+    <div class="nums"><div><b>24/7</b><span>Front desk</span></div><div><b>3</b><span>Room types</span></div><div><b>A/C</b><span>Bar &amp; dining</span></div><div><b>Free</b><span>Wi-Fi &amp; parking</span></div></div>
+  </div></section>
+
+  <section class="sec rooms-sec" id="rooms"><div class="wrap">
+    <div class="head rv"><div class="kicker">Accommodation</div><h2 style="margin-top:14px">Rooms &amp; Suites</h2></div>
+    <div id="room-list"></div>
+  </div></section>
+
+  <section class="sec" id="dining"><div class="wrap">
+    <div class="head rv"><div class="kicker">Dine · Sip · Unwind</div><h2 style="margin-top:14px">Experiences</h2></div>
+    <div class="xps" id="xps"></div>
+  </div></section>
+
+  <section class="band" id="amenities"><div class="wrap">
+    <div class="head rv" style="margin-bottom:0"><div class="kicker">Amenities</div><h2 style="margin-top:14px">The five-star details</h2></div>
+    <div class="amen" id="amen"></div>
+    <p class="kitline rv">A dental kit, toiletries, fresh towels, bathrobe and slippers wait in every room.</p>
+  </div></section>
+
+  <section class="sec" id="gallery"><div class="wrap">
+    <div class="head rv"><div class="kicker">Gallery</div><h2 style="margin-top:14px">A glimpse inside</h2></div>
+    <div class="gal rv" id="gal"></div>
+  </div></section>
+
+  <section class="sec book" id="book"><div class="wrap book-grid">
+    <div class="rv"><div class="kicker">Reservations</div><h2 style="margin-top:14px">Reserve your stay</h2>
+      <p style="margin-top:20px;color:var(--soft)">Send us your dates. Our reservations team receives your request by email instantly and will call you to confirm your room and the best rate.</p>
+      <div class="contact" id="contact"></div></div>
+    <form class="form rv" data-book novalidate></form>
+  </div></section>
+</main>
+<footer><div class="wrap">
+  <div class="top"><div><img src="../img/logo-horizontal-light.svg" alt="Hotel Jothi Grand" style="width:300px"><p style="margin-top:16px" data-jg="address"></p></div>
+    <div><h4>Contact</h4><p data-jg="phones"></p><p data-jg="email"></p></div>
+    <div><h4>Stay</h4><p data-jg="times"></p><p data-jg="gst"></p></div></div>
+  <div class="bot"><span>© <span data-jg="year"></span> Hotel Jothi Grand</span><a href="https://elsha.jacknjose.co.in/#hotels">Bookings by Elsha · Jack &amp; Jose</a></div>
+</div></footer>
+<script src="shared.js"></script>
+<script>
+const { $, $$, ic, esc, ROOMS, XP, AMEN } = JG, star = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>';
+$('#room-list').innerHTML = ROOMS.map((r, i) => `<article class="room rv"><div class="ph" data-pic="room" data-sizes="(max-width: 960px) 100vw, 60vw" data-style="object-position:${r.pos}"></div><div><div class="no">0${i + 1}</div><div class="meta">Up to ${r.max} guests</div><h3>${esc(r.key)}</h3><p>${esc(r.text)}</p><ul>${r.feat.map(f => `<li>${star}${esc(f)}</li>`).join('')}</ul><a class="btn line" href="#book" data-pick="${esc(r.key)}">Reserve this room</a></div></article>`).join('');
+const art = { accent: '#d64a85', bg1: '#13254f', bg2: '#2b1a45', sky1: '#13254f', sky2: '#8e4a8c', sky3: '#f5a8c5', city: '#0c1a3a', floor: '#1d2050' };
+$('#xps').innerHTML = XP.map(x => `<div class="xp rv"><div class="arch">${JG.xpMedia(x, art, '(max-width: 960px) 90vw, 33vw')}</div><h3>${esc(x.name)}</h3><small>${x.hours ? `<span data-status="${x.hours}"></span>` : 'Breakfast · Lunch · Dinner'}</small><p>${esc(x.text)}</p><a href="#book" data-pick="${esc(x.pick)}">Reserve a table</a></div>`).join('');
+$('#amen').innerHTML = AMEN.map(([i, t]) => `<div class="rv">${ic(i, 1.2)}${esc(t)}</div>`).join('');
+$('#gal').innerHTML = ['exterior', 'reception', 'lounge', 'restaurant'].map(n => `<div data-pic="${n}" data-sizes="50vw"></div>`).join('') + `<div>${JG.ART.roof(art)}</div>`;
+$('#contact').innerHTML = [['phone', 'Call', 'phones'], ['mail', 'Email', 'email'], ['pin', 'Address', 'address']].map(([i, l, k]) => `<div>${ic(i)}<span><small>${l}</small><span data-jg="${k}"></span></span></div>`).join('');
+$('[data-book]').innerHTML = '<h3 class="full" style="position:relative">Booking request</h3>' + JG.BOOK_FORM();
+$('#quick [name=r]').innerHTML = ROOMS.map(r => `<option>${esc(r.key)}</option>`).join('');
+JG.fill();
+const bk = JG.booking($('[data-book]'));
+const q = $('#quick'), f = $('[data-book]'); q.ci.value = f.ci.value; q.co.value = f.co.value; q.ci.min = f.ci.min;
+q.onsubmit = e => { e.preventDefault(); bk.pick(q.r.value); f.ci.value = q.ci.value; f.co.value = q.co.value > q.ci.value ? q.co.value : f.co.value; f.guests.value = q.g.value; f.dispatchEvent(new Event('change')); $('#book').scrollIntoView({ behavior: 'smooth' }); setTimeout(() => f.name.focus({ preventScroll: true }), 900); };
+JG.motion();
+</script>
+</body>
+</html>

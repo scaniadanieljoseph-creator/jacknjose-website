@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hotel Jothi Grand · Option 2 · Rose Editorial</title>
+<link rel="icon" type="image/svg+xml" href="../img/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;1,6..96,500;1,6..96,700&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root { --pink: #e8457f; --pink-2: #c92d66; --pink-l: #fde6ee; --blue: #2b5fd9; --sky: #e6eeff; --ink: #0f1b3d; --soft: #5d6680; --line: #ecdfe5;
+  --serif: 'Bodoni Moda', Didot, Georgia, serif; --sans: 'DM Sans', system-ui, sans-serif; }
+* { box-sizing: border-box; } html { scroll-behavior: smooth; } body { margin: 0; background: #fff; color: var(--ink); font: 400 17px/1.7 var(--sans); overflow-x: hidden; }
+img, svg { display: block; max-width: 100%; } a { color: inherit; } main { overflow-x: clip; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 500; margin: 0; line-height: 1; letter-spacing: -.02em; }
+h2 { font-size: clamp(2.8rem, 7vw, 6rem); } h2 i { color: var(--pink); }
+p { margin: 0; } .wrap { width: min(1280px, 100% - 40px); margin-inline: auto; }
+.tag { display: inline-block; font: 700 .72rem var(--sans); letter-spacing: .18em; text-transform: uppercase; padding: 6px 12px; border: 1.5px solid currentColor; border-radius: 999px; }
+.rv { opacity: 0; transform: translateY(40px); transition: opacity .9s, transform .9s cubic-bezier(.2, .8, .2, 1); } .rv.in { opacity: 1; transform: none; }
+.pill { display: inline-flex; align-items: center; gap: 10px; background: var(--ink); color: #fff; text-decoration: none; padding: 16px 26px; border-radius: 999px; font-weight: 700; transition: background .3s, transform .3s; border: 0; cursor: pointer; font-family: var(--sans); font-size: 1rem; }
+.pill:hover { background: var(--pink); transform: translateY(-2px); } .pill svg { width: 18px; }
+.pill.pink { background: var(--pink); } .pill.pink:hover { background: var(--ink); }
+
+.nav { position: sticky; top: 0; z-index: 50; background: rgba(255, 255, 255, .92); backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color .3s; }
+.nav.scrolled { border-color: var(--line); }
+.nav .wrap { display: flex; justify-content: space-between; align-items: center; height: 82px; }
+.nav img { height: 50px; }
+.links { display: flex; gap: 6px; align-items: center; } .links a { text-decoration: none; font-weight: 500; padding: 8px 14px; border-radius: 999px; } .links a:hover { background: var(--pink-l); color: var(--pink-2); }
+.links a.pill { color: #fff; padding: 12px 22px; } .links a.pill:hover { background: var(--pink); color: #fff; }
+.menu { display: none; border: 1.5px solid var(--ink); background: none; width: 46px; height: 46px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; }
+
+/* hero */
+.hero { padding: 40px 0 0; position: relative; }
+.hero-type { font-family: var(--serif); font-size: clamp(4.4rem, 17vw, 16.5rem); line-height: .82; letter-spacing: -.045em; font-weight: 500; }
+.hero-type .l2 { display: flex; align-items: center; gap: 2vw; justify-content: flex-end; }
+.hero-type i { color: var(--pink); }
+.hero-type .inset { width: clamp(120px, 22vw, 330px); height: clamp(80px, 13vw, 200px); border-radius: 999px; overflow: hidden; flex: none; }
+.hero-type .inset img { width: 100%; height: 100%; object-fit: cover; }
+.hero-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; margin-top: 46px; align-items: end; }
+.hero-row p { font-size: 1.2rem; color: var(--soft); max-width: 460px; } .hero-row .acts { display: flex; gap: 12px; margin-top: 26px; flex-wrap: wrap; }
+.hero-photo { position: relative; height: clamp(320px, 42vw, 600px); }
+.hero-photo .slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s; border-radius: 30px; overflow: hidden; } .hero-photo .slide.on { opacity: 1; }
+.hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+.spin { position: absolute; left: -64px; top: -64px; width: 140px; height: 140px; z-index: 3; text-decoration: none; }
+.spin::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--pink); }
+.spin svg.r { position: absolute; inset: 0; animation: rot 14s linear infinite; } .spin .arr { position: absolute; inset: 0; margin: auto; width: 34px; height: 34px; color: #fff; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+.ticker { margin-top: 80px; background: var(--ink); color: #fff; overflow: hidden; padding: 20px 0; }
+.ticker div { display: flex; gap: 40px; width: max-content; animation: tick 34s linear infinite; font-family: var(--serif); font-style: italic; font-size: 1.8rem; white-space: nowrap; }
+.ticker span::after { content: "✦"; color: var(--pink); margin-left: 40px; font-style: normal; font-size: 1rem; vertical-align: middle; }
+@keyframes tick { to { transform: translateX(-50%); } }
+
+.sec { padding: clamp(80px, 10vw, 150px) 0; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; margin-bottom: 60px; }
+.split p { color: var(--soft); font-size: 1.1rem; max-width: 520px; }
+
+/* about */
+.about { display: grid; grid-template-columns: 5fr 7fr; gap: 60px; align-items: center; }
+.about .stack { position: relative; height: 560px; }
+.about .stack > div { position: absolute; overflow: hidden; border-radius: 24px; } .about .stack img { width: 100%; height: 100%; object-fit: cover; }
+.about .a1 { inset: 0 18% 22% 0; } .about .a2 { inset: 44% 0 0 38%; border: 10px solid #fff; }
+.about .blk { position: absolute; left: -30px; bottom: 40px; width: 160px; height: 160px; background: var(--sky); border-radius: 24px; z-index: -1; }
+.about blockquote { margin: 0; font-family: var(--serif); font-size: clamp(1.8rem, 3.2vw, 2.8rem); line-height: 1.2; }
+.about blockquote i { color: var(--pink); }
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 40px; border-top: 1.5px solid var(--ink); }
+.facts div { padding: 20px 20px 0 0; } .facts b { font-family: var(--serif); font-size: 2.6rem; display: block; line-height: 1; color: var(--blue); } .facts span { color: var(--soft); font-size: .92rem; }
+
+/* rooms: horizontal scroller */
+.rooms-sec { background: var(--pink-l); }
+.scroller { display: grid; grid-auto-flow: column; grid-auto-columns: min(560px, 84vw); gap: 28px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 20px 30px calc((100vw - min(1280px, 100vw - 40px)) / 2); scrollbar-width: thin; scrollbar-color: var(--pink) transparent; }
+.rcard { scroll-snap-align: start; background: #fff; border-radius: 28px; overflow: hidden; display: flex; flex-direction: column; transition: transform .4s; } .rcard:hover { transform: translateY(-6px); }
+.rcard .ph { height: 330px; position: relative; } .rcard .ph img { width: 100%; height: 100%; object-fit: cover; }
+.rcard .num { position: absolute; right: 22px; bottom: -34px; font-family: var(--serif); font-size: 6rem; color: var(--pink); line-height: 1; font-style: italic; }
+.rcard .body { padding: 30px; display: grid; gap: 14px; flex: 1; align-content: start; }
+.rcard h3 { font-size: 2.3rem; } .rcard p { color: var(--soft); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; } .chips span { background: var(--sky); color: var(--blue); font-weight: 500; font-size: .85rem; padding: 6px 12px; border-radius: 999px; }
+.rcard .pill { justify-self: start; margin-top: 8px; }
+.sc-btns { display: flex; gap: 10px; } .sc-btns button { width: 54px; height: 54px; border-radius: 50%; border: 1.5px solid var(--ink); background: none; font-size: 1.3rem; cursor: pointer; transition: .3s; } .sc-btns button:hover { background: var(--ink); color: #fff; }
+
+/* experiences */
+.xp { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1.5px solid var(--ink); }
+.xp:last-child { border-bottom: 1.5px solid var(--ink); }
+.xp .t { padding: 40px 40px 40px 0; display: grid; gap: 16px; align-content: center; }
+.xp .t .n { font-family: var(--serif); font-style: italic; color: var(--pink); font-size: 1.4rem; }
+.xp .t h3 { font-size: clamp(2.4rem, 4.6vw, 4.2rem); } .xp .t p { color: var(--soft); max-width: 460px; }
+.xp .t .st { font-weight: 700; color: var(--blue); font-size: .9rem; }
+.xp .m { height: 420px; overflow: hidden; margin: 30px 0; border-radius: 24px; } .xp .m > *, .xp .m img, .xp .m svg { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s; }
+.xp:hover .m img, .xp:hover .m svg { transform: scale(1.05); }
+.xp:nth-child(even) .m { order: -1; } .xp:nth-child(even) .t { padding: 40px 0 40px 40px; }
+
+/* amenities */
+.amen-sec { background: var(--ink); color: #fff; }
+.amen-sec h2 { color: #fff; }
+.amen { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(255, 255, 255, .2); margin-top: 50px; }
+.amen div { padding: 30px 20px 30px 0; border-bottom: 1px solid rgba(255, 255, 255, .2); display: flex; gap: 14px; align-items: center; font-family: var(--serif); font-size: 1.4rem; transition: color .3s, padding .3s; }
+.amen div:hover { color: var(--pink); padding-left: 10px; } .amen svg { width: 30px; color: var(--pink); flex: none; }
+
+/* gallery */
+.gal { columns: 3 260px; column-gap: 16px; } .gal > div { break-inside: avoid; margin-bottom: 16px; border-radius: 20px; overflow: hidden; } .gal img, .gal svg { width: 100%; height: auto; }
+
+/* booking */
+.book { background: var(--pink); color: #fff; border-radius: 40px; margin: 0 20px; padding: clamp(50px, 7vw, 100px) 0; }
+.book h2 { color: #fff; } .book h2 i { color: var(--ink); }
+.book-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: start; }
+.book .lead { font-size: 1.15rem; margin-top: 22px; opacity: .95; }
+.book .cl { margin-top: 30px; display: grid; gap: 10px; font-size: 1.05rem; } .book .cl a { text-decoration: none; } .book .cl b { display: inline-block; width: 86px; font-weight: 400; opacity: .8; }
+.form { background: #fff; color: var(--ink); border-radius: 28px; padding: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form label { display: grid; gap: 6px; font-weight: 700; font-size: .8rem; color: var(--soft); } .form .full { grid-column: 1 / -1; }
+.form input, .form select { width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; font: 500 1rem var(--sans); color: var(--ink); background: #fff; outline: 0; } .form input:focus, .form select:focus { border-color: var(--pink); }
+.pair { display: flex; gap: 8px; }
+.jg-sum { background: var(--pink-l); border-radius: 14px; padding: 12px 14px; font-size: .92rem; }
+.form button { background: var(--ink); color: #fff; border: 0; border-radius: 999px; padding: 18px; font: 700 1.05rem var(--sans); cursor: pointer; transition: background .3s; } .form button:hover { background: var(--blue); }
+.jg-msg.ok { background: #eaf7ef; color: #1c7a4a; padding: 14px; border-radius: 14px; } .jg-msg.err { background: #fdecef; color: #a12a3c; padding: 14px; border-radius: 14px; }
+
+footer { padding: 80px 0 30px; }
+.big-name { font-family: var(--serif); font-size: clamp(3rem, 12vw, 11rem); line-height: .9; letter-spacing: -.04em; } .big-name i { color: var(--pink); }
+.foot { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 50px; padding-top: 30px; border-top: 1.5px solid var(--ink); color: var(--soft); font-size: .95rem; } .foot a { text-decoration: none; color: var(--ink); }
+.foot h4 { margin: 0 0 10px; color: var(--ink); font-size: .78rem; letter-spacing: .18em; text-transform: uppercase; }
+
+@media (max-width: 960px) {
+  .links { position: fixed; inset: 82px 0 auto; background: #fff; flex-direction: column; padding: 20px; display: none; border-bottom: 1px solid var(--line); } .links.open { display: flex; } .menu { display: block; }
+  .hero-row, .split, .about, .book-grid, .xp, .foot { grid-template-columns: 1fr; } .xp .t, .xp:nth-child(even) .t { padding: 30px 0 0; } .xp:nth-child(even) .m { order: 0; } .xp .m { height: 300px; }
+  .spin { left: auto; right: 16px; top: -50px; width: 110px; height: 110px; }
+  .about .stack { height: 420px; } .about .blk { left: -10px; }
+  .amen { grid-template-columns: 1fr 1fr; } .book { margin: 0 10px; border-radius: 28px; }
+}
+@media (max-width: 560px) { .form { grid-template-columns: 1fr; padding: 24px; } .facts { grid-template-columns: 1fr 1fr 1fr; } .facts b { font-size: 2rem; } .amen div { font-size: 1.1rem; } .hero-type .l2 { justify-content: flex-start; } }
+</style>
+</head>
+<body>
+<header class="nav" data-nav><div class="wrap">
+  <a href="#top"><img src="../img/logo-horizontal.svg" alt="Hotel Jothi Grand"></a>
+  <nav class="links" data-links><a href="#about">About</a><a href="#rooms">Rooms</a><a href="#dining">Dining &amp; Bar</a><a href="#gallery">Gallery</a><a class="pill" href="#book">Book a room</a></nav>
+  <button class="menu" data-menu aria-label="Menu">☰</button>
+</div></header>
+<main id="top">
+  <section class="hero"><div class="wrap">
+    <div class="hero-type rv"><div>Jothi</div><div class="l2"><span class="inset" data-pic="room" data-sizes="330px" data-eager></span><i>Grand</i></div></div>
+    <div class="hero-row">
+      <div class="rv"><span class="tag" style="color:var(--pink)">★★★★★ Five-star experience</span><p style="margin-top:20px">A boutique hotel in Saravanampatti, Coimbatore, with elegant rooms, the Freeze Bar and a rooftop that is open to the sky and the Wi-Fi.</p>
+        <div class="acts"><a class="pill pink" href="#book">Book your stay ${''}</a><a class="pill" href="#rooms">See the rooms</a></div></div>
+      <div class="hero-photo rv" data-slides="5000"><a class="spin" href="#book" aria-label="Book now"><svg class="r" viewBox="0 0 100 100"><defs><path id="c" d="M50 50m-36 0a36 36 0 1 1 72 0a36 36 0 1 1-72 0"/></defs><text font-family="DM Sans" font-weight="700" font-size="9.5" letter-spacing="3.2" fill="#fff"><textPath href="#c">BOOK YOUR STAY · BOOK NOW · </textPath></text></svg><span class="arr"></span></a>
+        <div class="slide on" data-pic="exterior" data-sizes="60vw" data-eager></div><div class="slide" data-pic="reception" data-sizes="60vw"></div><div class="slide" data-pic="restaurant" data-sizes="60vw"></div></div>
+    </div>
+  </div>
+  <div class="ticker" aria-hidden="true"><div id="tick"></div></div></section>
+
+  <section class="sec" id="about"><div class="wrap about">
+    <div class="stack rv"><span class="blk"></span><div class="a1" data-pic="reception" data-sizes="40vw"></div><div class="a2" data-pic="lounge" data-sizes="30vw"></div></div>
+    <div class="rv"><span class="tag" style="color:var(--blue)">About the hotel</span>
+      <blockquote style="margin-top:24px">A calm, bright lobby, a team awake <i>day and night</i>, and the small luxuries of a five-star stay in every room.</blockquote>
+      <div class="facts"><div><b>24/7</b><span>Front desk</span></div><div><b>3</b><span>Room types</span></div><div><b>100%</b><span>Wi-Fi coverage</span></div></div></div>
+  </div></section>
+
+  <section class="sec rooms-sec" id="rooms">
+    <div class="wrap split rv"><h2>Rooms for <i>rest</i></h2><div style="display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap"><p>Soft linen, quiet air-conditioning and a bathroom stocked like a five-star hotel.</p><div class="sc-btns"><button type="button" data-sc="-1" aria-label="Previous room">←</button><button type="button" data-sc="1" aria-label="Next room">→</button></div></div></div>
+    <div class="scroller" id="rooms-sc"></div>
+  </section>
+
+  <section class="sec" id="dining"><div class="wrap">
+    <div class="split rv"><h2>Dine, sip &amp; <i>unwind</i></h2><p>Three places to spend an evening without leaving the hotel.</p></div>
+    <div id="xps"></div>
+  </div></section>
+
+  <section class="sec amen-sec" id="amenities"><div class="wrap">
+    <h2 class="rv">Every <i style="color:var(--pink)">little</i> luxury</h2>
+    <div class="amen" id="amen"></div>
+  </div></section>
+
+  <section class="sec" id="gallery"><div class="wrap">
+    <div class="split rv"><h2>Inside <i>Jothi Grand</i></h2><p>Photos of the hotel, the rooms and the places to relax.</p></div>
+    <div class="gal" id="gal"></div>
+  </div></section>
+
+  <section class="book" id="book"><div class="wrap book-grid">
+    <div class="rv"><h2>Book your <i>stay</i></h2><p class="lead">Send your request here. It reaches our reservations team by email straight away, and we call you to confirm.</p>
+      <div class="cl"><span><b>Call</b><span data-jg="phones"></span></span><span><b>Email</b><span data-jg="email"></span></span><span><b>Stay</b><span data-jg="times"></span></span></div></div>
+    <form class="form rv" data-book novalidate></form>
+  </div></section>
+</main>
+<footer><div class="wrap">
+  <div class="big-name">Jothi <i>Grand</i></div>
+  <div class="foot"><div><h4>Visit</h4><span data-jg="address"></span></div><div><h4>Contact</h4><span data-jg="phones"></span></div><div><h4>Hotel</h4><span data-jg="gst"></span><br>© <span data-jg="year"></span> · <a href="https://elsha.jacknjose.co.in/#hotels">Bookings by Elsha</a></div></div>
+</div></footer>
+<script src="shared.js"></script>
+<script>
+const { $, $$, ic, esc, ROOMS, XP, AMEN } = JG;
+$('.hero .pill.pink').innerHTML = 'Book your stay ' + ic('arrow', 2); $('.spin .arr').innerHTML = ic('arrow', 2.2);
+const t = ['Rooms & suites', 'Freeze Bar', 'Rooftop with Wi-Fi', 'A/C restaurant', 'Secure parking', 'Dental kits & amenities', '24-hour front desk'].map(x => `<span>${x}</span>`).join(''); $('#tick').innerHTML = t + t;
+$('#rooms-sc').innerHTML = ROOMS.map((r, i) => `<article class="rcard"><div class="ph" data-pic="room" data-sizes="560px" data-style="object-position:${r.pos}"></div><div class="ph-num" style="position:relative"><span class="num">0${i + 1}</span></div><div class="body"><span class="tag" style="color:var(--pink);justify-self:start">${esc(r.tag)} · up to ${r.max} guests</span><h3>${esc(r.key)}</h3><p>${esc(r.text)}</p><div class="chips">${r.feat.map(f => `<span>${esc(f)}</span>`).join('')}</div><a class="pill" href="#book" data-pick="${esc(r.key)}">Reserve ${ic('arrow', 2)}</a></div></article>`).join('');
+$$('[data-sc]').forEach(b => b.onclick = () => $('#rooms-sc').scrollBy({ left: +b.dataset.sc * 580, behavior: 'smooth' }));
+const art = { accent: '#e8457f', bg1: '#0f1b3d', bg2: '#3a1a40', sky1: '#2b5fd9', sky2: '#c24d8f', sky3: '#ffb0c9', city: '#0f1b3d', floor: '#1d1f4d' };
+$('#xps').innerHTML = XP.map((x, i) => `<div class="xp rv"><div class="t"><span class="n">No. 0${i + 1}</span><h3>${esc(x.name)}</h3><p>${esc(x.text)}</p>${x.hours ? `<span class="st" data-status="${x.hours}"></span>` : '<span class="st">Breakfast · Lunch · Dinner</span>'}<a class="pill" href="#book" data-pick="${esc(x.pick)}" style="justify-self:start">Reserve a table ${ic('arrow', 2)}</a></div><div class="m">${JG.xpMedia(x, art, '(max-width: 960px) 100vw, 50vw')}</div></div>`).join('');
+$('#amen').innerHTML = AMEN.map(([i, n]) => `<div>${ic(i, 1.4)}${esc(n)}</div>`).join('');
+$('#gal').innerHTML = ['exterior', 'room', 'lounge', 'restaurant', 'reception'].map(n => `<div class="rv" data-pic="${n}" data-sizes="(max-width: 700px) 100vw, 33vw"></div>`).join('') + `<div class="rv">${JG.ART.bar(art)}</div>`;
+$('[data-book]').innerHTML = JG.BOOK_FORM();
+JG.fill(); JG.booking($('[data-book]')); JG.motion();
+</script>
+</body>
+</html>
