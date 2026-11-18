@@ -101,7 +101,7 @@ section { position: relative; }
 @media (max-width: 980px) { .rooms { grid-template-columns: 1fr; max-width: 560px; } }
 .room { background: var(--night-2); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; transition: transform .35s ease, box-shadow .35s ease; }
 .room:hover { transform: translateY(-6px); box-shadow: 0 30px 60px rgba(0, 0, 0, .35); }
-.room .art { aspect-ratio: 16 / 10; position: relative; overflow: hidden; }
+.room .art { aspect-ratio: 16 / 10; position: relative; overflow: hidden; } .room .tag2 { color: var(--gold); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 700; }
 .room .art svg { width: 100%; height: 100%; transition: transform .8s ease; }
 .room:hover .art svg { transform: scale(1.05); }
 .room .tag { position: absolute; top: 14px; left: 14px; background: rgba(13, 20, 36, .75); border: 1px solid var(--line); color: var(--gold); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; }
@@ -193,10 +193,85 @@ footer a { color: var(--ink-soft); text-decoration: none; } footer a:hover { col
 .wa { position: fixed; right: var(--gr); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 40; width: 58px; height: 58px; border-radius: 50%; background: #25d366; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(0, 0, 0, .35); }
 .wa svg { width: 30px; height: 30px; color: #fff; }
 
+/* ---- real photos ---- */
+picture, picture img { display: block; width: 100%; height: 100%; }
+picture img { object-fit: cover; }
+.hero .wrap.hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(24px, 4vw, 56px); align-items: center; }
+.hero-collage { position: relative; height: min(76vh, 660px); min-height: 460px; }
+.arch { position: absolute; right: 0; top: 0; width: 64%; height: 100%; margin: 0; border-radius: 999px 999px 26px 26px; overflow: hidden; border: 2px solid var(--gold); box-shadow: 0 40px 90px rgba(0, 0, 0, .55); }
+.arch picture img { animation: kb 22s ease-in-out infinite alternate; transform-origin: 50% 30%; }
+@keyframes kb { from { transform: scale(1.02); } to { transform: scale(1.12) translateY(-2%); } }
+.print { position: absolute; margin: 0; padding: 8px 8px 30px; background: var(--ivory); border-radius: 6px; box-shadow: 0 24px 60px rgba(0, 0, 0, .5); animation: floaty 7s ease-in-out infinite; }
+.print picture { aspect-ratio: 4 / 3; border-radius: 3px; overflow: hidden; }
+.print figcaption { position: absolute; left: 10px; right: 10px; bottom: 6px; font-family: var(--serif); font-size: 1rem; color: #3a2a12; text-align: center; font-style: italic; }
+.print.p1 { left: 0; bottom: 6%; width: 46%; transform: rotate(-5deg); }
+.print.p2 { left: 9%; top: 4%; width: 38%; transform: rotate(4deg); animation-delay: -3.5s; }
+@keyframes floaty { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+.seal { position: absolute; right: 52%; top: 44%; width: 118px; height: 118px; border-radius: 50%; background: radial-gradient(circle, #1b2440 58%, #0d1424 60%); border: 1.5px solid var(--gold); display: grid; place-items: center; box-shadow: 0 16px 40px rgba(0, 0, 0, .5); }
+.seal svg.ring { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); animation: spin 26s linear infinite; }
+.seal b { font-family: var(--serif); color: var(--gold); font-size: 1.9rem; line-height: 1; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 900px) {
+  .hero .wrap.hero-grid { grid-template-columns: 1fr; }
+  .hero-collage { height: 440px; min-height: 0; margin-top: 8px; }
+  .arch { width: 58%; }
+  .seal { width: 92px; height: 92px; right: 50%; top: 40%; } .seal b { font-size: 1.5rem; }
+}
+.welcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(30px, 6vw, 80px); align-items: center; }
+@media (max-width: 900px) { .welcome-grid { grid-template-columns: 1fr; } }
+.stack-ph { position: relative; padding: 0 8% 14% 0; }
+.stack-ph .sp-main { margin: 0; border-radius: 22px; overflow: hidden; aspect-ratio: 1152 / 770; box-shadow: 0 30px 70px rgba(0, 0, 0, .45); position: relative; z-index: 1; }
+.stack-ph::before { content: ""; position: absolute; left: 18px; top: 18px; right: calc(8% - 18px); bottom: calc(14% - 18px); border: 1.5px solid var(--gold); border-radius: 22px; }
+.stack-ph .sp-sub { position: absolute; right: 0; bottom: 0; width: 38%; margin: 0; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; border: 4px solid var(--night); box-shadow: 0 24px 50px rgba(0, 0, 0, .5); z-index: 2; }
+.sp-tag { position: absolute; left: 18px; bottom: calc(14% + 18px); z-index: 3; background: rgba(13, 20, 36, .85); border: 1px solid var(--line); color: var(--gold); padding: 8px 14px; border-radius: 999px; font-size: .82rem; font-weight: 700; backdrop-filter: blur(6px); }
+.tour { position: relative; border-radius: 26px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 26px; aspect-ratio: 1600 / 980; box-shadow: 0 30px 80px rgba(0, 0, 0, .4); }
+.tour::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(13, 20, 36, .7)); pointer-events: none; }
+.tour-cap { position: absolute; left: 22px; bottom: 18px; z-index: 2; font-family: var(--serif); font-size: clamp(1.2rem, 2.4vw, 1.8rem); }
+.tour-cap small { display: block; font-family: var(--sans); font-size: .78rem; color: var(--ink-soft); letter-spacing: .04em; }
+.hs { position: absolute; z-index: 3; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2px solid #fff; background: rgba(226, 180, 95, .9); color: #1a1205; font: 700 15px/26px var(--sans); text-align: center; cursor: pointer; padding: 0; box-shadow: 0 0 0 0 rgba(226, 180, 95, .6); animation: hsP 2.4s infinite; }
+@keyframes hsP { 70% { box-shadow: 0 0 0 14px rgba(226, 180, 95, 0); } 100% { box-shadow: 0 0 0 0 rgba(226, 180, 95, 0); } }
+.hs span { position: absolute; left: 50%; bottom: calc(100% + 10px); transform: translateX(-50%) translateY(6px); white-space: nowrap; background: var(--ivory); color: #1a1205; font: 600 .82rem var(--sans); padding: 7px 12px; border-radius: 10px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; box-shadow: 0 10px 24px rgba(0, 0, 0, .35); }
+.hs.r span { left: auto; right: -6px; transform: translateY(6px); }
+.hs:hover span, .hs:focus span, .hs.on span { opacity: 1; transform: translateX(-50%) translateY(0); }
+.hs.r:hover span, .hs.r:focus span, .hs.r.on span { transform: translateY(0); }
+@media (max-width: 700px) {
+  .hs { width: 24px; height: 24px; margin: -12px 0 0 -12px; font-size: 13px; line-height: 20px; }
+  .hs.mh { display: none; }
+  .tour-cap small { display: none; } .tour-cap { left: 14px; bottom: 10px; }
+}
+.room-ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); }
+.room-ico svg { width: 24px; height: 24px; }
+.room { border-top: 3px solid var(--gold); }
+.dine { min-height: 86vh; display: grid; align-items: end; overflow: hidden; isolation: isolate; padding: 0 0 clamp(40px, 6vw, 70px); }
+.dine-photo { position: absolute; inset: -8% 0; z-index: -2; will-change: transform; }
+.dine::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(13, 20, 36, .85) 0%, rgba(13, 20, 36, .15) 30%, rgba(13, 20, 36, .2) 55%, rgba(13, 20, 36, .95) 100%); }
+.dine-card { max-width: 560px; padding: clamp(22px, 4vw, 36px); border-radius: 24px; background: rgba(13, 20, 36, .82); border: 1px solid var(--line); backdrop-filter: blur(10px); display: grid; gap: 14px; }
+.dine-card p { color: var(--ink-soft); }
+@media (max-width: 700px) {
+  .dine { min-height: 0; display: block; padding: 66vw 0 40px; }
+  .dine-photo { inset: 0 0 auto 0; height: 76vw; }
+  .dine::after { background: linear-gradient(180deg, rgba(13, 20, 36, .1) 0%, rgba(13, 20, 36, 0) 40%, rgba(13, 20, 36, .95) 72vw, var(--night) 100%); }
+}
+.mosaic { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 190px; gap: 14px; }
+.mosaic button { position: relative; padding: 0; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; cursor: zoom-in; background: var(--night-2); color: var(--ink); }
+.mosaic button picture img, .mosaic button svg { transition: transform .8s ease; width: 100%; height: 100%; }
+.mosaic button:hover picture img, .mosaic button:hover svg { transform: scale(1.07); }
+.mosaic button span { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 12px; text-align: left; font-family: var(--serif); font-size: 1.15rem; background: linear-gradient(transparent, rgba(13, 20, 36, .9)); }
+.mosaic .t { grid-row: span 2; } .mosaic .w { grid-column: span 2; } .mosaic .b { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 900px) { .mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; } .mosaic .b { grid-column: span 2; } }
+.lb { position: fixed; inset: 0; z-index: 80; background: rgba(5, 8, 16, .94); display: none; place-items: center; padding: 60px 16px; }
+.lb.open { display: grid; }
+.lb figure { margin: 0; max-width: min(1200px, 100%); max-height: 100%; display: grid; gap: 12px; justify-items: center; }
+.lb picture, .lb picture img { width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 160px); object-fit: contain; border-radius: 12px; }
+.lb .lb-art { width: min(900px, 92vw); aspect-ratio: 5 / 4; border-radius: 12px; overflow: hidden; }
+.lb figcaption { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); }
+.lb button { position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 1.5px solid var(--line); background: rgba(13, 20, 36, .8); color: var(--gold); font-size: 24px; cursor: pointer; }
+.lb .x { top: 16px; right: 16px; } .lb .pv { left: 16px; top: 50%; } .lb .nx { right: 16px; top: 50%; }
+
 /* reveal on scroll */
 .rv { opacity: 0; transform: translateY(28px); transition: opacity .9s ease, transform .9s ease; }
 .rv.in-view { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } .twinkle, .wave, .bubble, .signal, .sweep, .live i, .scroll-hint::after { animation: none; } html { scroll-behavior: auto; } }
+@media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } .arch picture img, .print, .seal svg.ring, .hs, .twinkle, .wave, .bubble, .signal, .sweep, .live i, .scroll-hint::after { animation: none; } html { scroll-behavior: auto; } }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140%); opacity: 0; visibility: hidden; background: var(--ivory); color: #1a1205; padding: 12px 18px; border-radius: 12px; font-weight: 600; z-index: 60; transition: transform .3s ease; max-width: calc(100% - 36px); }
 .toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
 </style>
@@ -205,20 +280,26 @@ footer a { color: var(--ink-soft); text-decoration: none; } footer a:hover { col
 
 <header class="nav" id="nav"><div class="wrap">
   <a class="brand" href="#top" aria-label="Hotel Jothi Grand home"><span class="brand-mark"><svg viewBox="0 0 32 32" fill="none" stroke="#e2b45f" stroke-width="2.4" stroke-linecap="round"><path d="M9 7h14M16 7v12a5 5 0 0 1-10 0"/><path d="M19 25h7"/></svg></span><span><b>Jothi Grand</b><small>Hotel</small></span></a>
-  <nav class="links" id="links"><a href="#stay">Stay</a><a href="#bar">The Bar</a><a href="#rooftop">Rooftop</a><a href="#amenities">Amenities</a><a href="#gallery">Gallery</a><a class="btn btn-gold" href="#book" style="padding:10px 20px">Book your stay</a></nav>
+  <nav class="links" id="links"><a href="#stay">Stay</a><a href="#dining">Dining</a><a href="#bar">Freeze Bar</a><a href="#rooftop">Rooftop</a><a href="#amenities">Amenities</a><a href="#gallery">Gallery</a><a class="btn btn-gold" href="#book" style="padding:10px 20px">Book your stay</a></nav>
   <button class="menu-btn" id="menu" aria-label="Open menu" aria-expanded="false">☰</button>
 </div></header>
 
 <main id="top">
   <section class="hero">
     <canvas id="sky" aria-hidden="true"></canvas>
-    <div class="wrap">
+    <div class="wrap hero-grid"><div class="hero-text">
       <div class="stars rv">★ ★ ★ ★ ★ &nbsp;FIVE-STAR EXPERIENCE</div>
       <h1 class="rv">Hotel Jothi <em>Grand</em></h1>
       <p class="lead rv">Elegant rooms, a high-class bar, a premium rooftop with Wi-Fi under the open sky, and the small luxuries of a five-star stay in every room.</p>
       <div class="hero-cta rv"><a class="btn btn-gold" href="#book">Book your stay</a><a class="btn btn-line" href="#stay">Explore the hotel</a></div>
       <div class="live rv" id="live" aria-live="polite"></div>
     </div>
+    <div class="hero-collage rv" aria-label="Photos of the hotel">
+      <figure class="arch" data-pic="exterior" data-eager data-sizes="(max-width: 900px) 60vw, 34vw"></figure>
+      <figure class="print p2"><div data-pic="room" data-sizes="(max-width: 900px) 40vw, 22vw"></div><figcaption>Your room</figcaption></figure>
+      <figure class="print p1"><div data-pic="reception" data-sizes="(max-width: 900px) 46vw, 26vw"></div><figcaption>The front desk</figcaption></figure>
+      <div class="seal" aria-hidden="true"><svg class="ring" viewBox="0 0 100 100"><defs><path id="ringp" d="M50 50 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0"/></defs><text font-family="Manrope, sans-serif" font-size="8.6" font-weight="700" letter-spacing="2.2" fill="#e2b45f"><textPath href="#ringp">ROOMS · RESTAURANT · FREEZE BAR · </textPath></text></svg><b>JG</b></div>
+    </div></div>
     <span class="scroll-hint" aria-hidden="true"></span>
   </section>
 
@@ -229,15 +310,30 @@ footer a { color: var(--ink-soft); text-decoration: none; } footer a:hover { col
     <div class="rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg><b>Secure parking</b><span>Space for every guest</span></div>
   </div></section>
 
+  <section class="sec" id="welcome"><div class="wrap welcome-grid">
+    <div class="stack-ph rv"><figure class="sp-main" data-pic="reception" data-sizes="(max-width: 900px) 92vw, 46vw"></figure><figure class="sp-sub" data-pic="lounge" data-sizes="(max-width: 900px) 36vw, 18vw"></figure><span class="sp-tag">Front desk open 24 hours</span></div>
+    <div class="exp-text rv"><span class="eyebrow">Welcome</span><h2>A warm welcome, any hour</h2><div class="divider"></div>
+      <p>Step in from the street to a calm, bright lobby. Our front desk team is there day and night to check you in, arrange a cab, book a table or send something up to your room.</p>
+      <div class="points"><div><b>24-hour front desk</b><span>Check in whenever you arrive</span></div><div><b>Lounge on every floor</b><span>Comfortable seating outside the rooms</span></div><div><b>Lift to every floor</b><span>Easy with luggage</span></div><div><b>Travel help</b><span>Cabs, tickets and local tips</span></div></div></div>
+  </div></section>
+
   <section class="sec" id="stay"><div class="wrap">
     <div class="sec-head rv"><span class="eyebrow">Stay</span><h2>Rooms made for rest</h2><div class="divider"></div><p class="lead">Soft linen, quiet air-conditioning and a bathroom stocked like a five-star hotel. Choose the room that suits your trip.</p></div>
+    <div class="tour rv" id="tour"><div data-pic="room" data-sizes="(max-width: 1200px) 100vw, 1180px"></div><div class="tour-cap">Inside your room<small>Tap the gold dots to look around</small></div></div>
     <div class="rooms" id="rooms"></div>
+  </div></section>
+
+  <section class="dine" id="dining"><div class="dine-photo" id="dine-ph" data-pic="restaurant" data-sizes="100vw"></div><div class="wrap">
+    <div class="dine-card rv"><span class="eyebrow">Restaurant</span><h2>Dine in comfort</h2><div class="divider"></div>
+      <p>Our air-conditioned restaurant serves breakfast, lunch and dinner, with a buffet spread and dishes cooked to order. Bright, spacious and spotless, it is a relaxed place for families and business guests alike.</p>
+      <div class="points"><div><b>A/C dining hall</b><span>Spacious seating for families and groups</span></div><div><b>Buffet & à la carte</b><span>Breakfast spread and dishes to order</span></div><div><b>Room service</b><span>Meals sent up to your room</span></div><div><b>Group meals</b><span>For events and parties</span></div></div>
+      <div><a class="btn btn-line" href="#book" data-pick="Table at the restaurant">Book a table</a></div></div>
   </div></section>
 
   <section class="sec" id="bar" style="background:linear-gradient(180deg,var(--night),#160f1d)"><div class="wrap">
     <div class="exp">
       <div class="exp-art rv" id="art-bar"></div>
-      <div class="exp-text rv"><span class="eyebrow">The Bar</span><h2>A bar with real class</h2><div class="divider"></div>
+      <div class="exp-text rv"><span class="eyebrow">Freeze Bar · A/C</span><h2>A bar with real class</h2><div class="divider"></div>
         <p>Low lights, a polished counter and a shelf of fine spirits. Our bartenders pour the classics with care and mix cocktails to your taste, from a quiet single malt to a signature of the house.</p>
         <div class="points"><div><b>Premium spirits</b><span>Single malts, aged rums, gin and fine wine</span></div><div><b>Signature cocktails</b><span>Mixed to order by our bartenders</span></div><div><b>Chef’s bar bites</b><span>Starters and small plates from our kitchen</span></div><div><b>Elegant lounge</b><span>Comfortable seating for an evening out</span></div></div>
         <div><a class="btn btn-line" href="#book" data-pick="Table at the bar">Reserve a table</a></div>
@@ -272,8 +368,7 @@ footer a { color: var(--ink-soft); text-decoration: none; } footer a:hover { col
 
   <section class="sec" id="gallery"><div class="wrap">
     <div class="sec-head rv"><span class="eyebrow">Gallery</span><h2>A look inside</h2><div class="divider"></div></div>
-    <div class="gallery" id="gal" tabindex="0" aria-label="Gallery, scroll sideways"></div>
-    <div class="gal-nav"><button type="button" id="gp" aria-label="Previous picture">‹</button><button type="button" id="gn" aria-label="Next picture">›</button></div>
+    <div class="mosaic" id="gal"></div>
   </div></section>
 
   <section class="sec book" id="book"><div class="wrap book-grid">
@@ -298,6 +393,7 @@ footer a { color: var(--ink-soft); text-decoration: none; } footer a:hover { col
 <footer><div class="wrap"><span>© <span id="yr"></span> Hotel Jothi Grand</span><span id="foot-contact"></span><a href="https://elsha.jacknjose.co.in/#hotels" rel="noopener">Bookings by Elsha · Jack &amp; Jose</a></div></footer>
 <a class="wa" id="wa" href="#" aria-label="Chat with us on WhatsApp" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.1 5.1 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg></a>
 <div class="toast" id="toast" role="status"></div>
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer"><button class="x" type="button" aria-label="Close">×</button><button class="pv" type="button" aria-label="Previous photo">‹</button><figure id="lb-fig"></figure><button class="nx" type="button" aria-label="Next photo">›</button></div>
 
 <script>
 'use strict';
@@ -312,7 +408,6 @@ const HOTEL = {
   barHours: [17, 23.5],            // bar opens 5 PM, closes 11:30 PM
   roofHours: [16, 23],             // rooftop lounge hours
   checkIn: '12:00 noon', checkOut: '11:00 AM',
-  photos: [],                      // add real photos: [['assets/lobby.jpg', 'The lobby'], ...]; until then illustrations are shown
 };
 const ROOMS = [
   { key: 'Deluxe Room', tag: 'Deluxe', text: 'A calm, well-lit room with a plush double bed and everything for a restful night.', feat: ['King or twin beds', 'Air-conditioned', 'Smart TV & free Wi-Fi', 'Five-star bath amenities with dental kit'], hue: 0, max: 3 },
@@ -324,6 +419,12 @@ const AMEN = [
   ['tooth', 'Dental kit & toiletries', 'Five-star bath amenities'], ['bell', '24-hour front desk', 'Always someone to help'], ['plate', 'Room service', 'Meals and drinks to your room'], ['shirt', 'Laundry', 'Same-day service on request'],
   ['snow', 'Air-conditioned rooms', 'Quiet, individually controlled'], ['tv', 'Smart TV', 'Entertainment in every room'], ['cup', 'Tea & coffee', 'Fresh in your room'], ['shield', 'Safe & secure', 'CCTV and key-card access'],
 ];
+
+/* Photos in img/: <name>-800 and <name>-1600, each as .webp and .jpg. [width, height, description] */
+const PIC = { exterior: [864, 1040, 'Hotel Jothi Grand building'], room: [1600, 980, 'A room at Hotel Jothi Grand with a double bed and red cushions'], reception: [1152, 770, 'Reception and front desk'], restaurant: [1080, 770, 'The air-conditioned restaurant with buffet counter'], lounge: [1200, 1390, 'Lounge seating outside the rooms'] };
+const pic = (n, sizes = '100vw', eager = false) => { const [w, h, alt] = PIC[n], big = Math.min(1600, w); return `<picture><source type="image/webp" srcset="img/${n}-800.webp 800w, img/${n}-1600.webp ${big}w" sizes="${sizes}"><img src="img/${n}-800.jpg" srcset="img/${n}-800.jpg 800w, img/${n}-1600.jpg ${big}w" sizes="${sizes}" width="${w}" height="${h}" alt="${alt}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`; };
+/* Room tour hotspots: [x %, y %, label] */
+const SPOTS = [[31, 11, 'Warm reading lights'], [44, 22, 'Artwork above the bed', 'mh'], [27, 44, 'Soft pillows and cushions'], [44, 63, 'Fresh towels for every guest'], [26, 78, 'Crisp white linen', 'mh'], [86, 44, 'Thick curtains for deep sleep', 'r'], [94, 6, 'Split air-conditioner', 'r'], [42, 36, 'Charging points by the bed', 'mh']];
 
 /* ---------- tiny helpers ---------- */
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -412,12 +513,12 @@ function sky() {
     const sunY = ph === 'day' ? H * .18 : ph === 'night' ? H * .16 : H * .52, sunC = ph === 'night' ? '#f4ecd8' : '#ffd48a';
     const sg = x.createRadialGradient(W * .2, sunY, 0, W * .2, sunY, H * .25); sg.addColorStop(0, sunC); sg.addColorStop(.12, sunC); sg.addColorStop(.13, 'rgba(255,220,150,.25)'); sg.addColorStop(1, 'rgba(255,220,150,0)'); x.fillStyle = sg; x.fillRect(0, 0, W, H);
     x.fillStyle = ph === 'day' ? '#1f3556' : '#0b1124'; for (let i = 0; i < 26; i++) { const bw = W / 22, bh = H * (.12 + ((i * 37) % 23) / 100); x.fillRect(i * bw - 10, H - bh, bw - 4, bh); }
-    const [bx, by, bw] = JSON.parse(c.dataset.b);
+    if (false) { const [bx, by, bw] = JSON.parse(c.dataset.b);
     const tg = x.createLinearGradient(bx, 0, bx + bw, 0); tg.addColorStop(0, '#0b1222'); tg.addColorStop(.5, '#16213b'); tg.addColorStop(1, '#0b1222'); x.fillStyle = tg; x.fillRect(bx, by, bw, H - by);
     x.fillStyle = '#e2b45f'; x.fillRect(bx - 10, by, bw + 20, 6); x.globalAlpha = .55 + .45 * Math.abs(Math.sin(t * 1.2)); x.fillRect(bx + bw * .15, by - 26, bw * .7, 3); x.globalAlpha = 1;
     for (let k = 0; k < 7; k++) { x.fillStyle = `rgba(255,214,140,${.5 + .5 * Math.abs(Math.sin(t * 2 + k))})`; x.beginPath(); x.arc(bx + 10 + k * (bw - 20) / 6, by - 12, 3, 0, 7); x.fill(); }
     x.font = `600 ${Math.max(13, bw * .07)}px Cormorant Garamond, Georgia, serif`; x.textAlign = 'center'; x.fillStyle = '#e2b45f'; x.fillText('JOTHI GRAND', bx + bw / 2, by + 40);
-    wins.forEach(w => { if (now > w.next) { if (Math.random() < .3) w.on = !w.on; w.next = now + 2000 + Math.random() * 9000; } x.fillStyle = w.on ? (ph === 'day' ? 'rgba(200,225,255,.35)' : 'rgba(255,214,140,.85)') : 'rgba(255,255,255,.06)'; x.fillRect(w.x, w.y, Math.max(6, bw / 30), Math.max(8, H / 90)); });
+    wins.forEach(w => { if (now > w.next) { if (Math.random() < .3) w.on = !w.on; w.next = now + 2000 + Math.random() * 9000; } x.fillStyle = w.on ? (ph === 'day' ? 'rgba(200,225,255,.35)' : 'rgba(255,214,140,.85)') : 'rgba(255,255,255,.06)'; x.fillRect(w.x, w.y, Math.max(6, bw / 30), Math.max(8, H / 90)); }); }
     if (!reduce) requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -425,15 +526,23 @@ function sky() {
 
 /* ---------- page content ---------- */
 function build() {
-  $('#rooms').innerHTML = ROOMS.map((r, i) => `<article class="room rv"><div class="art">${ART.room(r.hue)}<span class="tag">${esc(r.tag)}</span></div><div class="body"><h3>${esc(r.key)}</h3><p>${esc(r.text)}</p><ul class="feat">${r.feat.map(f => `<li>${esc(f)}</li>`).join('')}</ul><a class="btn btn-gold" href="#book" data-room="${i}">Check availability</a></div></article>`).join('');
+  $$('[data-pic]').forEach(el => { el.innerHTML = pic(el.dataset.pic, el.dataset.sizes || '100vw', el.hasAttribute('data-eager')); });
+  $('#tour').insertAdjacentHTML('beforeend', SPOTS.map(([x, y, l, side], i) => `<button type="button" class="hs ${side || ''}" style="left:${x}%;top:${y}%" aria-label="${esc(l)}">+<span>${esc(l)}</span></button>`).join(''));
+  $$('#tour .hs').forEach(b => b.addEventListener('click', () => { const on = !b.classList.contains('on'); $$('#tour .hs').forEach(x => x.classList.remove('on')); b.classList.toggle('on', on); }));
+  $('#rooms').innerHTML = ROOMS.map((r, i) => `<article class="room rv"><div class="body"><div style="display:flex;justify-content:space-between;align-items:center"><span class="room-ico">${ic(['bell', 'tv', 'sun'][i])}</span><span class="tag2">${esc(r.tag)}</span></div><h3>${esc(r.key)}</h3><p>${esc(r.text)}</p><ul class="feat">${r.feat.map(f => `<li>${esc(f)}</li>`).join('')}</ul><a class="btn btn-gold" href="#book" data-room="${i}">Check availability</a></div></article>`).join('');
   $('#art-bar').innerHTML = ART.bar(); $('#art-roof').innerHTML = ART.roof(); $('#art-park').innerHTML = ART.park(); $('#art-kit').innerHTML = ART.kit();
   $('#amen').innerHTML = AMEN.map(([i, b, s]) => `<div class="amen-card rv">${ic(i)}<b>${esc(b)}</b><span>${esc(s)}</span></div>`).join('');
-  const pics = HOTEL.photos.length ? HOTEL.photos.map(([src, cap]) => `<figure><img src="${esc(src)}" alt="${esc(cap)}" loading="lazy"><figcaption>${esc(cap)}</figcaption></figure>`) : [[ART.room(1), 'Premium room'], [ART.bar(), 'The bar'], [ART.roof(), 'Rooftop at dusk'], [ART.room(2), 'Grand suite'], [ART.park(), 'Guest parking'], [ART.room(0), 'Deluxe room']].map(([s, cap]) => `<figure>${s}<figcaption>${esc(cap)}</figcaption></figure>`);
-  $('#gal').innerHTML = pics.join('');
-  const step = d => { const g = $('#gal'), w = g.querySelector('figure')?.getBoundingClientRect().width || 300; g.scrollBy({ left: d * (w + 16), behavior: reduce ? 'auto' : 'smooth' }); };
-  $('#gp').onclick = () => step(-1); $('#gn').onclick = () => step(1);
-  if (!reduce) { let hold = false; $('#gal').addEventListener('pointerenter', () => hold = true); $('#gal').addEventListener('pointerleave', () => hold = false);
-    setInterval(() => { const g = $('#gal'); if (hold || document.hidden || g.getBoundingClientRect().top > innerHeight) return; if (g.scrollLeft + g.clientWidth >= g.scrollWidth - 8) g.scrollTo({ left: 0, behavior: 'smooth' }); else step(1); }, 4500); }
+  const G = [['p', 'exterior', 'Hotel Jothi Grand', 't'], ['p', 'room', 'Your room', 'b'], ['p', 'reception', 'Front desk', ''], ['p', 'lounge', 'Lounge on every floor', 't'], ['a', 'bar', 'Freeze Bar', ''], ['p', 'restaurant', 'Restaurant', 'w'], ['a', 'roof', 'Rooftop at dusk', 'w'], ['a', 'park', 'Guest parking', '']];
+  $('#gal').innerHTML = G.map(([k, n, cap, cls], i) => `<button type="button" class="${cls}" data-i="${i}" aria-label="Open photo: ${esc(cap)}">${k === 'p' ? pic(n, '(max-width: 900px) 50vw, 25vw') : ART[n]()}<span>${esc(cap)}</span></button>`).join('');
+  const lb = $('#lb'), fig = $('#lb-fig'); let at = 0;
+  const show = i => { at = (i + G.length) % G.length; const [k, n, cap] = G[at]; fig.innerHTML = (k === 'p' ? pic(n, '100vw') : `<div class="lb-art">${ART[n]()}</div>`) + `<figcaption>${esc(cap)} <small style="color:var(--muted);font-family:var(--sans);font-size:.8rem">${at + 1} / ${G.length}</small></figcaption>`; };
+  const close = () => { lb.classList.remove('open'); document.body.style.overflow = ''; };
+  $$('#gal button').forEach(b => b.onclick = () => { show(+b.dataset.i); lb.classList.add('open'); document.body.style.overflow = 'hidden'; $('.x', lb).focus(); });
+  $('.x', lb).onclick = close; $('.pv', lb).onclick = () => show(at - 1); $('.nx', lb).onclick = () => show(at + 1);
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+  addEventListener('keydown', e => { if (!lb.classList.contains('open')) return; if (e.key === 'Escape') close(); if (e.key === 'ArrowLeft') show(at - 1); if (e.key === 'ArrowRight') show(at + 1); });
+  let sx = 0; lb.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true }); lb.addEventListener('touchend', e => { const d = e.changedTouches[0].clientX - sx; if (Math.abs(d) > 50) show(at + (d < 0 ? 1 : -1)); });
+  if (!reduce) { const ph = $('#dine-ph'), sec = $('#dining'); const par = () => { const r = sec.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return; ph.style.transform = `translateY(${(r.top / innerHeight) * -6}%)`; }; addEventListener('scroll', par, { passive: true }); par(); }
   const wa = `https://wa.me/${HOTEL.whatsapp}`;
   $('#wa').href = wa + '?text=' + encodeURIComponent(`Hello ${HOTEL.name}, I would like to know about room availability.`);
   $('#contact').innerHTML = [`<a href="tel:${HOTEL.phone.replace(/\s/g, '')}">${ic('phone')}<span><small>Call the front desk</small>${esc(HOTEL.phone)}</span></a>`, `<a href="${wa}" target="_blank" rel="noopener">${ic('phone')}<span><small>WhatsApp</small>Chat with reservations</span></a>`, `<a href="mailto:${HOTEL.email}">${ic('mail')}<span><small>Email</small>${esc(HOTEL.email)}</span></a>`,
@@ -445,7 +554,7 @@ function build() {
 /* ---------- booking enquiry ---------- */
 function booking() {
   const f = $('#bk'), today = iso(new Date());
-  $('#room-sel').innerHTML = ROOMS.map(r => `<option>${esc(r.key)}</option>`).join('') + '<option>Table at the bar</option><option>Rooftop event or table</option>';
+  $('#room-sel').innerHTML = ROOMS.map(r => `<option>${esc(r.key)}</option>`).join('') + '<option>Table at the restaurant</option><option>Table at the bar</option><option>Rooftop event or table</option>';
   f.ci.min = today; f.ci.value = today; f.co.min = addDays(today, 1); f.co.value = addDays(today, 1);
   const guests = () => { const per = (ROOMS.find(r => r.key === f.room.value) || { max: 3 }).max, max = per * (+f.rooms.value || 1), cur = +f.guests.value || 2; f.guests.innerHTML = Array.from({ length: max }, (_, i) => `<option value="${i + 1}" ${i + 1 === Math.min(cur, max) ? 'selected' : ''}>${i + 1} guest${i ? 's' : ''}</option>`).join(''); };
   const room = () => ROOMS.some(r => r.key === f.room.value);
