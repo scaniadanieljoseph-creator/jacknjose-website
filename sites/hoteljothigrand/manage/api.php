@@ -11,12 +11,20 @@ function out(array $b, int $code = 200): void { http_response_code($code); echo 
 function bad(string $m, int $code = 400): void { out(['ok' => false, 'error' => $m], $code); }
 
 /* who may read (r) and change (w) each collection; admin and manager may do everything */
-const ROLES = ['admin' => 'Owner / Admin', 'manager' => 'Manager', 'frontdesk' => 'Front desk', 'accounts' => 'Accounts'];
+const ROLES = ['admin' => 'Owner / Admin', 'manager' => 'Manager', 'frontdesk' => 'Front desk', 'accounts' => 'Accounts', 'cashier' => 'Cashier / billing', 'waiter' => 'Waiter / steward', 'kitchen' => 'Kitchen', 'bar' => 'Bar staff', 'housekeeping' => 'Housekeeping'];
 const PERMS = [
-  'frontdesk' => ['rooms' => 'rw', 'bookings' => 'rw', 'guests' => 'rw', 'enquiries' => 'rw', 'attendance' => 'rw', 'staff' => 'r', 'settings' => 'r', 'income' => 'rw'],
-  'accounts'  => ['rooms' => 'r', 'bookings' => 'r', 'guests' => 'r', 'enquiries' => 'r', 'staff' => 'rw', 'attendance' => 'rw', 'payroll' => 'rw', 'expenses' => 'rw', 'income' => 'rw', 'settings' => 'r'],
+  'frontdesk'    => ['rooms' => 'rw', 'bookings' => 'rw', 'guests' => 'rw', 'enquiries' => 'rw', 'attendance' => 'rw', 'staff' => 'r', 'settings' => 'r', 'income' => 'rw', 'tasks' => 'rw', 'orders' => 'r', 'bills' => 'r', 'menu' => 'r', 'bar' => 'r'],
+  'accounts'     => ['rooms' => 'r', 'bookings' => 'r', 'guests' => 'r', 'enquiries' => 'r', 'staff' => 'rw', 'attendance' => 'rw', 'payroll' => 'rw', 'expenses' => 'rw', 'income' => 'rw', 'settings' => 'r', 'orders' => 'r', 'bills' => 'r', 'menu' => 'r', 'bar' => 'r', 'tasks' => 'r'],
+  'cashier'      => ['orders' => 'rw', 'bills' => 'rw', 'menu' => 'r', 'bar' => 'rw', 'bookings' => 'r', 'rooms' => 'r', 'income' => 'rw', 'settings' => 'r'],
+  'waiter'       => ['orders' => 'rw', 'menu' => 'r', 'bar' => 'r', 'bookings' => 'r', 'rooms' => 'r', 'settings' => 'r'],
+  'kitchen'      => ['orders' => 'rw', 'menu' => 'rw', 'settings' => 'r'],
+  'bar'          => ['orders' => 'rw', 'bills' => 'rw', 'bar' => 'rw', 'menu' => 'r', 'bookings' => 'r', 'rooms' => 'r', 'income' => 'rw', 'settings' => 'r'],
+  'housekeeping' => ['rooms' => 'rw', 'tasks' => 'rw', 'staff' => 'r', 'bookings' => 'r', 'settings' => 'r'],
 ];
-const COLLECTIONS = ['rooms' => ['RM', 3], 'bookings' => ['BK', 4], 'guests' => ['GU', 4], 'enquiries' => ['WEB', 4], 'staff' => ['EMP', 3], 'attendance' => null, 'payroll' => null, 'expenses' => ['EX', 4], 'income' => ['IN', 4], 'settings' => null];
+/* collection => [id prefix, digits] for new records; null = the screen sets the id */
+const COLLECTIONS = ['rooms' => ['RM', 3], 'bookings' => ['BK', 4], 'guests' => ['GU', 4], 'enquiries' => ['WEB', 4], 'staff' => ['EMP', 3], 'attendance' => null, 'payroll' => null, 'expenses' => ['EX', 4], 'income' => ['IN', 4], 'settings' => null,
+  'menu' => ['MN', 3], 'bar' => ['BR', 3], 'orders' => ['KOT', 5], 'bills' => ['BL', 5], 'tasks' => ['TK', 4]];
+const ROOM_CHARGE_ROLES = ['admin', 'manager', 'frontdesk', 'cashier', 'bar'];
 
 function can(array $u, string $c, string $mode): bool {
   if (in_array($u['role'], ['admin', 'manager'], true)) return true;
@@ -24,7 +32,9 @@ function can(array $u, string $c, string $mode): bool {
 }
 /* front desk does not see salaries or bank details */
 function redact(array $u, string $c, array $d): array {
-  if ($c === 'staff' && $u['role'] === 'frontdesk') return array_intersect_key($d, array_flip(['id', 'name', 'role', 'dept', 'status', 'phone']));
+  if ($c === 'staff' && in_array($u['role'], ['frontdesk', 'housekeeping'], true)) return array_intersect_key($d, array_flip(['id', 'name', 'role', 'dept', 'status', 'phone']));
+  /* restaurant, bar and housekeeping staff only need to know who is in which room */
+  if ($c === 'bookings' && in_array($u['role'], ['cashier', 'waiter', 'bar', 'housekeeping'], true)) return array_intersect_key($d, array_flip(['id', 'guest', 'room', 'roomType', 'status', 'ci', 'co', 'adults']));
   return $d;
 }
 
@@ -33,12 +43,12 @@ $in = json_decode(file_get_contents('php://input', false, null, 0, 2000000) ?: '
 if (!is_array($in)) bad('Bad request');
 $action = (string)($in['action'] ?? '');
 
-try { $db = jg_db(); } catch (Throwable $e) { bad('The database could not be opened. Check that the manage/data folder is writable.', 503); }
+try { $db = jg_db(); } catch (Throwable $e) { bad('The database could not be opened. If the MySQL password was changed in cPanel, the owner should open manage/install.php again.', 503); }
 $ip = $_SERVER['REMOTE_ADDR'] ?? '';
 
 /* ---------- first-time setup and sign-in ---------- */
 $userCount = (int)$db->query('SELECT COUNT(*) FROM jg_users')->fetchColumn();
-if ($action === 'status') out(['ok' => true, 'needsSetup' => $userCount === 0]);
+if ($action === 'status') out(['ok' => true, 'needsSetup' => $userCount === 0, 'db' => jg_driver()]);
 
 function checkPassword(string $p): void { if (strlen($p) < 8) bad('Use a password of at least 8 characters.'); }
 function newSession(array $u): array {
@@ -85,7 +95,30 @@ if ($action === 'load') {             // everything this user may see, in one go
     $s = $db->prepare('SELECT data FROM jg_records WHERE collection = ?'); $s->execute([$c]);
     $data[$c] = array_map(fn($r) => redact($U, $c, json_decode($r['data'], true) ?: []), $s->fetchAll());
   }
-  out(['ok' => true, 'user' => ['id' => (int)$U['id'], 'username' => $U['username'], 'name' => $U['name'], 'role' => $U['role']], 'data' => $data, 'roles' => ROLES]);
+  out(['ok' => true, 'user' => ['id' => (int)$U['id'], 'username' => $U['username'], 'name' => $U['name'], 'role' => $U['role']], 'data' => $data, 'roles' => ROLES, 'now' => date('Y-m-d H:i:s'), 'db' => jg_driver()]);
+}
+
+if ($action === 'poll') {             // what changed since the last look (keeps the kitchen display, waiter and counter screens live)
+  $since = (string)($in['since'] ?? ''); if (!preg_match('/^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d$/', $since)) bad('Bad request.');
+  $now = date('Y-m-d H:i:s'); $data = [];
+  foreach (COLLECTIONS as $c => $_) {
+    if (!can($U, $c, 'r')) continue;
+    $s = $db->prepare('SELECT data FROM jg_records WHERE collection = ? AND updated_at >= ?'); $s->execute([$c, $since]);
+    $rows = $s->fetchAll(); if ($rows) $data[$c] = array_map(fn($r) => redact($U, $c, json_decode($r['data'], true) ?: []), $rows);
+  }
+  out(['ok' => true, 'now' => $now, 'data' => $data]);
+}
+
+if ($action === 'roomCharge') {       // restaurant / bar bill added to a guest's room bill
+  if (!in_array($U['role'], ROOM_CHARGE_ROLES, true)) bad('Your login cannot post to room bills.', 403);
+  $id = (string)($in['booking'] ?? ''); $amount = round((float)($in['amount'] ?? 0), 2); $desc = mb_substr(trim((string)($in['desc'] ?? '')), 0, 120);
+  if ($amount <= 0 || $amount > 1000000 || $desc === '') bad('Bad charge.');
+  $db->beginTransaction();
+  $b = jg_get('bookings', $id);
+  if (!$b || ($b['status'] ?? '') !== 'Checked-in') { $db->rollBack(); bad('That guest is not checked in.'); }
+  $b['charges'] = array_values(array_merge($b['charges'] ?? [], [['date' => date('Y-m-d'), 'desc' => $desc, 'amount' => $amount, 'by' => $who]])); $b['updatedBy'] = $who; $b['updatedAt'] = date('Y-m-d H:i:s');
+  jg_put('bookings', $b, $who); $db->commit(); jg_log($who, 'room charge', 'bookings', $id, "$desc $amount");
+  out(['ok' => true, 'doc' => redact($U, 'bookings', $b)]);
 }
 
 if ($action === 'save') {
@@ -94,7 +127,11 @@ if ($action === 'save') {
   if (!can($U, $c, 'w')) bad('Your login cannot change this.', 403);
   if (strlen(json_encode($d)) > 200000) bad('This record is too large.');
   $id = (string)($d['id'] ?? '');
-  if ($id === '') { if (!COLLECTIONS[$c]) bad('Missing record id.'); [$pfx, $pad] = COLLECTIONS[$c]; $id = jg_next($c, $pfx . '-', $pad); }
+  if ($id === '') {
+    if (!COLLECTIONS[$c]) bad('Missing record id.'); [$pfx, $pad] = COLLECTIONS[$c];
+    if ($c === 'bills') { $bar = ($d['dept'] ?? '') === 'Bar'; $id = jg_next($bar ? 'bills_bar' : 'bills_rest', $bar ? 'BB-' : 'RB-', 5); }   // separate bill numbers for restaurant and bar
+    else $id = jg_next($c, $pfx . '-', $pad);
+  }
   if (!preg_match('/^[A-Za-z0-9_.:-]{1,64}$/', $id)) bad('Bad record id.');
   $d['id'] = $id;
   if ($c === 'staff' && $U['role'] === 'frontdesk') bad('Your login cannot change staff details.', 403);
@@ -108,10 +145,10 @@ if ($action === 'save') {
 
 if ($action === 'saveMany') {       // e.g. a whole day of attendance or a month of payroll
   $c = (string)($in['collection'] ?? ''); $docs = $in['docs'] ?? null;
-  if (!in_array($c, ['attendance', 'payroll'], true) || !is_array($docs) || count($docs) > 500) bad('Bad request.');
+  if (!in_array($c, ['attendance', 'payroll', 'orders', 'bar', 'rooms', 'tasks'], true) || !is_array($docs) || count($docs) > 500) bad('Bad request.');
   if (!can($U, $c, 'w')) bad('Your login cannot change this.', 403);
   $saved = []; $db->beginTransaction();
-  foreach ($docs as $d) { if (!is_array($d) || !preg_match('/^[A-Za-z0-9_.:-]{1,64}$/', (string)($d['id'] ?? ''))) continue; $d['updatedBy'] = $who; $d['updatedAt'] = date('Y-m-d H:i:s'); jg_put($c, $d, $who); $saved[] = $d; }
+  foreach ($docs as $d) { if (!is_array($d) || !preg_match('/^[A-Za-z0-9_.:-]{1,64}$/', (string)($d['id'] ?? ''))) continue; $d['updatedBy'] = $who; $d['updatedAt'] = date('Y-m-d H:i:s'); jg_put($c, $d, $who); $saved[] = redact($U, $c, $d); }
   $db->commit(); jg_log($who, 'update', $c, (string)count($saved) . ' records'); out(['ok' => true, 'docs' => $saved]);
 }
 

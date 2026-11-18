@@ -23,6 +23,7 @@ const ICON = {
   id: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 10h3M15 14h3"/>', check: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 13l3 3 5-6M8 2v4M16 2v4"/>',
   cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/>', chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', cog: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
 };
+Object.assign(ICON, { broom: '<path d="M14 3l7 7M18 6l-9 9"/><path d="M9 15l-6 6M4 14l6 6 2-5-3-3z"/>', tray: '<path d="M3 17h18M5 17a7 7 0 0 1 14 0M12 8V6M10 6h4"/><path d="M2 20h20"/>', fire: '<path d="M12 22c4 0 7-3 7-7 0-5-5-7-5-12-3 2-6 6-6 9-1-1-2-2-2-3-2 2-1 6-1 6 0 4 3 7 7 7z"/>', receipt: '<path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/>', plate: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3.5"/><path d="M2 4v6M4 4v6M3 10v10M21 4c-1.5 1-2 3-2 6h2v10"/>', glass: '<path d="M7 3h10l-5 8z"/><path d="M12 11v8M8 21h8"/>' });
 const ic = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n] || ''}</svg>`;
 const chip = (t, c = '') => `<span class="chip ${c}">${esc(t)}</span>`;
 const STATUS_C = { Confirmed: 'c-blue', 'Checked-in': 'c-pink', 'Checked-out': 'c-green', Cancelled: 'c-red', 'No-show': 'c-amber', New: 'c-pink', Contacted: 'c-blue', Converted: 'c-green', Closed: '', Active: 'c-green', Inactive: '', Paid: 'c-green', Pending: 'c-amber', Available: 'c-green', Occupied: 'c-pink', Cleaning: 'c-amber', Maintenance: '', Reserved: 'c-blue' };
@@ -46,7 +47,16 @@ function upsert(c, d) { DB[c] = DB[c] || []; const i = DB[c].findIndex(x => x.id
 async function save(c, doc) { const j = await call('save', { collection: c, doc }); return upsert(c, j.doc); }
 async function saveMany(c, docs) { const j = await call('saveMany', { collection: c, docs }); j.docs.forEach(d => upsert(c, d)); }
 async function remove(c, id) { await call('delete', { collection: c, id }); DB[c] = L(c).filter(x => x.id !== id); }
-const PERMS = { frontdesk: { rooms: 'rw', bookings: 'rw', guests: 'rw', enquiries: 'rw', attendance: 'rw', staff: 'r', settings: 'r', income: 'rw' }, accounts: { rooms: 'r', bookings: 'r', guests: 'r', enquiries: 'r', staff: 'rw', attendance: 'rw', payroll: 'rw', expenses: 'rw', income: 'rw', settings: 'r' } };
+/* mirror of the server rules in api.php (the server always has the final say) */
+const PERMS = {
+  frontdesk: { rooms: 'rw', bookings: 'rw', guests: 'rw', enquiries: 'rw', attendance: 'rw', staff: 'r', settings: 'r', income: 'rw', tasks: 'rw', orders: 'r', bills: 'r', menu: 'r', bar: 'r' },
+  accounts: { rooms: 'r', bookings: 'r', guests: 'r', enquiries: 'r', staff: 'rw', attendance: 'rw', payroll: 'rw', expenses: 'rw', income: 'rw', settings: 'r', orders: 'r', bills: 'r', menu: 'r', bar: 'r', tasks: 'r' },
+  cashier: { orders: 'rw', bills: 'rw', menu: 'r', bar: 'rw', bookings: 'r', rooms: 'r', income: 'rw', settings: 'r' },
+  waiter: { orders: 'rw', menu: 'r', bar: 'r', bookings: 'r', rooms: 'r', settings: 'r' },
+  kitchen: { orders: 'rw', menu: 'rw', settings: 'r' },
+  bar: { orders: 'rw', bills: 'rw', bar: 'rw', menu: 'r', bookings: 'r', rooms: 'r', income: 'rw', settings: 'r' },
+  housekeeping: { rooms: 'rw', tasks: 'rw', staff: 'r', bookings: 'r', settings: 'r' } };
+const FLOOR_ROLES = ['cashier', 'waiter', 'kitchen', 'bar', 'housekeeping'];   // these logins open straight on their own screen
 const isMgr = () => ['admin', 'manager'].includes(ME?.role);
 const can = (c, m = 'r') => isMgr() || (PERMS[ME?.role]?.[c] || '').includes(m);
 
@@ -54,7 +64,9 @@ const DEFAULT_SETTINGS = { id: 'hotel', name: 'Hotel Jothi Grand', gstin: '33AFN
   gstRate: 5, roomTypes: [{ name: 'Deluxe Room', rate: 2500, max: 3 }, { name: 'Premium Room', rate: 3200, max: 3 }, { name: 'Grand Suite', rate: 4500, max: 4 }],
   depts: ['Front office', 'Housekeeping', 'Kitchen', 'Restaurant', 'Bar', 'Maintenance', 'Security', 'Accounts', 'Management'],
   expenseCats: ['Salary', 'Electricity', 'Water', 'Food & provisions', 'Bar stock', 'Laundry', 'Repairs & maintenance', 'Housekeeping supplies', 'Rent', 'Taxes', 'Marketing', 'Other'],
-  pfOn: false, pfRate: 12, esiOn: false, esiRate: 0.75, otRate: 1, payUnmarked: false };
+  pfOn: false, pfRate: 12, esiOn: false, esiRate: 0.75, otRate: 1, payUnmarked: false,
+  restTables: 12, barTables: 8, foodTax: 5, barTax: 0, service: 0, paper: '80',
+  menuCats: ['Breakfast', 'Soups & starters', 'Main course', 'Biryani & rice', 'Breads', 'Chinese', 'Desserts', 'Beverages'], barCats: ['Whisky', 'Rum', 'Vodka', 'Gin', 'Brandy', 'Beer', 'Wine', 'Cocktails', 'Soft drinks', 'Bar bites'] };
 const S = () => ({ ...DEFAULT_SETTINGS, ...(find('settings', 'hotel') || {}) });
 const staffName = id => find('staff', id)?.name || id;
 const roomNo = id => find('rooms', id)?.number || '';
@@ -113,17 +125,38 @@ async function loginView(msg = '') {
 }
 async function boot() {
   if (!TOKEN) return loginView();
-  try { const j = await call('load'); ME = j.user; DB = j.data; ROLES = j.roles; } catch (e) { if (TOKEN) return loginView(e.message); return; }
+  try { const j = await call('load'); ME = j.user; DB = j.data; ROLES = j.roles; SYNC = j.now; DBTYPE = j.db; } catch (e) { if (TOKEN) return loginView(e.message); return; }
   if (isMgr() && !find('settings', 'hotel')) { try { await save('settings', { ...DEFAULT_SETTINGS }); } catch (e) {} }
-  render();
+  render(); startPoll();
+}
+/* live updates: every few seconds fetch what other people changed (new orders, room status, bills) */
+let SYNC = '', DBTYPE = '', POLL = null; const POLL_HOOKS = [];
+function startPoll() {
+  clearInterval(POLL);
+  POLL = setInterval(async () => {
+    if (!ME || document.hidden || !SYNC) return;
+    try { const j = await call('poll', { since: SYNC }); SYNC = j.now; const ch = j.data || {}, n = Object.values(ch).reduce((t, a) => t + a.length, 0);
+      if (!n) return;
+      const before = {}; Object.keys(ch).forEach(c => before[c] = new Map(L(c).map(x => [x.id, x.updatedAt])));
+      const fresh = {}; Object.entries(ch).forEach(([c, docs]) => { fresh[c] = docs.filter(d => before[c].get(d.id) !== d.updatedAt); docs.forEach(d => upsert(c, d)); });
+      if (!Object.values(fresh).some(a => a.length)) return;
+      POLL_HOOKS.forEach(f => { try { f(fresh); } catch (e) {} });
+      const busy = $('#modal').classList.contains('open') || (document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && document.activeElement.closest('#page'));
+      if (!busy) render(); else STATE.stale = true;
+    } catch (e) { /* offline for a moment: try again next time */ }
+  }, 7000);
 }
 
 /* ---------------- layout and routing ---------------- */
 const PAGES = [
-  ['dashboard', 'Dashboard', 'home', () => true], ['bookings', 'Bookings', 'cal', () => can('bookings')], ['enquiries', 'Website enquiries', 'inbox', () => can('enquiries')],
-  ['rooms', 'Rooms', 'bed', () => can('rooms')], ['guests', 'Guests', 'users', () => can('guests')], ['staff', 'Staff', 'id', () => can('staff')],
-  ['attendance', 'Attendance', 'check', () => can('attendance')], ['payroll', 'Payroll', 'cash', () => can('payroll')], ['accounts', 'Accounts', 'chart', () => can('expenses')], ['settings', 'Settings', 'cog', () => true]];
-const route = () => { const r = (location.hash.slice(2) || 'dashboard').split('/')[0]; const p = PAGES.find(x => x[0] === r && x[3]()); return p ? r : 'dashboard'; };
+  ['dashboard', 'Dashboard', 'home', () => !FLOOR_ROLES.includes(ME.role)], ['bookings', 'Bookings', 'cal', () => can('bookings') && !FLOOR_ROLES.includes(ME.role)], ['enquiries', 'Website enquiries', 'inbox', () => can('enquiries')],
+  ['rooms', 'Rooms', 'bed', () => can('rooms') && !['waiter', 'cashier', 'bar'].includes(ME.role)], ['housekeeping', 'Housekeeping', 'broom', () => can('tasks')], ['guests', 'Guests', 'users', () => can('guests')],
+  ['waiter', 'Waiter · take orders', 'tray', () => can('orders', 'w') && (can('menu') || can('bar')) && ME.role !== 'kitchen'], ['kitchen', 'Kitchen & bar display', 'fire', () => can('orders', 'w') && ME.role !== 'cashier'], ['counter', 'Billing counter', 'receipt', () => can('bills', 'w') || (can('bills') && isMgr())],
+  ['menu', 'Restaurant menu', 'plate', () => can('menu') && ME.role !== 'waiter' && ME.role !== 'bar'], ['barstock', 'Bar & stock', 'glass', () => can('bar') && ME.role !== 'waiter'],
+  ['staff', 'Staff', 'id', () => can('staff') && ME.role !== 'housekeeping'], ['attendance', 'Attendance', 'check', () => can('attendance')], ['payroll', 'Payroll', 'cash', () => can('payroll')], ['accounts', 'Accounts', 'chart', () => can('expenses')], ['settings', 'Settings', 'cog', () => true]];
+const VIEWS = {};   // page key → function(el, topActions); filled below and by fnb.js
+const LANDING = { cashier: 'counter', kitchen: 'kitchen', housekeeping: 'housekeeping', waiter: 'waiter', bar: 'waiter' };
+const route = () => { const r = location.hash.slice(2).split('/')[0], ok = PAGES.filter(x => x[3]()); return (ok.find(x => x[0] === r) || ok.find(x => x[0] === LANDING[ME.role]) || ok[0])[0]; };
 addEventListener('hashchange', () => ME && render());
 function render() {
   if (!ME) return;
@@ -134,7 +167,8 @@ function render() {
   $('#nav').innerHTML = PAGES.filter(p => p[3]()).map(([k, l, i]) => `<a href="#/${k}" class="${k === r ? 'on' : ''}">${ic(i)}${l}${k === 'enquiries' && newEnq ? `<span class="cnt">${newEnq}</span>` : ''}</a>`).join('');
   $('#out').onclick = () => signOut(); $('#menu').onclick = () => $('#side').classList.toggle('open'); $$('#nav a').forEach(a => a.onclick = () => $('#side').classList.remove('open'));
   $('#title').textContent = page[1]; $('#top-acts').innerHTML = ''; const el = $('#page');
-  ({ dashboard, bookings, enquiries, rooms, guests, staff, attendance, payroll, accounts, settings })[r](el, $('#top-acts'));
+  STATE.stale = false; document.body.classList.toggle('kds-on', r === 'kitchen' && !!STATE.kdsFull);
+  VIEWS[r](el, $('#top-acts'));
 }
 const topBtn = (acts, label, fn, cls = 'btn-p') => { const b = document.createElement('button'); b.className = 'btn ' + cls; b.textContent = label; b.onclick = fn; acts.append(b); };
 const kpi = (label, value, sub = '') => `<div class="kpi"><small>${esc(label)}</small><b>${value}</b>${sub ? `<i>${sub}</i>` : ''}</div>`;
@@ -156,6 +190,7 @@ function dashboard(el, acts) {
       <div class="card"><h3>Departures due</h3>${departures.map(row).join('') || '<p class="muted">No departures due.</p>'}</div>
       <div class="card"><h3>New website enquiries</h3>${newEnq.slice(0, 6).map(e => `<div class="list-row"><div><b>${esc(e.name)}</b><div class="small muted">${esc(e.room || '')} · ${fmtD(e.ci)}</div></div><a class="btn btn-s btn-p" href="#/enquiries">View</a></div>`).join('') || '<p class="muted">No new enquiries.</p>'}</div>
     </div>
+    ${can('bills') || can('tasks') ? `<div class="grid g4" style="margin-top:16px">${can('bills') ? kpi('Restaurant sales today', inr(sum(L('bills').filter(x => x.dept !== 'Bar' && (x.createdAt || '').slice(0, 10) === t && x.status !== 'Cancelled'), x => x.total))) + kpi('Bar sales today', inr(sum(L('bills').filter(x => x.dept === 'Bar' && (x.createdAt || '').slice(0, 10) === t && x.status !== 'Cancelled'), x => x.total))) : ''}${can('orders') ? kpi('Open orders', L('orders').filter(o => ['New', 'Preparing', 'Ready', 'Served'].includes(o.status)).length, `<a href="#/kitchen">Kitchen display</a>`) : ''}${can('tasks') ? kpi('Rooms to clean', R.filter(r => ['Dirty', 'In progress'].includes(r.clean)).length, `${L('tasks').filter(x => x.status !== 'Done').length} open tasks`) : ''}</div>` : ''}
     <div class="card" style="margin-top:16px"><h3>Rooms right now</h3><div class="legend"><span class="Available">Available</span><span class="Occupied">Occupied</span><span class="Reserved">Reserved</span><span class="Cleaning">Cleaning</span><span class="Maintenance">Maintenance</span></div><div class="rooms">${roomTiles()}</div></div>`;
   bindRoomTiles(el);
 }
@@ -256,7 +291,7 @@ function bookings(el, acts) {
       m => { $('[data-cancel]', m).onclick = closeModal; $('#co-f', m).onsubmit = e => { e.preventDefault(); const f = e.target; act(async () => {
         const upd = { ...k, co: f.co.value > k.ci ? f.co.value : k.co }, bl = bill(upd);
         if (bl.bal > 0) { upd.payments = [...(upd.payments || []), { date: iso(), amount: bl.bal, mode: f.mode.value, note: 'Settlement at check-out' }]; await save('income', { date: iso(), category: 'Room', amount: bl.bal, mode: f.mode.value, ref: k.id, note: `Check-out · ${k.guest}` }); }
-        const done = await save('bookings', { ...upd, status: 'Checked-out', checkedOutAt: new Date().toISOString() }); const r = find('rooms', k.room); if (r) await save('rooms', { ...r, status: 'Cleaning' }); closeModal(); invoice(done); }, `${k.guest} checked out · room set to cleaning`); }; }); });
+        const done = await save('bookings', { ...upd, status: 'Checked-out', checkedOutAt: new Date().toISOString() }); const r = find('rooms', k.room); if (r) { await save('rooms', { ...r, status: 'Cleaning', clean: 'Dirty' }); if (can('tasks', 'w')) await save('tasks', { type: 'Checkout clean', room: r.id, priority: 'High', status: 'Open', assignedTo: r.attendant || '', note: `${k.guest} checked out`, createdAt: new Date().toISOString() }); } closeModal(); invoice(done); }, `${k.guest} checked out · room set to cleaning`); }; }); });
 }
 
 /* ---------------- website enquiries ---------------- */
@@ -404,11 +439,15 @@ async function settings(el) {
   </div>
   ${mgr ? `<div class="grid g2" style="margin-top:16px"><div class="card"><h3>Room types &amp; tariff</h3><div id="rt"></div><button class="btn btn-g btn-s" id="rt-add" style="margin-top:10px">+ Add room type</button> <button class="btn btn-p btn-s" id="rt-save" style="margin-top:10px">Save room types</button></div>
     <div class="card"><h3>Payroll rules</h3><form class="form" id="payset">${fieldsHTML([{ name: 'pfOn', label: 'Deduct PF', type: 'check' }, { name: 'pfRate', label: 'PF employee share (%)', type: 'number', step: '0.01' }, { name: 'esiOn', label: 'Deduct ESI (salary up to ₹21,000)', type: 'check' }, { name: 'esiRate', label: 'ESI employee share (%)', type: 'number', step: '0.01' }, { name: 'otRate', label: 'Overtime pay (× hourly rate)', type: 'number', step: '0.25' }, { name: 'payUnmarked', label: 'Pay days with no attendance marked', type: 'check' }], s)}<div class="acts"><button class="btn btn-p">Save</button></div></form></div></div>
-  <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">Staff logins</h3><button class="btn btn-p btn-s" id="u-add">+ Add login</button></div><div id="users" class="muted">Loading…</div><p class="muted small" style="margin-top:10px">Owner / Manager: everything. Front desk: bookings, enquiries, rooms, guests and attendance (no salaries). Accounts: staff, attendance, payroll, income and expenses.</p></div>
+  <div class="grid g2" style="margin-top:16px"><div class="card"><h3>Restaurant &amp; bar</h3><form class="form" id="fnbset">${fieldsHTML([{ name: 'restTables', label: 'Restaurant tables', type: 'number', min: 1 }, { name: 'barTables', label: 'Bar tables', type: 'number', min: 1 }, { name: 'foodTax', label: 'GST on food (%)', type: 'number', step: '0.5' }, { name: 'barTax', label: 'Tax on bar items (%)', type: 'number', step: '0.5' }, { name: 'service', label: 'Service charge (%) · optional', type: 'number', step: '0.5', min: 0 }, { name: 'paper', label: 'Receipt printer paper', type: 'select', options: [['80', '80 mm'], ['58', '58 mm'], ['A4', 'A4 / normal printer']] }, { name: 'menuCats', label: 'Menu categories (comma separated)', full: true }, { name: 'barCats', label: 'Bar categories (comma separated)', full: true }], { ...s, menuCats: s.menuCats.join(', '), barCats: s.barCats.join(', ') })}<div class="acts"><button class="btn btn-p">Save</button></div></form><p class="muted small" style="margin-top:8px">Restaurant food is usually 5% GST. Liquor is outside GST (state VAT applies at purchase); soft drinks and snacks at the bar can carry GST. Set each item's own tax on the Bar page and confirm with your accountant.</p></div>
+    <div class="card"><h3>Database</h3>${DBTYPE === 'mysql' ? '<p>All records are saved in your <b>cPanel MySQL</b> database.</p><p class="muted small">Back it up from cPanel → Backup → Download a MySQL Database Backup.</p>' : `<p>Records are in the <b>built-in database</b> on this server.</p><p class="muted small">Connect your cPanel MySQL database to keep everything there. Your existing records move across automatically.</p>${ME.role === 'admin' ? '<a class="btn btn-p" href="install.php" style="margin-top:10px">Connect MySQL</a>' : ''}`}</div></div>
+  <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">Staff logins</h3><button class="btn btn-p btn-s" id="u-add">+ Add login</button></div><div id="users" class="muted">Loading…</div><p class="muted small" style="margin-top:10px">Owner / Manager: everything. Front desk: bookings, enquiries, rooms, housekeeping, guests and attendance (no salaries). Accounts: staff, attendance, payroll, income and expenses. Cashier: billing counter. Waiter: takes orders for tables and room service. Kitchen: kitchen display and dish availability. Bar staff: bar orders, bar bills and stock. Housekeeping: cleaning board and tasks.</p></div>
   <div class="card" style="margin-top:16px"><h3>Recent activity</h3><div id="log" class="muted">Loading…</div></div>` : ''}`;
   $('#pw', el).onsubmit = e => { e.preventDefault(); const f = e.target; act(async () => { await call('password', { current: f.current.value, password: f.password.value }); f.reset(); }, 'Password changed'); };
   if (!mgr) return;
   $('#hotel', el).onsubmit = e => { e.preventDefault(); const v = readForm(e.target, [{ name: 'name' }, { name: 'gstin' }, { name: 'phone' }, { name: 'email' }, { name: 'gstRate', type: 'number' }, { name: 'address' }]); act(() => save('settings', { ...s, ...v }), 'Hotel details saved'); };
+  $('#fnbset', el).onsubmit = e => { e.preventDefault(); const v = readForm(e.target, [{ name: 'restTables', type: 'number' }, { name: 'barTables', type: 'number' }, { name: 'foodTax', type: 'number' }, { name: 'barTax', type: 'number' }, { name: 'service', type: 'number' }, { name: 'paper' }, { name: 'menuCats' }, { name: 'barCats' }]);
+    const list = x => x.split(',').map(y => y.trim()).filter(Boolean); act(() => save('settings', { ...s, ...v, restTables: Math.min(60, Math.max(1, v.restTables)), barTables: Math.min(40, Math.max(1, v.barTables)), menuCats: list(v.menuCats), barCats: list(v.barCats) }), 'Restaurant & bar settings saved'); };
   $('#payset', el).onsubmit = e => { e.preventDefault(); const v = readForm(e.target, [{ name: 'pfOn', type: 'check' }, { name: 'pfRate', type: 'number' }, { name: 'esiOn', type: 'check' }, { name: 'esiRate', type: 'number' }, { name: 'otRate', type: 'number' }, { name: 'payUnmarked', type: 'check' }]); act(() => save('settings', { ...s, ...v }), 'Payroll rules saved'); };
   let types = s.roomTypes.map(t => ({ ...t }));
   const drawRT = () => { $('#rt', el).innerHTML = `<table><thead><tr><th>Type</th><th>Rate ₹</th><th>Max guests</th><th></th></tr></thead><tbody>${types.map((t, i) => `<tr><td><input class="in" data-i="${i}" data-k="name" value="${esc(t.name)}"></td><td><input class="in" type="number" min="0" data-i="${i}" data-k="rate" value="${esc(t.rate)}" style="width:110px"></td><td><input class="in" type="number" min="1" data-i="${i}" data-k="max" value="${esc(t.max)}" style="width:80px"></td><td><button class="btn btn-s btn-del" data-x="${i}">×</button></td></tr>`).join('')}</tbody></table>`;
@@ -425,4 +464,4 @@ async function settings(el) {
   call('log').then(j => { $('#log', el).innerHTML = `<div class="table-wrap" style="max-height:340px;overflow:auto"><table><tbody>${j.log.map(l => `<tr><td class="nowrap small">${esc(l.at)}</td><td><b>${esc(l.username)}</b></td><td>${esc(l.action)} ${esc(l.collection || '')} ${esc(l.record || '')}</td><td class="small muted">${esc(l.note || '')}</td></tr>`).join('') || '<tr><td class="empty">No activity yet.</td></tr>'}</tbody></table></div>`; }).catch(e => $('#log', el).textContent = e.message);
 }
 
-boot();
+Object.assign(VIEWS, { dashboard, bookings, enquiries, rooms, guests, staff, attendance, payroll, accounts, settings });
