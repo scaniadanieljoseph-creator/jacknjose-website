@@ -20,7 +20,7 @@ const page = html.replace(/"(assets\/[^"]+\.(?:js|css))"/g, `"/$1?v=${ver}"`)
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, 'index.html'), page);
 fs.writeFileSync(path.join(out, '404.html'), page);
-files.forEach(f => copy(f, f.endsWith('auth.js') ? c => c.replace('const SHOW_DEMO_LOGINS = true;', 'const SHOW_DEMO_LOGINS = false;') : f.endsWith('config.js') && cpanel ? c => c.replace("api: '',", "api: 'api/',") : null));
+files.forEach(f => copy(f, f.endsWith('auth.js') ? c => c.replace('const SHOW_DEMO_LOGINS = true;', 'const SHOW_DEMO_LOGINS = SITE_CONFIG.demoSite === true;') : f.endsWith('config.js') && cpanel ? c => c.replace("api: '',", "api: 'api/',") : null));
 if (cpanel) { for (const f of ['index.php', 'install.php', 'schema.php', '.htaccess']) { fs.mkdirSync(path.join(out, 'api'), { recursive: true }); fs.copyFileSync(path.join(root, 'api', f), path.join(out, 'api', f)); } }
 if (fs.existsSync(path.join(root, 'assets/img'))) fs.cpSync(path.join(root, 'assets/img'), path.join(out, 'assets/img'), { recursive: true }); // your own photos
 if (!cpanel) fs.writeFileSync(path.join(out, 'CNAME'), domain + '\n');                     // GitHub Pages
@@ -29,4 +29,13 @@ fs.writeFileSync(path.join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="U
 fs.writeFileSync(path.join(out, '.htaccess'), `# Apache / cPanel / Hostinger\nRewriteEngine On\nRewriteCond %{HTTPS} off\nRewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]\nErrorDocument 404 /index.html\n<IfModule mod_headers.c>\n  Header set X-Content-Type-Options "nosniff"\n  Header set Referrer-Policy "strict-origin-when-cross-origin"\n  Header set X-Frame-Options "SAMEORIGIN"\n  <FilesMatch "\\.(js|css)$">\n    Header set Cache-Control "public, max-age=31536000, immutable"\n  </FilesMatch>\n  <FilesMatch "\\.html$">\n    Header set Cache-Control "no-cache"\n  </FilesMatch>\n</IfModule>\n`);
 if (!cpanel) fs.writeFileSync(path.join(out, '_headers'), `/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n`); // Netlify / Cloudflare Pages
 if (!cpanel) fs.writeFileSync(path.join(out, '_redirects'), `/*  /index.html  200\n`);
+if (!cpanel && !process.argv.includes('--no-demo')) { // client demo: https://<domain>/demo/
+  const dcfg = cfg.replace('const SITE_CONFIG = {', 'const SITE_CONFIG = {\n  demoSite: true,').replace(/api: '[^']*',/, "api: '',").replace("bookingMode: 'request'", "bookingMode: 'demo'").replace('showStaffMenu: false', 'showStaffMenu: true');
+  fs.mkdirSync(path.join(out, 'demo'), { recursive: true }); fs.writeFileSync(path.join(out, 'demo', 'config.js'), dcfg);
+  const strip = `<div class="demo-site-strip" role="note"><b>Demo of Elsha by Jack &amp; Jose</b> · sample data only, nothing reaches the real system · Staff portals: sign in with <b class="mono">demo</b> / <b class="mono">Demo@123</b> <span class="dss-act"><a href="#login">Sign in</a><button type="button" onclick="if(confirm('Clear everything you changed in this demo and start again with fresh sample data?')){try{Object.keys(localStorage).filter(function(k){return /^jjdemo_/.test(k)}).forEach(function(k){localStorage.removeItem(k)});Object.keys(sessionStorage).filter(function(k){return /^jjd_|^jjdemo_/.test(k)}).forEach(function(k){sessionStorage.removeItem(k)})}catch(e){}location.hash='';location.reload()}">Reset demo</button></span></div>\n`;
+  const dpage = html.replace(/"(assets\/[^"]+\.(?:js|css))"/g, (m, f) => f === 'assets/js/config.js' ? `"/demo/config.js?v=${ver}"` : `"/${f}?v=${ver}"`)
+    .replace('<meta name="claude:viewport-fit-sides" content="cover">\n', '').replace('<title>Elsha by Jack &amp; Jose</title>', '<title>Demo · Elsha by Jack &amp; Jose</title>\n<meta name="robots" content="noindex, nofollow">')
+    .replace('<header class="site-header"', strip + '<header class="site-header"');
+  fs.writeFileSync(path.join(out, 'demo', 'index.html'), dpage);
+}
 console.log('built', out, launch ? '(LAUNCH mode: requests go to WhatsApp/email)' : banner ? '(preview banner ON: fill in config.js to launch)' : '(no banner)');
