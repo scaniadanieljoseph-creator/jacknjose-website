@@ -239,9 +239,78 @@ JG.fill(); JG.booking($('[data-book]')); JG.motion();
   tiles.forEach((t, i) => { t.tabIndex = 0; t.setAttribute('role', 'button'); t.setAttribute('aria-label', 'Open photo'); t.onclick = () => { show(i); lb.classList.add('open'); document.body.style.overflow = 'hidden'; }; t.onkeydown = e => { if (e.key === 'Enter') t.onclick(); }; });
   $('.x', lb).onclick = close; $('.pv', lb).onclick = () => show(at - 1); $('.nx', lb).onclick = () => show(at + 1); lb.onclick = e => { if (e.target === lb) close(); };
   addEventListener('keydown', e => { if (!lb.classList.contains('open')) return; if (e.key === 'Escape') close(); if (e.key === 'ArrowLeft') show(at - 1); if (e.key === 'ArrowRight') show(at + 1); }); })();
-/* twinkling stars */
-(() => { const c = $('#stars'), x = c.getContext('2d'); let s = []; const size = () => { c.width = innerWidth; c.height = innerHeight; s = Array.from({ length: 120 }, () => ({ x: Math.random() * c.width, y: Math.random() * c.height, r: Math.random() * 1.2 + .2, p: Math.random() * 6 })); }; size(); addEventListener('resize', size);
-  const f = t => { x.clearRect(0, 0, c.width, c.height); s.forEach(o => { x.globalAlpha = .2 + .6 * Math.abs(Math.sin(t / 1400 + o.p)); x.fillStyle = '#fff'; x.beginPath(); x.arc(o.x, o.y, o.r, 0, 7); x.fill(); }); if (!JG.reduce) requestAnimationFrame(f); }; requestAnimationFrame(f); })();
+/* galaxy background: a slowly spinning spiral galaxy with twinkling stars and the odd shooting star */
+(() => {
+  const c = $('#stars'), x = c.getContext('2d'), TAU = Math.PI * 2, rnd = (a, b) => a + Math.random() * (b - a);
+  const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+  let W, H, D, cx, cy, R, stars = [], galaxy, glow, shoot = null, nextShoot = 3000;
+  const ARMS = 3, TWIST = 3.4;                       // spiral arms and how tightly they wind
+  const armAngle = (u, arm) => arm * TAU / ARMS + u * TWIST;   // u = 0 (centre) .. 1 (edge)
+
+  /* soft round sprite used for star glows and nebula dust */
+  const sprite = (col, size = 64) => { const s = document.createElement('canvas'); s.width = s.height = size; const g = s.getContext('2d'), r = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    r.addColorStop(0, col); r.addColorStop(.25, col.replace(/[\d.]+\)$/, '.35)')); r.addColorStop(1, col.replace(/[\d.]+\)$/, '0)')); g.fillStyle = r; g.fillRect(0, 0, size, size); return s; };
+
+  /* the galaxy's glowing dust, painted once and then rotated each frame */
+  function paintGalaxy() {
+    const S = 1100, g = document.createElement('canvas'); g.width = g.height = S; const q = g.getContext('2d'), h = S / 2;
+    const dust = [sprite('rgba(255,92,154,1)'), sprite('rgba(138,109,255,1)'), sprite('rgba(91,140,255,1)'), sprite('rgba(255,170,210,1)')];
+    q.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < 2600; i++) {
+      const arm = i % ARMS, u = Math.pow(Math.random(), .75), a = armAngle(u, arm) + gauss() * .38 * (1 - u * .4), rr = u * h * .96 + gauss() * 18;
+      const px = h + Math.cos(a) * rr, py = h + Math.sin(a) * rr, sz = rnd(18, 70) * (1 - u * .5);
+      q.globalAlpha = rnd(.025, .07) * (1 - u * .6); q.drawImage(dust[u < .25 ? 3 : (i >> 2) % 3], px - sz / 2, py - sz / 2, sz, sz);
+    }
+    const core = q.createRadialGradient(h, h, 0, h, h, h * .32);                 // warm bright core
+    core.addColorStop(0, 'rgba(255,240,225,.55)'); core.addColorStop(.25, 'rgba(255,170,205,.22)'); core.addColorStop(1, 'rgba(120,100,255,0)');
+    q.globalAlpha = 1; q.fillStyle = core; q.fillRect(0, 0, S, S);
+    return g;
+  }
+
+  function size() {
+    D = Math.min(devicePixelRatio || 1, 1.5); W = innerWidth; H = innerHeight; c.width = W * D; c.height = H * D; x.setTransform(D, 0, 0, D, 0, 0);
+    const narrow = W < 760; cx = W * (narrow ? .62 : .7); cy = H * (narrow ? .3 : .42); R = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy)) * 1.05;
+    const n = Math.round(Math.min(900, Math.max(320, W * H / 1900)));
+    stars = Array.from({ length: n }, (_, i) => {
+      const inArm = i % 5 < 2, u = inArm ? Math.pow(Math.random(), .8) : Math.sqrt(Math.random());
+      const ang = inArm ? armAngle(u, i % ARMS) + gauss() * .3 : Math.random() * TAU;
+      const big = Math.random() < .045, tint = Math.random();
+      return { r: u * R, a: ang, w: .9 + (1 - u) * .9,                       // inner stars orbit a little faster
+        s: big ? rnd(1.4, 2.2) : rnd(.35, 1.2), big, tw: rnd(.6, 2.4), p: Math.random() * TAU, base: big ? 1 : rnd(.35, .9),
+        col: tint < .7 ? '#ffffff' : tint < .82 ? '#ffd3e6' : tint < .94 ? '#cfdcff' : '#ffe9b8' };
+    });
+  }
+
+  function frame(t) {
+    const spin = t * TAU / 420000;                                             // one full turn every 7 minutes
+    x.clearRect(0, 0, W, H);
+    x.save(); x.translate(cx, cy); x.rotate(spin); x.scale(1, .82); x.globalAlpha = .62; x.drawImage(galaxy, -R, -R, R * 2, R * 2); x.restore();
+    for (const s of stars) {
+      const a = s.a + spin * s.w, px = cx + Math.cos(a) * s.r, py = cy + Math.sin(a) * s.r * .82;
+      if (px < -10 || py < -10 || px > W + 10 || py > H + 10) continue;
+      const k = s.base * (.45 + .55 * (.5 + .5 * Math.sin(t / 1000 * s.tw + s.p)));
+      x.globalAlpha = k; x.fillStyle = s.col;
+      if (s.big) {
+        const g = s.s * 9; x.drawImage(glow, px - g / 2, py - g / 2, g, g);
+        x.fillRect(px - s.s * 4 * k, py - .4, s.s * 8 * k, .8); x.fillRect(px - .4, py - s.s * 4 * k, .8, s.s * 8 * k);   // sparkle cross
+      }
+      x.beginPath(); x.arc(px, py, s.s, 0, TAU); x.fill();
+    }
+    if (!shoot && t > nextShoot) { const fromLeft = Math.random() < .5; shoot = { x: fromLeft ? rnd(0, W * .5) : rnd(W * .5, W), y: rnd(0, H * .4), vx: (fromLeft ? 1 : -1) * rnd(.6, 1), vy: rnd(.25, .45), t0: t }; }
+    if (shoot) {
+      const age = t - shoot.t0, life = 1100, d = age * 1.1, hx = shoot.x + shoot.vx * d, hy = shoot.y + shoot.vy * d, len = 140;
+      const tr = x.createLinearGradient(hx, hy, hx - shoot.vx * len, hy - shoot.vy * len); tr.addColorStop(0, 'rgba(255,255,255,.95)'); tr.addColorStop(1, 'rgba(255,143,187,0)');
+      x.globalAlpha = Math.max(0, 1 - age / life); x.strokeStyle = tr; x.lineWidth = 1.6; x.beginPath(); x.moveTo(hx, hy); x.lineTo(hx - shoot.vx * len, hy - shoot.vy * len); x.stroke();
+      if (age > life) { shoot = null; nextShoot = t + rnd(4000, 9000); }
+    }
+    x.globalAlpha = 1;
+    if (!JG.reduce) requestAnimationFrame(frame);
+  }
+
+  glow = sprite('rgba(255,255,255,1)'); galaxy = paintGalaxy(); size();
+  addEventListener('resize', () => { clearTimeout(size.t); size.t = setTimeout(size, 150); });
+  requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
