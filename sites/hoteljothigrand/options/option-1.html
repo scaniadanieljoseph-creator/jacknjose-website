@@ -204,7 +204,7 @@ footer a { text-decoration: none; color: #dbe3f7; } footer .bot { display: flex;
     <div><h4>Stay</h4><p data-jg="times"></p><p data-jg="gst"></p></div></div>
   <div class="bot"><span>© <span data-jg="year"></span> Hotel Jothi Grand</span><a href="https://elsha.jacknjose.co.in/#hotels">Bookings by Elsha · Jack &amp; Jose</a></div>
 </div></footer>
-<script src="shared.js"></script>
+<script src="../jg.js" data-base="../"></script>
 <script>
 const { $, $$, ic, esc, ROOMS, XP, AMEN } = JG, star = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/></svg>';
 $('#room-list').innerHTML = ROOMS.map((r, i) => `<article class="room rv"><div class="ph" data-pic="room" data-sizes="(max-width: 960px) 100vw, 60vw" data-style="object-position:${r.pos}"></div><div><div class="no">0${i + 1}</div><div class="meta">Up to ${r.max} guests</div><h3>${esc(r.key)}</h3><p>${esc(r.text)}</p><ul>${r.feat.map(f => `<li>${star}${esc(f)}</li>`).join('')}</ul><a class="btn line" href="#book" data-pick="${esc(r.key)}">Reserve this room</a></div></article>`).join('');

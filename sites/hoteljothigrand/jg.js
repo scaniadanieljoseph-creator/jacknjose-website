@@ -1,6 +1,7 @@
 'use strict';
 /* Shared content and booking logic for the Hotel Jothi Grand design options. Each design only changes the look. */
 const JG = (() => {
+  const BASE = (document.currentScript && document.currentScript.dataset.base) ?? '';   // '' on the home page, '../' inside options/
   const HOTEL = {
     name: 'Hotel Jothi Grand',
     mobiles: ['+91 73040 43384', '+91 73050 43384'], landlines: ['0422 2331848', '0422 2441848'],
@@ -8,7 +9,7 @@ const JG = (() => {
     address: '19, Sankra Nagar, Near KCT Tech Park, Thudiyalur Road, Saravanampatti, Coimbatore - 641035',
     mapQuery: 'Hotel Jothi Grand, Sankra Nagar, Thudiyalur Road, Saravanampatti, Coimbatore 641035',
     gstin: '33AFNPJ5789B1ZA', checkIn: '12:00 noon', checkOut: '11:00 AM', barHours: [17, 23.5], roofHours: [16, 23],
-    bookUrl: '../book.php',
+    bookUrl: BASE + 'book.php',
   };
   HOTEL.mapLink = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(HOTEL.mapQuery);
   const ROOMS = [
@@ -23,7 +24,7 @@ const JG = (() => {
   ];
   const AMEN = [['wifi', 'Free Wi-Fi'], ['glass', 'Freeze Bar'], ['sun', 'Rooftop lounge'], ['car', 'Secure parking'], ['tooth', 'Dental kit'], ['bell', '24-hour desk'], ['plate', 'Room service'], ['shirt', 'Laundry'], ['snow', 'Air-conditioning'], ['tv', 'Smart TV'], ['cup', 'Tea & coffee'], ['shield', 'CCTV & key-cards']];
   const PIC = { exterior: [864, 1040, 'Hotel Jothi Grand building'], room: [1600, 980, 'A room at Hotel Jothi Grand'], reception: [1152, 770, 'Reception and front desk'], restaurant: [1080, 770, 'The air-conditioned restaurant'], lounge: [1200, 1390, 'Lounge seating outside the rooms'] };
-  const IMG = '../img/';
+  const IMG = BASE + 'img/';
   const pic = (n, sizes = '100vw', eager = false, style = '') => { const [w, h, alt] = PIC[n], big = Math.min(1600, w); return `<picture><source type="image/webp" srcset="${IMG}${n}-800.webp 800w, ${IMG}${n}-1600.webp ${big}w" sizes="${sizes}"><img src="${IMG}${n}-800.jpg" srcset="${IMG}${n}-800.jpg 800w, ${IMG}${n}-1600.jpg ${big}w" sizes="${sizes}" width="${w}" height="${h}" alt="${alt}" ${style ? `style="${style}"` : ''} ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></picture>`; };
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

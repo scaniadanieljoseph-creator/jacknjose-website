@@ -11,6 +11,7 @@ const MAIL_BCC       = ['info@jacknjose.co.in'];            // a copy for Jack &
 const HOTEL_NAME     = 'Hotel Jothi Grand';
 const HOTEL_PHONE    = '+91 73040 43384';
 const ALLOWED_HOSTS  = ['hoteljothigrand.jacknjose.co.in', 'www.hoteljothigrand.jacknjose.co.in', 'localhost', '127.0.0.1'];
+const LOGO_URL       = 'https://hoteljothigrand.jacknjose.co.in/img/logo-gold-light-360.png';
 const MAX_PER_HOUR   = 6;                                    // requests allowed per visitor per hour
 /* ==================== */
 
@@ -91,7 +92,7 @@ function table(array $rows): string {
 }
 function wrapHtml(string $title, string $inner): string {
   return '<div style="background:#f6f3f8;padding:24px 12px;font-family:Arial,sans-serif"><div style="max-width:600px;margin:auto;background:#fff;border-radius:14px;overflow:hidden;border:1px solid #eee">'
-       . '<div style="background:linear-gradient(115deg,#e43d82,#2563d9);background-color:#e43d82;color:#fff;padding:20px 24px"><div style="font-size:12px;letter-spacing:3px">HOTEL JOTHI GRAND</div><div style="font-size:22px;font-weight:bold;margin-top:4px">' . h($title) . '</div></div>'
+       . '<div style="background:#0a1234;color:#fff;padding:20px 24px"><table cellspacing="0" cellpadding="0"><tr><td style="padding-right:16px"><img src="' . LOGO_URL . '" width="58" alt="" style="display:block"></td><td><div style="font-size:12px;letter-spacing:3px;color:#e8c46a">HOTEL JOTHI GRAND</div><div style="font-size:22px;font-weight:bold;margin-top:4px">' . h($title) . '</div></td></tr></table></div>'
        . '<div style="padding:20px 24px">' . $inner . '</div></div></div>';
 }
 $text = ''; foreach ($rows as $k => $v) $text .= str_pad($k . ':', 18) . $v . "\n";
