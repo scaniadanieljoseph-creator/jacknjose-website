@@ -22,6 +22,7 @@ fs.writeFileSync(path.join(out, 'index.html'), page);
 fs.writeFileSync(path.join(out, '404.html'), page);
 files.forEach(f => copy(f, f.endsWith('auth.js') ? c => c.replace('const SHOW_DEMO_LOGINS = true;', 'const SHOW_DEMO_LOGINS = SITE_CONFIG.demoSite === true;') : f.endsWith('config.js') && cpanel ? c => c.replace("api: '',", "api: 'api/',") : null));
 if (cpanel) { for (const f of ['index.php', 'install.php', 'schema.php', '.htaccess']) { fs.mkdirSync(path.join(out, 'api'), { recursive: true }); fs.copyFileSync(path.join(root, 'api', f), path.join(out, 'api', f)); } }
+if (fs.existsSync(path.join(root, 'downloads/Elsha.apk'))) { fs.mkdirSync(path.join(out, 'app'), { recursive: true }); fs.copyFileSync(path.join(root, 'downloads/Elsha.apk'), path.join(out, 'app/Elsha.apk')); } // the Android app
 if (fs.existsSync(path.join(root, 'assets/img'))) fs.cpSync(path.join(root, 'assets/img'), path.join(out, 'assets/img'), { recursive: true }); // your own photos
 if (!cpanel) fs.writeFileSync(path.join(out, 'CNAME'), domain + '\n');                     // GitHub Pages
 fs.writeFileSync(path.join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: https://${domain}/sitemap.xml\n`);
