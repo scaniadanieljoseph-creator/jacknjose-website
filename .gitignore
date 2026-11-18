@@ -3,3 +3,6 @@ node_modules/
 .DS_Store
 api/config.php
 api/data/
+sites/hoteljothigrand/manage/data/
+sites/hoteljothigrand/manage/config.php
+sites/hoteljothigrand/bookings/

@@ -111,6 +111,12 @@ if ($email) {
     wrapHtml('Thank you, ' . $name, '<p style="margin:0 0 14px;color:#374151">We have received your booking request and will call you shortly to confirm your room and rate. Your details:</p>' . table($g) . '<p style="color:#374151;margin-top:16px">For anything urgent, call <b>' . h(HOTEL_PHONE) . '</b>.</p>'));
 }
 
+/* put the request into the hotel management system (Website enquiries) */
+try {
+  if (is_file(__DIR__ . '/manage/db.php')) { require_once __DIR__ . '/manage/db.php';
+    jg_put('enquiries', ['id' => $ref, 'name' => $name, 'phone' => $phone, 'email' => $email, 'room' => $room, 'ci' => $ci, 'co' => $co, 'rooms' => $rooms, 'guests' => $guests, 'req' => $req, 'status' => 'New', 'source' => 'Website', 'createdAt' => date('Y-m-d H:i:s')]); }
+} catch (Throwable $e) { /* the email has already gone, so the guest is not affected */ }
+
 /* save a copy and count the request */
 $rl[$ipKey][] = $now; @file_put_contents($rlFile, json_encode($rl), LOCK_EX);
 $csv = "$dir/bookings.csv"; $new = !file_exists($csv);
