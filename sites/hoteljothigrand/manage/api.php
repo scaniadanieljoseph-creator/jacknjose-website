@@ -14,7 +14,7 @@ function bad(string $m, int $code = 400): void { out(['ok' => false, 'error' => 
 const ROLES = ['admin' => 'Owner / Admin', 'manager' => 'Manager', 'frontdesk' => 'Front desk', 'accounts' => 'Accounts', 'cashier' => 'Cashier / billing', 'waiter' => 'Waiter / steward', 'kitchen' => 'Kitchen', 'bar' => 'Bar staff', 'housekeeping' => 'Housekeeping'];
 const PERMS = [
   'frontdesk'    => ['rooms' => 'rw', 'bookings' => 'rw', 'guests' => 'rw', 'enquiries' => 'rw', 'attendance' => 'rw', 'staff' => 'r', 'settings' => 'r', 'income' => 'rw', 'tasks' => 'rw', 'orders' => 'r', 'bills' => 'r', 'menu' => 'r', 'bar' => 'r'],
-  'accounts'     => ['rooms' => 'r', 'bookings' => 'r', 'guests' => 'r', 'enquiries' => 'r', 'staff' => 'rw', 'attendance' => 'rw', 'payroll' => 'rw', 'expenses' => 'rw', 'income' => 'rw', 'settings' => 'r', 'orders' => 'r', 'bills' => 'r', 'menu' => 'r', 'bar' => 'r', 'tasks' => 'r'],
+  'accounts'     => ['rooms' => 'r', 'bookings' => 'r', 'guests' => 'r', 'enquiries' => 'r', 'staff' => 'rw', 'attendance' => 'rw', 'payroll' => 'rw', 'expenses' => 'rw', 'income' => 'rw', 'settings' => 'r', 'orders' => 'r', 'bills' => 'r', 'menu' => 'r', 'bar' => 'r', 'tasks' => 'r', 'leaves' => 'r'],
   'cashier'      => ['orders' => 'rw', 'bills' => 'rw', 'menu' => 'r', 'bar' => 'rw', 'bookings' => 'r', 'rooms' => 'r', 'income' => 'rw', 'settings' => 'r'],
   'waiter'       => ['orders' => 'rw', 'menu' => 'r', 'bar' => 'r', 'bookings' => 'r', 'rooms' => 'r', 'settings' => 'r'],
   'kitchen'      => ['orders' => 'rw', 'menu' => 'rw', 'settings' => 'r'],
@@ -23,7 +23,9 @@ const PERMS = [
 ];
 /* collection => [id prefix, digits] for new records; null = the screen sets the id */
 const COLLECTIONS = ['rooms' => ['RM', 3], 'bookings' => ['BK', 4], 'guests' => ['GU', 4], 'enquiries' => ['WEB', 4], 'staff' => ['EMP', 3], 'attendance' => null, 'payroll' => null, 'expenses' => ['EX', 4], 'income' => ['IN', 4], 'settings' => null,
-  'menu' => ['MN', 3], 'bar' => ['BR', 3], 'orders' => ['KOT', 5], 'bills' => ['BL', 5], 'tasks' => ['TK', 4]];
+  'menu' => ['MN', 3], 'bar' => ['BR', 3], 'orders' => ['KOT', 5], 'bills' => ['BL', 5], 'tasks' => ['TK', 4], 'leaves' => ['LV', 4]];
+const LEAVE_TYPES = ['CL' => 'Casual leave', 'SL' => 'Sick leave', 'EL' => 'Earned leave', 'CO' => 'Compensatory off', 'LOP' => 'Unpaid leave (loss of pay)'];
+const LEAVE_QUOTA = ['CL' => 12, 'SL' => 7, 'EL' => 12, 'CO' => 0];
 const ROOM_CHARGE_ROLES = ['admin', 'manager', 'frontdesk', 'cashier', 'bar'];
 
 function can(array $u, string $c, string $mode): bool {
@@ -116,6 +118,7 @@ function fileCan(array $u, string $kind, string $mode, string $owner = ''): bool
     case 'guest':      return $mode === 'w' ? (can($u, 'bookings', 'w') || can($u, 'guests', 'w')) : (can($u, 'guests', 'r') || can($u, 'bookings', 'w'));
     case 'expense':    return can($u, 'expenses', $mode);
     case 'staff':      return can($u, 'staff', 'w');
+    case 'leave':      return $mode === 'w' ? (!empty($u['staff_id']) || can($u, 'leaves', 'w')) : (can($u, 'leaves', 'r') || $owner === $u['username']);
     case 'attendance': return $mode === 'w' ? (!empty($u['staff_id']) || can($u, 'attendance', 'w')) : (can($u, 'attendance', 'r') || $owner === $u['username']);
   }
   return false;
@@ -151,7 +154,8 @@ if ($action === 'myAttendance') {
   $st = myStaff($U); $mon = (string)($in['month'] ?? date('Y-m')); if (!preg_match('/^\d{4}-\d\d$/', $mon)) bad('Bad month.');
   $s = $db->prepare("SELECT data FROM jg_records WHERE collection = 'attendance' AND id LIKE ?"); $s->execute([$mon . '-%_' . $st['id']]);
   $set = jg_get('settings', 'hotel') ?: [];
-  out(['ok' => true, 'staff' => ['id' => $st['id'], 'name' => $st['name'], 'role' => $st['role'] ?? '', 'shift' => $st['shift'] ?? ''], 'records' => array_map(fn($r) => json_decode($r['data'], true), $s->fetchAll()),
+  $yr = date('Y'); $LV = array_values(array_filter(staffLeaves($st['id']), fn($l) => substr($l['from'], 0, 4) >= $yr || $l['status'] === 'Pending'));
+  out(['ok' => true, 'leaves' => $LV, 'leaveTypes' => LEAVE_TYPES, 'quota' => leaveQuota(), 'used' => leaveUsed($st['id'], $yr), 'staff' => ['id' => $st['id'], 'name' => $st['name'], 'role' => $st['role'] ?? '', 'shift' => $st['shift'] ?? ''], 'records' => array_map(fn($r) => json_decode($r['data'], true), $s->fetchAll()),
        'rules' => ['photo' => ($set['punchPhoto'] ?? true) !== false, 'location' => ($set['punchLocation'] ?? true) !== false, 'onSite' => !empty($set['punchOnSite']), 'hasHotel' => isset($set['lat'], $set['lng']) && $set['lat'] !== '' && $set['lng'] !== '', 'radius' => (int)($set['radius'] ?? 200)], 'now' => date('Y-m-d H:i:s')]);
 }
 if ($action === 'punch') {
@@ -191,6 +195,82 @@ if ($action === 'punch') {
   jg_put('attendance', $att, $who); jg_log($who, 'check ' . $type, 'attendance', $att['id'], $dist === null ? '' : "$dist m from hotel");
   out(['ok' => true, 'record' => $att]);
 }
+/* ---------- leave: staff apply from the app, a manager approves; approved days go into attendance and so into payroll ---------- */
+function leaveQuota(): array { $set = jg_get('settings', 'hotel') ?: []; $q = []; foreach (LEAVE_QUOTA as $k => $d) $q[$k] = isset($set['leaveQuota'][$k]) && is_numeric($set['leaveQuota'][$k]) ? (float)$set['leaveQuota'][$k] : $d; return $q; }
+function staffLeaves(string $sid): array {
+  $out = []; $s = jg_db()->prepare("SELECT data FROM jg_records WHERE collection = 'leaves'"); $s->execute();
+  foreach ($s->fetchAll() as $r) { $d = json_decode($r['data'], true); if (($d['staffId'] ?? '') === $sid) $out[] = $d; }
+  usort($out, fn($a, $b) => strcmp($b['from'], $a['from'])); return $out;
+}
+/* days already used (approved) or asked for (pending) this year, by type */
+function leaveUsed(string $sid, string $year, string $skip = ''): array {
+  $u = []; foreach (staffLeaves($sid) as $l) if ($l['id'] !== $skip && in_array($l['status'], ['Approved', 'Pending'], true) && substr($l['from'], 0, 4) === $year) { $k = $l['type'] . ($l['status'] === 'Pending' ? '_p' : ''); $u[$k] = ($u[$k] ?? 0) + (float)$l['days']; }
+  return $u;
+}
+function leaveDays(string $from, string $to): array { $d = []; for ($t = strtotime($from); $t <= strtotime($to); $t += 86400) $d[] = date('Y-m-d', $t); return $d; }
+/* write (or take back) the attendance days for an approved leave; days the person actually worked are left alone */
+function leaveToAttendance(array $l, string $who, bool $undo = false): int {
+  $n = 0;
+  foreach (leaveDays($l['from'], $l['to']) as $day) {
+    $id = "{$day}_{$l['staffId']}"; $a = jg_get('attendance', $id);
+    if ($undo) { if ($a && ($a['leaveId'] ?? '') === $l['id']) { unset($a['leaveId'], $a['leaveType']); $a['status'] = ''; $a['updatedBy'] = $who; $a['updatedAt'] = date('Y-m-d H:i:s'); jg_put('attendance', $a, $who); $n++; } continue; }
+    if ($a && !empty($a['inAt'])) continue;
+    $a = $a ?: ['id' => $id, 'date' => $day, 'staffId' => $l['staffId'], 'in' => '', 'out' => '', 'ot' => 0];
+    $a['status'] = $l['type'] === 'LOP' ? 'A' : (!empty($l['half']) ? 'H' : 'L'); $a['leaveId'] = $l['id']; $a['leaveType'] = $l['type'];
+    $a['updatedBy'] = $who; $a['updatedAt'] = date('Y-m-d H:i:s'); jg_put('attendance', $a, $who); $n++;
+  }
+  return $n;
+}
+if ($action === 'applyLeave') {
+  $mgr = in_array($U['role'], ['admin', 'manager'], true);
+  $sid = $mgr && !empty($in['staffId']) ? (string)$in['staffId'] : (myStaff($U))['id'];
+  $st = jg_get('staff', $sid); if (!$st) bad('Choose a staff member.');
+  $type = (string)($in['type'] ?? ''); if (!isset(LEAVE_TYPES[$type])) bad('Choose the type of leave.');
+  $from = (string)($in['from'] ?? ''); $to = (string)($in['to'] ?? $from); $half = !empty($in['half']) && $from === $to;
+  foreach ([$from, $to] as $dt) if (!preg_match('/^\d{4}-\d\d-\d\d$/', $dt) || !strtotime($dt)) bad('Choose the dates.');
+  if ($to < $from) bad('The last day is before the first day.');
+  if (!$mgr && $from < date('Y-m-d', strtotime('-30 days'))) bad('Leave more than 30 days ago can only be added by the manager.');
+  if (substr($from, 0, 4) !== substr($to, 0, 4)) bad('Please split leave that crosses the new year into two requests.');
+  $days = $half ? 0.5 : count(leaveDays($from, $to)); if ($days > 60) bad('A single request can be for up to 60 days.');
+  $reason = mb_substr(trim((string)($in['reason'] ?? '')), 0, 300); if ($reason === '' && !$mgr) bad('Please write a short reason.');
+  foreach (staffLeaves($sid) as $l) if (in_array($l['status'], ['Pending', 'Approved'], true) && $l['from'] <= $to && $from <= $l['to']) bad("These dates overlap {$l['id']} ({$l['status']}, " . date('j M', strtotime($l['from'])) . ' – ' . date('j M', strtotime($l['to'])) . ').');
+  $att = null; if (is_array($in['attachment'] ?? null) && preg_match('/^F[0-9a-f]{6}[0-9a-f]+$/i', (string)($in['attachment']['id'] ?? '')) ) {
+    $q = $db->prepare("SELECT id, name, mime, size FROM jg_files WHERE id = ? AND kind = 'leave'"); $q->execute([$in['attachment']['id']]); $f = $q->fetch();
+    if ($f) $att = ['id' => $f['id'], 'name' => $f['name'], 'mime' => $f['mime'], 'size' => (int)$f['size'], 'kind' => 'leave'];
+  }
+  $quota = leaveQuota(); $used = leaveUsed($sid, substr($from, 0, 4)); $left = isset($quota[$type]) && $quota[$type] > 0 ? $quota[$type] - ($used[$type] ?? 0) - ($used[$type . '_p'] ?? 0) : null;
+  $now = date('Y-m-d H:i:s');
+  $db->beginTransaction();
+  $l = ['id' => jg_next('leaves', 'LV-', 4), 'staffId' => $sid, 'staffName' => $st['name'], 'dept' => $st['dept'] ?? '', 'type' => $type, 'from' => $from, 'to' => $to, 'half' => $half, 'days' => $days, 'reason' => $reason, 'attachment' => $att,
+        'overBalance' => $left !== null && $days > $left, 'status' => 'Pending', 'appliedAt' => $now, 'appliedBy' => $who, 'createdBy' => $who, 'createdAt' => $now, 'updatedBy' => $who, 'updatedAt' => $now];
+  if ($mgr && !empty($in['approve'])) { $l['status'] = 'Approved'; $l['decidedBy'] = $who; $l['decidedAt'] = $now; $l['note'] = 'Added by the manager'; leaveToAttendance($l, $who); }
+  jg_put('leaves', $l, $who); $db->commit();
+  jg_log($who, 'leave ' . strtolower($l['status']), 'leaves', $l['id'], "{$st['name']} $type $from – $to");
+  out(['ok' => true, 'leave' => $l]);
+}
+if ($action === 'decideLeave' || $action === 'cancelLeave') {
+  $l = jg_get('leaves', (string)($in['id'] ?? '')); if (!$l) bad('Leave request not found.');
+  $mgr = in_array($U['role'], ['admin', 'manager'], true); $now = date('Y-m-d H:i:s');
+  $db->beginTransaction();
+  if ($action === 'decideLeave') {
+    if (!$mgr) { $db->rollBack(); bad('Only a manager can approve leave.', 403); }
+    if ($l['status'] !== 'Pending') { $db->rollBack(); bad("This request is already {$l['status']}."); }
+    $ok = !empty($in['approve']); $l['status'] = $ok ? 'Approved' : 'Rejected'; $l['note'] = mb_substr(trim((string)($in['note'] ?? '')), 0, 200);
+    if (!$ok && $l['note'] === '') { $db->rollBack(); bad('Please give a reason for rejecting.'); }
+    $l['decidedBy'] = $who; $l['decidedAt'] = $now; if ($ok) $l['marked'] = leaveToAttendance($l, $who);
+  } else {
+    $own = !empty($U['staff_id']) && $U['staff_id'] === $l['staffId'];
+    if (!$mgr && !$own) { $db->rollBack(); bad('You can only cancel your own leave.', 403); }
+    if (!in_array($l['status'], ['Pending', 'Approved'], true)) { $db->rollBack(); bad("This request is already {$l['status']}."); }
+    if (!$mgr && $l['status'] === 'Approved' && $l['from'] <= date('Y-m-d')) { $db->rollBack(); bad('This leave has started. Ask the manager to change it.'); }
+    if ($l['status'] === 'Approved') leaveToAttendance($l, $who, true);
+    $l['status'] = 'Cancelled'; $l['cancelledBy'] = $who; $l['cancelledAt'] = $now;
+  }
+  $l['updatedBy'] = $who; $l['updatedAt'] = $now; jg_put('leaves', $l, $who); $db->commit();
+  jg_log($who, 'leave ' . strtolower($l['status']), 'leaves', $l['id'], "{$l['staffName']} {$l['type']} {$l['from']} – {$l['to']}");
+  out(['ok' => true, 'leave' => $l]);
+}
+
 /* a manager saving the day register must not wipe what staff recorded from their phones */
 const PUNCH_FIELDS = ['inAt', 'inPhoto', 'inLoc', 'inDist', 'outAt', 'outPhoto', 'outLoc', 'outDist', 'hours', 'via'];
 function keepPunch(?array $old, array $d): array {
@@ -215,6 +295,7 @@ if ($action === 'roomCharge') {       // restaurant / bar bill added to a guest'
 if ($action === 'save') {
   $c = (string)($in['collection'] ?? ''); $d = $in['doc'] ?? null;
   if (!array_key_exists($c, COLLECTIONS) || !is_array($d)) bad('Unknown record type.');
+  if ($c === 'leaves') bad('Use Approve, Reject or Cancel for leave.');
   if (!can($U, $c, 'w')) bad('Your login cannot change this.', 403);
   if (strlen(json_encode($d)) > 200000) bad('This record is too large.');
   $id = (string)($d['id'] ?? '');

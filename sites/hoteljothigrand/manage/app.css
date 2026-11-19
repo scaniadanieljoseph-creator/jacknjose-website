@@ -130,3 +130,9 @@ body.kds-on .side, body.kds-on .top .menu-btn { display: none; } body.kds-on .sh
 .punch-btn { width: 100%; padding: 20px; font-size: 1.25rem; border-radius: 18px; margin-top: 8px; }
 
 [hidden] { display: none !important; }
+
+/* leave */
+.lv-bals { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.lv-bal { border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: linear-gradient(135deg, #fff6fa, #f3f6ff); text-align: left; }
+.lv-bal b { display: block; font-size: 1.6rem; line-height: 1.1; } .lv-bal small { font-weight: 600; } .lv-bal i { display: block; font-style: normal; font-size: .74rem; color: var(--soft); margin-top: 2px; }
+.lv-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-top: 1px dashed var(--line); text-align: left; }
