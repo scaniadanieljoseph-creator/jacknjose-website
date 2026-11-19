@@ -4,7 +4,7 @@
 const SITE_CONFIG = {
   name: 'Jack & Jose',
   domain: 'jacknjose.co.in',
-  siteHost: 'elsha.jacknjose.co.in', // where the site is published: used in parcel QR codes
+  siteHost: 'elsha.co.in', // where the site is published: used in parcel QR codes
   allowPrint: true,
 
   /* DATABASE: address of the api folder. Leave '' to keep data in each visitor's browser (demo).
