@@ -1,6 +1,6 @@
-// Builds the upload-ready site for a domain: node tools/build-dist.js elsha.jacknjose.co.in
+// Builds the upload-ready site for a domain: node tools/build-dist.js elsha.co.in
 const fs = require('fs'), path = require('path');
-const root = path.join(__dirname, '..'), domain = process.argv[2] || 'elsha.jacknjose.co.in';
+const root = path.join(__dirname, '..'), domain = process.argv[2] || 'elsha.co.in';
 // --cpanel builds the version for PHP hosting: the site talks to the database through the api/ folder shipped with it.
 const cpanel = process.argv.includes('--cpanel');
 const cfg = fs.readFileSync(path.join(root, 'assets/js/config.js'), 'utf8');

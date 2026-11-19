@@ -93,7 +93,7 @@ The site can go live today **without a server** in *request mode*: every bus, ho
 contact form ends by sending the full details to your WhatsApp number and/or email, and you confirm and collect payment yourself.
 1. Open `assets/js/config.js` and fill in `phone`, `whatsapp` (digits with country code, e.g. `919876543210`), `email`, `gstin`.
 2. Set `bookingMode: 'request'` and, if you like, `showStaffMenu: false`.
-3. Run `node tools/build-dist.js elsha.jacknjose.co.in` and publish `dist/elsha.jacknjose.co.in` (the `gh-pages` branch).
+3. Run `node tools/build-dist.js elsha.co.in` and publish `dist/elsha.co.in` (the `gh-pages` branch).
 In request mode there is no simulated payment screen, no simulated SMS/email, no preview banner, and a WhatsApp chat button appears.
 `bookingMode: 'demo'` keeps the full simulated flow (payment gateway, notifications, portals) for demonstrations.
 

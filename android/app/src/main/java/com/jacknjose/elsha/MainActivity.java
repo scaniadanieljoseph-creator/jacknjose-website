@@ -40,8 +40,8 @@ import java.io.OutputStream;
 
 /** Elsha by Jack & Jose: the website in an Android app. */
 public class MainActivity extends Activity {
-    static final String HOME = "https://elsha.jacknjose.co.in/";
-    static final String OUR_HOST = "jacknjose.co.in";
+    static final String HOME = "https://elsha.co.in/";
+    static final String[] OUR_HOSTS = { "elsha.co.in", "jacknjose.co.in" };   // the app keeps these sites inside; everything else opens outside
     static final int FILE_REQUEST = 41;
 
     private WebView web;
@@ -169,7 +169,9 @@ public class MainActivity extends Activity {
 
     private boolean ourSite(Uri u) {
         String h = u.getHost();
-        return ("https".equals(u.getScheme()) || "http".equals(u.getScheme())) && h != null && (h.equals(OUR_HOST) || h.endsWith("." + OUR_HOST));
+        if (!("https".equals(u.getScheme()) || "http".equals(u.getScheme())) || h == null) return false;
+        for (String o : OUR_HOSTS) if (h.equals(o) || h.endsWith("." + o)) return true;
+        return false;
     }
 
     /** true = handled here (opened in another app); false = load it inside the app. */

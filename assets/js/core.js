@@ -287,7 +287,7 @@ function go(name) { if (location.hash === '#' + name) render(); else location.ha
 let fleetTimer = null;
 function render() {
   document.body.classList.toggle('kds-on', false);
-  // On the Elsha subdomain (elsha.jacknjose.co.in) the site opens on the Elsha page; the logo still leads to the group home.
+  // On the Elsha site (elsha.co.in) the site opens on the Elsha page; the logo still leads to the group home.
   const startPage = 'home';
   const name = (location.hash || '#' + startPage).slice(1) || startPage;
   const fn = ROUTES[name] || ROUTES.home;

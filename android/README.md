@@ -1,6 +1,6 @@
 # Elsha Android app
 
-A native Android app (package `in.co.jacknjose.elsha`) that opens https://elsha.jacknjose.co.in.
+A native Android app (package `in.co.jacknjose.elsha`) that opens https://elsha.co.in.
 Website changes appear in the app straight away; only the app itself (icon, name, behaviour) needs a new APK.
 
 Inside the app: printing goes to Android's print service, Excel/CSV downloads are saved to Downloads,

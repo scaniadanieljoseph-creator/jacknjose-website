@@ -20,7 +20,9 @@ const PUBLIC_READ   = ['announcements', 'coupons', 'buses', 'hotels', 'branches'
 const PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews', 'payments', 'notifications'];
 const PUBLIC_ONE    = ['busBookings', 'hotelBookings', 'parcels', 'shipments'];
 const MAX_DOC_BYTES = 700000;
-const API_VERSION = 6;
+const API_VERSION = 7;
+/* Elsha's own addresses are always allowed to use this database, on top of any listed in config.php */
+const BUILTIN_ORIGINS = ['https://elsha.co.in', 'https://www.elsha.co.in', 'https://elsha.jacknjose.co.in'];
 /* Module collections are recognised by prefix, so new portal modules need no change here.
    prefix => [roles that may read and write them] (the administrator always can). They are never public. */
 const MODULE_PREFIXES = ['hc_' => ['hotels'], 'tr_' => ['travels'], 'lg_' => ['logistics'], 'fl_' => ['fleet', 'logistics'], 'el_' => ['*'], 'x_' => []];
@@ -36,7 +38,7 @@ $CFG = require $cfgFile;
 
 /* ---- CORS (only needed when the website is served from another address, e.g. GitHub Pages) ---- */
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if ($origin && in_array($origin, $CFG['origins'] ?? [], true)) { header("Access-Control-Allow-Origin: $origin"); header('Vary: Origin'); header('Access-Control-Allow-Headers: Content-Type, X-Auth'); header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); header('Access-Control-Max-Age: 600'); }
+if ($origin && in_array($origin, array_merge(BUILTIN_ORIGINS, $CFG['origins'] ?? []), true)) { header("Access-Control-Allow-Origin: $origin"); header('Vary: Origin'); header('Access-Control-Allow-Headers: Content-Type, X-Auth'); header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); header('Access-Control-Max-Age: 600'); }
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') { http_response_code(204); exit; }
 header('X-Content-Type-Options: nosniff');
 

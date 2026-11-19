@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://elsha.co.in/sitemap.xml

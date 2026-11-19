@@ -65,7 +65,7 @@ if (!$done && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     <label for="admin_pass">Password <small>(8+ characters with a number)</small></label><input id="admin_pass" name="admin_pass" type="password" required>
     <label for="admin_pass2">Repeat password</label><input id="admin_pass2" name="admin_pass2" type="password" required>
     <h2>Advanced <small>(leave empty if the website and this api folder are on the same address)</small></h2>
-    <label for="origins">Other website addresses allowed to use this database</label><input id="origins" name="origins" value="<?= $v('origins') ?>" placeholder="https://elsha.jacknjose.co.in">
+    <label for="origins">Other website addresses allowed to use this database</label><input id="origins" name="origins" value="<?= $v('origins') ?>" placeholder="https://elsha.co.in">
     <button>Create tables and finish</button>
   </form>
 <?php endif; ?>

@@ -1,0 +1,3 @@
+# elsha.jacknjose.co.in has moved to elsha.co.in: send every visitor (and search engines) to the same page there
+RewriteEngine On
+RewriteRule ^(.*)$ https://elsha.co.in/$1 [R=301,L]

@@ -2,9 +2,9 @@
 
 The website can save all data in a MySQL database on your own hosting instead of in each visitor's browser.
 You need PHP hosting with MySQL — your cPanel account has both. GitHub Pages cannot run a database, so in this
-setup the whole site is hosted on cPanel. No DNS change is needed: `elsha.jacknjose.co.in` already points to cPanel.
+setup the whole site is hosted on cPanel. No DNS change is needed: `elsha.co.in` already points to cPanel.
 
-Package to upload: `dist/elsha-cpanel.zip` (rebuild with `node tools/build-dist.js elsha.jacknjose.co.in --cpanel`).
+Package to upload: `dist/elsha-cpanel.zip` (rebuild with `node tools/build-dist.js elsha.co.in --cpanel`).
 
 ## Steps (about 10 minutes)
 
@@ -12,15 +12,15 @@ Package to upload: `dist/elsha-cpanel.zip` (rebuild with `node tools/build-dist.
    - Create a database, e.g. `elsha` (cPanel shows it as `youraccount_elsha`).
    - Create a database user with a strong password (use the password generator and copy it).
    - *Add User To Database* → tick **ALL PRIVILEGES**.
-2. **Upload the site** — cPanel → *File Manager* → open the folder of `elsha.jacknjose.co.in`
-   (shown under *Domains*; often `public_html/elsha.jacknjose.co.in` or `elsha.jacknjose.co.in`).
+2. **Upload the site** — cPanel → *File Manager* → open the folder of `elsha.co.in`
+   (shown under *Domains*; often `public_html/elsha.co.in` or `elsha.co.in`).
    - Delete any old files there (keep `.well-known` and `cgi-bin` if present).
    - Upload `elsha-cpanel.zip`, right-click → *Extract*. `index.html` and the `api` folder must sit directly in that folder.
    - In File Manager *Settings*, tick *Show Hidden Files* and check `.htaccess` is there.
-3. **Run the installer** — open `https://elsha.jacknjose.co.in/api/install.php`
+3. **Run the installer** — open `https://elsha.co.in/api/install.php`
    - Enter the database name, user and password from step 1 (host is `localhost`).
    - Choose your administrator username and password. Click *Create tables and finish*.
-4. **Sign in** — open `https://elsha.jacknjose.co.in/#login` and sign in with that administrator account.
+4. **Sign in** — open `https://elsha.co.in/#login` and sign in with that administrator account.
    - *Staff dashboard* → **Load sample listings** if you want the example buses, hotels, branches and vehicles as a start.
    - *Staff dashboard → Staff users* → add your staff with their roles.
 5. **Finish**
@@ -54,5 +54,5 @@ connection and data stay as they are.
 
 ## Hosting the site elsewhere (optional)
 If the site stays on GitHub Pages, upload only the `api` folder to cPanel (e.g. `jacknjose.co.in/api`), set
-`api: 'https://jacknjose.co.in/api/'` in `assets/js/config.js`, and enter `https://elsha.jacknjose.co.in` under
+`api: 'https://jacknjose.co.in/api/'` in `assets/js/config.js`, and enter `https://elsha.co.in` under
 *Other website addresses* in the installer.
