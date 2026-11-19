@@ -39,7 +39,7 @@ function redact(array $u, string $c, array $d): array {
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') bad('Use POST', 405);
-$in = json_decode(file_get_contents('php://input', false, null, 0, 2000000) ?: '', true);
+$in = json_decode(file_get_contents('php://input', false, null, 0, 7000000) ?: '', true);   // room for a 4 MB upload
 if (!is_array($in)) bad('Bad request');
 $action = (string)($in['action'] ?? '');
 
@@ -95,7 +95,7 @@ if ($action === 'load') {             // everything this user may see, in one go
     $s = $db->prepare('SELECT data FROM jg_records WHERE collection = ?'); $s->execute([$c]);
     $data[$c] = array_map(fn($r) => redact($U, $c, json_decode($r['data'], true) ?: []), $s->fetchAll());
   }
-  out(['ok' => true, 'user' => ['id' => (int)$U['id'], 'username' => $U['username'], 'name' => $U['name'], 'role' => $U['role']], 'data' => $data, 'roles' => ROLES, 'now' => date('Y-m-d H:i:s'), 'db' => jg_driver()]);
+  out(['ok' => true, 'user' => ['id' => (int)$U['id'], 'username' => $U['username'], 'name' => $U['name'], 'role' => $U['role'], 'staffId' => (string)($U['staff_id'] ?? '')], 'data' => $data, 'roles' => ROLES, 'now' => date('Y-m-d H:i:s'), 'db' => jg_driver()]);
 }
 
 if ($action === 'poll') {             // what changed since the last look (keeps the kitchen display, waiter and counter screens live)
@@ -107,6 +107,97 @@ if ($action === 'poll') {             // what changed since the last look (keeps
     $rows = $s->fetchAll(); if ($rows) $data[$c] = array_map(fn($r) => redact($U, $c, json_decode($r['data'], true) ?: []), $rows);
   }
   out(['ok' => true, 'now' => $now, 'data' => $data]);
+}
+
+/* ---------- documents and photos ---------- */
+/* who may add (w) or open (r) each kind of file */
+function fileCan(array $u, string $kind, string $mode, string $owner = ''): bool {
+  switch ($kind) {
+    case 'guest':      return $mode === 'w' ? (can($u, 'bookings', 'w') || can($u, 'guests', 'w')) : (can($u, 'guests', 'r') || can($u, 'bookings', 'w'));
+    case 'expense':    return can($u, 'expenses', $mode);
+    case 'staff':      return can($u, 'staff', 'w');
+    case 'attendance': return $mode === 'w' ? (!empty($u['staff_id']) || can($u, 'attendance', 'w')) : (can($u, 'attendance', 'r') || $owner === $u['username']);
+  }
+  return false;
+}
+if ($action === 'upload') {
+  $kind = (string)($in['kind'] ?? '');
+  if (!fileCan($U, $kind, 'w')) bad('Your login cannot upload this.', 403);
+  $bin = base64_decode((string)($in['data'] ?? ''), true);
+  if ($bin === false || $bin === '') bad('The file did not arrive. Please try again.');
+  try { $f = jg_file_save($kind, (string)($in['name'] ?? 'file'), $bin, $who); } catch (RuntimeException $e) { bad($e->getMessage()); }
+  jg_log($who, 'upload', $kind, $f['id'], $f['name']); out(['ok' => true, 'file' => $f]);
+}
+if ($action === 'file') {
+  $s = $db->prepare('SELECT id, kind, name, mime, data, created_by FROM jg_files WHERE id = ?'); $s->execute([(string)($in['id'] ?? '')]); $f = $s->fetch();
+  if (!$f) bad('File not found.', 404);
+  if (!fileCan($U, $f['kind'], 'r', (string)$f['created_by'])) bad('Your login cannot open this file.', 403);
+  $data = is_resource($f['data']) ? stream_get_contents($f['data']) : $f['data'];
+  header('Content-Type: ' . (isset(JG_FILE_TYPES[$f['mime']]) ? $f['mime'] : 'application/octet-stream'));
+  header('Content-Disposition: inline; filename="' . preg_replace('/[^A-Za-z0-9._-]+/', '_', (string)$f['name']) . '"');
+  header("Content-Security-Policy: default-src 'none'; sandbox"); header('Content-Length: ' . strlen($data));
+  echo $data; exit;
+}
+
+/* ---------- attendance from the staff member's own phone: selfie + location, server clock ---------- */
+function metres(float $a1, float $o1, float $a2, float $o2): int { $r = 6371000; $p1 = deg2rad($a1); $p2 = deg2rad($a2); $dp = $p2 - $p1; $dl = deg2rad($o2 - $o1); $h = sin($dp / 2) ** 2 + cos($p1) * cos($p2) * sin($dl / 2) ** 2; return (int)round(2 * $r * asin(min(1, sqrt($h)))); }
+function myStaff(array $U): array {
+  $sid = (string)($U['staff_id'] ?? '');
+  if ($sid === '') bad('This login is not linked to a staff member yet. Ask the manager: Settings → Staff logins → Edit → Staff member.');
+  $st = jg_get('staff', $sid); if (!$st || ($st['status'] ?? 'Active') === 'Inactive') bad('Your staff record is missing or inactive. Please tell the manager.');
+  return $st;
+}
+if ($action === 'myAttendance') {
+  $st = myStaff($U); $mon = (string)($in['month'] ?? date('Y-m')); if (!preg_match('/^\d{4}-\d\d$/', $mon)) bad('Bad month.');
+  $s = $db->prepare("SELECT data FROM jg_records WHERE collection = 'attendance' AND id LIKE ?"); $s->execute([$mon . '-%_' . $st['id']]);
+  $set = jg_get('settings', 'hotel') ?: [];
+  out(['ok' => true, 'staff' => ['id' => $st['id'], 'name' => $st['name'], 'role' => $st['role'] ?? '', 'shift' => $st['shift'] ?? ''], 'records' => array_map(fn($r) => json_decode($r['data'], true), $s->fetchAll()),
+       'rules' => ['photo' => ($set['punchPhoto'] ?? true) !== false, 'location' => ($set['punchLocation'] ?? true) !== false, 'onSite' => !empty($set['punchOnSite']), 'hasHotel' => isset($set['lat'], $set['lng']) && $set['lat'] !== '' && $set['lng'] !== '', 'radius' => (int)($set['radius'] ?? 200)], 'now' => date('Y-m-d H:i:s')]);
+}
+if ($action === 'punch') {
+  $st = myStaff($U); $type = (string)($in['type'] ?? ''); if (!in_array($type, ['in', 'out'], true)) bad('Bad request.');
+  $set = jg_get('settings', 'hotel') ?: [];
+  $loc = null; $lat = $in['lat'] ?? null; $lng = $in['lng'] ?? null;
+  if (is_numeric($lat) && is_numeric($lng) && abs((float)$lat) <= 90 && abs((float)$lng) <= 180) $loc = ['lat' => round((float)$lat, 6), 'lng' => round((float)$lng, 6), 'acc' => is_numeric($in['acc'] ?? null) ? (int)round((float)$in['acc']) : null];
+  if (!$loc && ($set['punchLocation'] ?? true) !== false) bad('Your location is needed. Allow location for this site in the phone’s browser and switch on GPS, then try again.');
+  $photo = null; $pid = (string)($in['photo'] ?? '');
+  if ($pid !== '') {
+    $s = $db->prepare("SELECT id, name, mime, size, created_at FROM jg_files WHERE id = ? AND kind = 'attendance' AND created_by = ?"); $s->execute([$pid, $who]); $f = $s->fetch();
+    if (!$f || strtotime((string)$f['created_at']) < time() - 900) bad('Please take the selfie again.');
+    $photo = ['id' => $f['id'], 'name' => $f['name'], 'mime' => $f['mime'], 'size' => (int)$f['size'], 'kind' => 'attendance'];
+  }
+  if (!$photo && ($set['punchPhoto'] ?? true) !== false) bad('A selfie is needed to mark attendance.');
+  $dist = null;
+  if ($loc && isset($set['lat'], $set['lng']) && is_numeric($set['lat']) && is_numeric($set['lng'])) {
+    $dist = metres((float)$set['lat'], (float)$set['lng'], $loc['lat'], $loc['lng']); $radius = max(30, (int)($set['radius'] ?? 200));
+    if (!empty($set['punchOnSite']) && $dist > $radius + min(150, (int)($loc['acc'] ?? 0))) bad("You are about " . ($dist >= 1000 ? round($dist / 1000, 1) . ' km' : $dist . ' m') . " from the hotel. Attendance can only be marked at the hotel.");
+  }
+  $today = date('Y-m-d'); $att = jg_get('attendance', "{$today}_{$st['id']}");
+  if ($type === 'out' && (!$att || empty($att['inAt']))) {   // night shift: checking out after midnight closes yesterday's record
+    $y = jg_get('attendance', date('Y-m-d', strtotime('-1 day')) . "_{$st['id']}");
+    if ($y && !empty($y['inAt']) && empty($y['outAt']) && strtotime($y['inAt']) > time() - 16 * 3600) $att = $y;
+  }
+  $att = $att ?: ['id' => "{$today}_{$st['id']}", 'date' => $today, 'staffId' => $st['id'], 'status' => '', 'in' => '', 'out' => '', 'ot' => 0];
+  $now = date('Y-m-d H:i:s'); $hm = date('H:i');
+  if ($type === 'in') {
+    if (!empty($att['inAt'])) bad('You already checked in today at ' . substr($att['inAt'], 11, 5) . '.');
+    $att['status'] = in_array($att['status'] ?? '', ['H', 'P'], true) ? $att['status'] : 'P'; $att['in'] = $hm; $att['inAt'] = $now; $att['inPhoto'] = $photo; $att['inLoc'] = $loc; $att['inDist'] = $dist;
+  } else {
+    if (empty($att['inAt'])) bad('Check in first.');
+    if (!empty($att['outAt'])) bad('You already checked out at ' . substr($att['outAt'], 11, 5) . '.');
+    $att['out'] = $hm; $att['outAt'] = $now; $att['outPhoto'] = $photo; $att['outLoc'] = $loc; $att['outDist'] = $dist; $att['hours'] = round((strtotime($now) - strtotime($att['inAt'])) / 3600, 2);
+  }
+  $att['via'] = 'app'; $att['updatedBy'] = $who; $att['updatedAt'] = $now;
+  jg_put('attendance', $att, $who); jg_log($who, 'check ' . $type, 'attendance', $att['id'], $dist === null ? '' : "$dist m from hotel");
+  out(['ok' => true, 'record' => $att]);
+}
+/* a manager saving the day register must not wipe what staff recorded from their phones */
+const PUNCH_FIELDS = ['inAt', 'inPhoto', 'inLoc', 'inDist', 'outAt', 'outPhoto', 'outLoc', 'outDist', 'hours', 'via'];
+function keepPunch(?array $old, array $d): array {
+  if (!$old || empty($old['inAt'])) return $d;
+  foreach (PUNCH_FIELDS as $k) if (array_key_exists($k, $old) && !array_key_exists($k, $d)) $d[$k] = $old[$k];
+  if (($d['in'] ?? '') === '' && !empty($old['in'])) $d['in'] = $old['in']; if (($d['out'] ?? '') === '' && !empty($old['out'])) $d['out'] = $old['out'];
+  return $d;
 }
 
 if ($action === 'roomCharge') {       // restaurant / bar bill added to a guest's room bill
@@ -138,6 +229,7 @@ if ($action === 'save') {
   $s = $db->prepare('SELECT data FROM jg_records WHERE collection = ? AND id = ?'); $s->execute([$c, $id]); $old = $s->fetchColumn();
   $old = $old ? json_decode($old, true) : null;
   if ($old && ($old['status'] ?? '') === 'Paid' && $c === 'payroll' && !in_array($U['role'], ['admin', 'manager'], true)) bad('A paid salary can only be changed by a manager.', 403);
+  if ($c === 'attendance') $d = keepPunch($old, $d);
   $d['updatedBy'] = $who; $d['updatedAt'] = date('Y-m-d H:i:s'); if (!$old) { $d['createdBy'] = $who; $d['createdAt'] = $d['updatedAt']; } else { $d['createdBy'] = $old['createdBy'] ?? ''; $d['createdAt'] = $old['createdAt'] ?? ''; }
   jg_put($c, $d, $who); jg_log($who, $old ? 'update' : 'create', $c, $id, (string)($d['name'] ?? $d['guest'] ?? $d['status'] ?? ''));
   out(['ok' => true, 'doc' => redact($U, $c, $d)]);
@@ -148,7 +240,7 @@ if ($action === 'saveMany') {       // e.g. a whole day of attendance or a month
   if (!in_array($c, ['attendance', 'payroll', 'orders', 'bar', 'rooms', 'tasks'], true) || !is_array($docs) || count($docs) > 500) bad('Bad request.');
   if (!can($U, $c, 'w')) bad('Your login cannot change this.', 403);
   $saved = []; $db->beginTransaction();
-  foreach ($docs as $d) { if (!is_array($d) || !preg_match('/^[A-Za-z0-9_.:-]{1,64}$/', (string)($d['id'] ?? ''))) continue; $d['updatedBy'] = $who; $d['updatedAt'] = date('Y-m-d H:i:s'); jg_put($c, $d, $who); $saved[] = redact($U, $c, $d); }
+  foreach ($docs as $d) { if (!is_array($d) || !preg_match('/^[A-Za-z0-9_.:-]{1,64}$/', (string)($d['id'] ?? ''))) continue; if ($c === 'attendance') $d = keepPunch(jg_get('attendance', (string)$d['id']), $d); $d['updatedBy'] = $who; $d['updatedAt'] = date('Y-m-d H:i:s'); jg_put($c, $d, $who); $saved[] = redact($U, $c, $d); }
   $db->commit(); jg_log($who, 'update', $c, (string)count($saved) . ' records'); out(['ok' => true, 'docs' => $saved]);
 }
 
@@ -165,13 +257,14 @@ if ($action === 'users' || $action === 'saveUser' || $action === 'log') {
   if ($action === 'log') out(['ok' => true, 'log' => $db->query('SELECT at, username, action, collection, record, note FROM jg_log ORDER BY id DESC LIMIT 300')->fetchAll()]);
   if ($action === 'saveUser') {
     $id = (int)($in['id'] ?? 0); $un = strtolower(trim((string)($in['username'] ?? ''))); $nm = trim((string)($in['name'] ?? '')); $role = (string)($in['role'] ?? ''); $pw = (string)($in['password'] ?? ''); $active = !empty($in['active']) ? 1 : 0;
+    $sid = trim((string)($in['staffId'] ?? '')); if ($sid !== '' && (!preg_match('/^[A-Za-z0-9_.:-]{1,64}$/', $sid) || !jg_get('staff', $sid))) bad('Choose a staff member from the list.');
     if (!isset(ROLES[$role])) bad('Choose a role.');
     if ($role === 'admin' && $U['role'] !== 'admin') bad('Only the owner can create another owner login.', 403);
     if ($id) {
       $s = $db->prepare('SELECT * FROM jg_users WHERE id = ?'); $s->execute([$id]); $t = $s->fetch(); if (!$t) bad('Login not found.');
       if ($t['role'] === 'admin' && $U['role'] !== 'admin') bad('Only the owner can change an owner login.', 403);
       if ((int)$t['id'] === (int)$U['id'] && (!$active || $role !== $U['role'])) bad('You cannot switch off or change the role of your own login.');
-      $db->prepare('UPDATE jg_users SET name = ?, role = ?, active = ? WHERE id = ?')->execute([$nm, $role, $active, $id]);
+      $db->prepare('UPDATE jg_users SET name = ?, role = ?, active = ?, staff_id = ? WHERE id = ?')->execute([$nm, $role, $active, $sid ?: null, $id]);
       if ($pw !== '') { checkPassword($pw); $db->prepare('UPDATE jg_users SET pass = ? WHERE id = ?')->execute([password_hash($pw, PASSWORD_DEFAULT), $id]); $db->prepare('DELETE FROM jg_sessions WHERE user_id = ?')->execute([$id]); }
       if (!$active) $db->prepare('DELETE FROM jg_sessions WHERE user_id = ?')->execute([$id]);
       jg_log($who, 'update', 'logins', $t['username']);
@@ -179,11 +272,11 @@ if ($action === 'users' || $action === 'saveUser' || $action === 'log') {
       if (!preg_match('/^[a-z0-9._-]{3,30}$/', $un)) bad('Username: 3 to 30 letters, numbers, dot, dash or underscore.');
       checkPassword($pw);
       $s = $db->prepare('SELECT 1 FROM jg_users WHERE username = ?'); $s->execute([$un]); if ($s->fetchColumn()) bad('That username is taken.');
-      $db->prepare('INSERT INTO jg_users (username, name, role, pass, active, created_at) VALUES (?, ?, ?, ?, 1, ?)')->execute([$un, $nm ?: $un, $role, password_hash($pw, PASSWORD_DEFAULT), date('Y-m-d H:i:s')]);
+      $db->prepare('INSERT INTO jg_users (username, name, role, pass, active, created_at, staff_id) VALUES (?, ?, ?, ?, 1, ?, ?)')->execute([$un, $nm ?: $un, $role, password_hash($pw, PASSWORD_DEFAULT), date('Y-m-d H:i:s'), $sid ?: null]);
       jg_log($who, 'create', 'logins', $un);
     }
   }
-  out(['ok' => true, 'users' => array_map(fn($r) => ['id' => (int)$r['id'], 'username' => $r['username'], 'name' => $r['name'], 'role' => $r['role'], 'active' => (int)$r['active'], 'created' => $r['created_at']], $db->query('SELECT * FROM jg_users ORDER BY id')->fetchAll())]);
+  out(['ok' => true, 'users' => array_map(fn($r) => ['id' => (int)$r['id'], 'username' => $r['username'], 'name' => $r['name'], 'role' => $r['role'], 'active' => (int)$r['active'], 'created' => $r['created_at'], 'staffId' => (string)($r['staff_id'] ?? '')], $db->query('SELECT * FROM jg_users ORDER BY id')->fetchAll())]);
 }
 
 if ($action === 'password') {

@@ -7,6 +7,9 @@
 <title>Hotel Jothi Grand · Management</title>
 <link rel="icon" type="image/png" sizes="48x48" href="../img/favicon-48.png">
 <link rel="apple-touch-icon" href="../img/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a1234">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Jothi Grand">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Outfit:wght@300;400;500;600;700&display=swap">
 <link rel="stylesheet" href="app.css">
@@ -17,6 +20,8 @@
 <div class="toast" id="toast" role="status"></div>
 <script src="app.js"></script>
 <script src="fnb.js"></script>
-<script>boot();</script>
+<script src="media.js"></script>
+<script src="attend.js"></script>
+<script>boot(); if ('serviceWorker' in navigator && isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});</script>
 </body>
 </html>

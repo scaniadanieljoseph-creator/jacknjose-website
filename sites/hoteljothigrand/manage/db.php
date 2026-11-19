@@ -44,6 +44,38 @@ function jg_schema(PDO $db): void {
   $db->exec("CREATE TABLE IF NOT EXISTS jg_counters (name $key PRIMARY KEY, value INTEGER NOT NULL)$eng");
   $db->exec("CREATE TABLE IF NOT EXISTS jg_attempts (k $key NOT NULL, at INTEGER NOT NULL)$eng");
   $db->exec("CREATE TABLE IF NOT EXISTS jg_log (id $auto, at $key, username $key, action $key, collection $key, record $key, note $txt)$eng");
+  /* uploaded documents and photos (ID proofs, guest and staff photos, expense bills, attendance selfies) */
+  $blob = $mysql ? 'MEDIUMBLOB' : 'BLOB';
+  $db->exec("CREATE TABLE IF NOT EXISTS jg_files (id $key PRIMARY KEY, kind $key NOT NULL, name $key, mime $key NOT NULL, size INTEGER NOT NULL, data $blob NOT NULL, created_at $key, created_by $key)$eng");
+  /* one-time upgrades, recorded in jg_counters */
+  $v = $db->query("SELECT value FROM jg_counters WHERE name = 'schema'")->fetchColumn();
+  if ($v === false || (int)$v < 2) {
+    $cols = $mysql ? array_column($db->query('SHOW COLUMNS FROM jg_users')->fetchAll(), 'Field') : array_column($db->query('PRAGMA table_info(jg_users)')->fetchAll(), 'name');
+    if (!in_array('staff_id', $cols, true)) $db->exec("ALTER TABLE jg_users ADD COLUMN staff_id $key");   // links a login to a staff member for app attendance
+    if ($v === false) $db->exec("INSERT INTO jg_counters (name, value) VALUES ('schema', 2)"); else $db->exec("UPDATE jg_counters SET value = 2 WHERE name = 'schema'");
+  }
+}
+
+/* files are kept in the database; this checks what really arrived, whatever the browser claims */
+const JG_FILE_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'application/pdf' => 'pdf'];
+const JG_FILE_MAX = 4 * 1024 * 1024;
+function jg_sniff(string $bin): ?string {
+  if (strncmp($bin, "\xFF\xD8\xFF", 3) === 0) return 'image/jpeg';
+  if (strncmp($bin, "\x89PNG\r\n\x1A\n", 8) === 0) return 'image/png';
+  if (strncmp($bin, 'RIFF', 4) === 0 && substr($bin, 8, 4) === 'WEBP') return 'image/webp';
+  if (strncmp($bin, '%PDF-', 5) === 0) return 'application/pdf';
+  return null;
+}
+function jg_file_save(string $kind, string $name, string $bin, string $by): array {
+  $mime = jg_sniff($bin);
+  if (!$mime) throw new RuntimeException('Only photos (JPG, PNG, WEBP) and PDF files can be uploaded.');
+  if (strlen($bin) > JG_FILE_MAX) throw new RuntimeException('That file is larger than 4 MB. Please use a smaller photo or PDF.');
+  $id = 'F' . date('ymd') . bin2hex(random_bytes(10));
+  $name = mb_substr(preg_replace('/[^\p{L}\p{N} ._()-]+/u', '_', $name) ?: 'file', 0, 60);
+  $st = jg_db()->prepare('INSERT INTO jg_files (id, kind, name, mime, size, data, created_at, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+  $st->bindValue(1, $id); $st->bindValue(2, $kind); $st->bindValue(3, $name); $st->bindValue(4, $mime); $st->bindValue(5, strlen($bin), PDO::PARAM_INT);
+  $st->bindValue(6, $bin, PDO::PARAM_LOB); $st->bindValue(7, date('Y-m-d H:i:s')); $st->bindValue(8, $by); $st->execute();
+  return ['id' => $id, 'name' => $name, 'mime' => $mime, 'size' => strlen($bin), 'kind' => $kind, 'at' => date('Y-m-d H:i')];
 }
 
 function jg_config(): array { return is_file(JG_CONFIG) ? (array)require JG_CONFIG : []; }
