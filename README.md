@@ -83,7 +83,7 @@ Tickets, vouchers and airway bills show where the confirmation was sent.
    — one Unicode character cuts an SMS credit from 160 to 70 characters.
 2. Sign up with an SMS provider (MSG91, Fast2SMS, Gupshup, Twilio, Exotel) and an email provider (Amazon SES, SendGrid,
    Zoho ZeptoMail, Brevo or SMTP). Verify the `jacknjose.co.in` domain (SPF, DKIM, DMARC) for email.
-3. Build a server endpoint (e.g. `POST https://api.jacknjose.co.in/notify`) that receives
+3. Build a server endpoint (e.g. `POST https://api.elsha.co.in/notify`) that receives
    `{ channel, to, subject, body, dltTemplateId, senderId, from, replyTo, event, ref }` and calls the provider APIs with
    keys kept on the server. Ideally the server sends these itself when a booking is saved, rather than trusting the browser.
 4. In Notifications portal → Providers & settings, enter the endpoint, choose Live and save.

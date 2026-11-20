@@ -88,7 +88,7 @@ const NOTIFY_EVENTS = {
     vars: () => ({ time: new Date().toLocaleString('en-IN') }), to: () => [], ref: () => 'TEST', sample: () => ({}) },
 };
 SEED.notifyTemplates = () => Object.entries(NOTIFY_EVENTS).map(([id, d], i) => ({ id, smsOn: !d.smsOff, emailOn: !d.emailOff, sms: d.sms, subject: d.subject, email: d.email, dltId: '1107' + String(170000000000000 + hashStr(id) % 99999999999).slice(0, 15) }));
-SEED.notifySettings = () => ({ mode: 'test', smsOn: true, emailOn: true, smsProvider: 'MSG91', senderId: 'JKNJSE', peId: '1101000000000000000', emailProvider: 'Amazon SES', fromName: 'Jack & Jose', fromEmail: 'bookings@jacknjose.co.in', replyTo: 'support@jacknjose.co.in', opsEmail: 'operations@jacknjose.co.in', endpoint: 'https://api.jacknjose.co.in/notify', smsRate: 0.18 });
+SEED.notifySettings = () => ({ mode: 'test', smsOn: true, emailOn: true, smsProvider: 'MSG91', senderId: 'JKNJSE', peId: '1101000000000000000', emailProvider: 'Amazon SES', fromName: 'Jack & Jose', fromEmail: 'bookings@jacknjose.co.in', replyTo: 'support@jacknjose.co.in', opsEmail: 'operations@jacknjose.co.in', endpoint: 'https://api.elsha.co.in/notify', smsRate: 0.18 });
 SEED.notifications = () => {
   const out = [], push = (key, o) => { try { buildMessages(key, o).forEach(m => out.push({ ...m, status: 'Delivered', createdAt: o.createdAt || m.createdAt, deliveredAt: o.createdAt || m.createdAt, sample: true })); } catch (e) { /* skip incomplete sample */ } };
   Store.get('busBookings').filter(b => b.sample).slice(0, 6).forEach(b => { push('bus_booked', b); if (b.status === 'Cancelled') push('bus_cancelled', b); });
@@ -214,7 +214,7 @@ route('notify-admin', app => {
     if (tab === 'settings') {
       body.innerHTML = `<div class="split"><form class="card stack" id="ns"><h3>Providers & sending</h3><div class="form-grid">
         <label class="field"><span>Mode</span><select class="input" id="ns-mode" name="mode"><option value="test" ${S.mode === 'test' ? 'selected' : ''}>Test (simulated delivery)</option><option value="live" ${S.mode === 'live' ? 'selected' : ''}>Live (send through server)</option></select></label>
-        <label class="field"><span>Server endpoint (live)</span><input class="input mono" id="ns-ep" name="endpoint" value="${esc(S.endpoint)}" placeholder="https://api.jacknjose.co.in/notify"></label>
+        <label class="field"><span>Server endpoint (live)</span><input class="input mono" id="ns-ep" name="endpoint" value="${esc(S.endpoint)}" placeholder="https://api.elsha.co.in/notify"></label>
         <label class="check"><input type="checkbox" name="smsOn" ${S.smsOn ? 'checked' : ''}> Send SMS</label><label class="check"><input type="checkbox" name="emailOn" ${S.emailOn ? 'checked' : ''}> Send email</label>
         <label class="field"><span>SMS provider</span><select class="input" id="ns-sp" name="smsProvider">${['MSG91', 'Fast2SMS', 'Gupshup', 'Twilio', 'Exotel'].map(p => `<option ${p === S.smsProvider ? 'selected' : ''}>${p}</option>`).join('')}</select></label>
         <label class="field"><span>SMS sender ID (6 letters)</span><input class="input mono" id="ns-sid" name="senderId" value="${esc(S.senderId)}" maxlength="6" required></label>
