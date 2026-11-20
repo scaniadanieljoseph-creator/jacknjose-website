@@ -28,17 +28,16 @@ const passHash = (username, password) => sha256(String(username).trim().toLowerC
 
 /* Roles → which portals they can open. 'admin' opens everything and manages staff. */
 const ROLES = {
-  admin: { label: 'Group administrator', portals: ['travels-admin', 'hotels-admin', 'logistics-admin', 'hotel-crm', 'hostel-crm', 'fleet', 'payments-admin', 'notify-admin', 'admin'] },
+  admin: { label: 'Group administrator', portals: ['travels-admin', 'hotels-admin', 'logistics-admin', 'hotel-crm', 'fleet', 'payments-admin', 'notify-admin', 'admin'] },
   finance: { label: 'Accounts & payments', portals: ['payments-admin', 'admin'] },
   travels: { label: 'Travels manager', portals: ['travels-admin', 'admin'] },
   hotels: { label: 'Hotels manager', portals: ['hotels-admin', 'hotel-crm', 'admin'] },
-  hostels: { label: 'Hostel manager', portals: ['hostel-crm', 'admin'] },
   logistics: { label: 'Logistics manager', portals: ['logistics-admin', 'fleet', 'admin'] },
   fleet: { label: 'Fleet manager', portals: ['fleet', 'admin'] },
 };
-const PROTECTED = ['travels-admin', 'hotels-admin', 'logistics-admin', 'fleet', 'payments-admin', 'notify-admin', 'hotel-crm', 'hostel-crm', 'admin'];
-const PORTAL_LABEL = { 'hostel-crm': 'Hostel management', 'travels-admin': 'Travels portal', 'hotels-admin': 'Hotels portal', 'logistics-admin': 'Logistics portal', fleet: 'Fleet portal', 'payments-admin': 'Payments portal', 'notify-admin': 'Notifications portal', 'hotel-crm': 'Hotel CRM', admin: 'Staff dashboard' };
-const DEMO_LOGINS = [['admin', 'Admin@123', 'admin', 'Group Administrator'], ['travels.manager', 'Travels@123', 'travels', 'Travels Desk'], ['hotels.manager', 'Hotels@123', 'hotels', 'Hotels Desk'], ['hostel.manager', 'Hostel@123', 'hostels', 'Hostel Office'], ['logistics.manager', 'Logistics@123', 'logistics', 'Logistics Desk'], ['fleet.manager', 'Fleet@123', 'fleet', 'Fleet Control'], ['accounts', 'Accounts@123', 'finance', 'Accounts Team'],
+const PROTECTED = ['travels-admin', 'hotels-admin', 'logistics-admin', 'fleet', 'payments-admin', 'notify-admin', 'hotel-crm', 'admin'];
+const PORTAL_LABEL = { 'travels-admin': 'Travels portal', 'hotels-admin': 'Hotels portal', 'logistics-admin': 'Logistics portal', fleet: 'Fleet portal', 'payments-admin': 'Payments portal', 'notify-admin': 'Notifications portal', 'hotel-crm': 'Hotel CRM', admin: 'Staff dashboard' };
+const DEMO_LOGINS = [['admin', 'Admin@123', 'admin', 'Group Administrator'], ['travels.manager', 'Travels@123', 'travels', 'Travels Desk'], ['hotels.manager', 'Hotels@123', 'hotels', 'Hotels Desk'], ['logistics.manager', 'Logistics@123', 'logistics', 'Logistics Desk'], ['fleet.manager', 'Fleet@123', 'fleet', 'Fleet Control'], ['accounts', 'Accounts@123', 'finance', 'Accounts Team'],
   ['hotel1.manager', 'Hotel@123', 'hotels', 'Divya Menon', 'Hotel manager (one hotel)'], ['hotel1.waiter', 'Waiter@123', 'hotels', 'Suresh', 'Waiter'], ['hotel1.kitchen', 'Kitchen@123', 'hotels', 'Chef Babu', 'Kitchen display'], ['hotel1.cashier', 'Cashier@123', 'hotels', 'Arun Kumar', 'Cashier / billing'],
   ['demo', 'Demo@123', 'admin', 'Demo Admin', 'Demo · every module']];
 SEED.staffUsers = () => DEMO_LOGINS.map(([username, pw, role, name], i) => ({ id: 'USR' + (101 + i), name, username, role, passHash: passHash(username, pw), ...(username.startsWith('hotel1.') ? { hotelId: 'HTL301', hotelLevel: username.split('.')[1] } : {}), status: 'Active', lastLogin: '', createdAt: new Date().toISOString(), sample: true }));
@@ -59,7 +58,7 @@ const Auth = {
     const s = this._read(window.sessionStorage) || this._read(window.localStorage);
     this._mem = s; return s;
   },
-  user() { const s = this.session(); if (!s) return null; const u = Store.find('staffUsers', s.uid); return u && u.status === 'Active' ? u : null; },
+  user() { const s = this.session(); if (!s) return null; const u = Store.find('staffUsers', s.uid); return u && u.status === 'Active' && ROLES[u.role] ? u : null; },
   can(routeName) { const u = this.user(); if (!u || !(ROLES[u.role]?.portals || []).includes(routeName)) return false; return u.role === 'hotels' && typeof hcRestricted === 'function' && hcRestricted() ? routeName === 'hotel-crm' : true; }, // a login tied to one hotel or one job only opens the Hotel CRM
   home() { const u = this.user(); return u ? (ROLES[u.role].portals.find(p => this.can(p)) || 'login') : 'login'; },
   login(username, password, remember) {

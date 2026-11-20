@@ -3,7 +3,7 @@
 'use strict';
 const SITE_CONFIG = {
   name: 'Jack & Jose',
-  domain: 'jacknjose.co.in',
+  domain: 'elsha.co.in',
   siteHost: 'elsha.jacknjose.co.in', // where the site is published: used in parcel QR codes
   allowPrint: true,
 

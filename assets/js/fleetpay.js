@@ -90,7 +90,7 @@ const flAutoWage = (r, solo, drv) => solo ? (r?.soloWage || FL_SOLO_WAGE) : (r?.
   SEED.fl_docs = () => [];
 })();
 
-const flNeedsApi = body => { if (typeof Remote !== 'undefined' && Remote.on && (Remote.apiVersion || 1) < 2) { body.innerHTML = `<div class="card stack"><h3>One update needed on your server</h3><p>Staff, duty and payroll records need the latest database program.</p><ol style="padding-left:20px;display:grid;gap:6px"><li>In cPanel → Files, open the <b>api.jacknjose.co.in</b> folder.</li><li>Click <b>Upload</b>, tick <b>Overwrite existing files</b>, and choose the new <b>index.php</b> file.</li><li>Reload this page.</li></ol></div>`; return true; } return false; };
+const flNeedsApi = body => { if (typeof Remote !== 'undefined' && Remote.on && (Remote.apiVersion || 1) < 2) { body.innerHTML = `<div class="card stack"><h3>One update needed on your server</h3><p>Staff, duty and payroll records need the latest database program.</p><ol style="padding-left:20px;display:grid;gap:6px"><li>In cPanel → Files, open the <b>api.elsha.co.in</b> folder.</li><li>Click <b>Upload</b>, tick <b>Overwrite existing files</b>, and choose the new <b>index.php</b> file.</li><li>Reload this page.</li></ol></div>`; return true; } return false; };
 
 /* ---------- Staff and their documents ---------- */
 function flDocsModal(s, after) {
