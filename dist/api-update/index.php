@@ -10,22 +10,23 @@ const OBJECT_KEYS   = ['gatewaySettings', 'notifySettings'];
 const STAFF_WRITE = [
   'buses' => ['travels'], 'agents' => ['travels'], 'busBookings' => ['travels'],
   'hotels' => ['hotels'], 'hotelBookings' => ['hotels'],
+  'hostels' => ['hostels'], 'hostelEnquiries' => ['hostels'],
   'branches' => ['logistics'], 'parcels' => ['logistics'], 'manifests' => ['logistics'],
   'vehicles' => ['fleet', 'logistics'], 'trips' => ['fleet', 'logistics'], 'maintenance' => ['fleet', 'logistics'],
   'shipments' => ['*'], 'mediaBookings' => ['*'], 'eeeEnquiries' => ['*'], 'messages' => ['*'], 'notifications' => ['*'],
   'media' => ['travels', 'hotels'], 'reviews' => ['travels', 'hotels'], 'payments' => ['finance', 'travels', 'hotels'],
   'gatewaySettings' => ['finance'], 'announcements' => ['travels', 'hotels', 'logistics'], 'coupons' => ['travels', 'hotels'], 'notifyTemplates' => [], 'notifySettings' => [], 'staffUsers' => [],
 ];
-const PUBLIC_READ   = ['announcements', 'coupons', 'buses', 'hotels', 'branches', 'media', 'reviews', 'agents', 'busBookings', 'hotelBookings', 'gatewaySettings'];
-const PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews', 'payments', 'notifications'];
+const PUBLIC_READ   = ['announcements', 'coupons', 'buses', 'hotels', 'hostels', 'branches', 'media', 'reviews', 'agents', 'busBookings', 'hotelBookings', 'gatewaySettings'];
+const PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'hostelEnquiries', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews', 'payments', 'notifications'];
 const PUBLIC_ONE    = ['busBookings', 'hotelBookings', 'parcels', 'shipments'];
 const MAX_DOC_BYTES = 700000;
-const API_VERSION = 7;
+const API_VERSION = 8;
 /* Elsha's own addresses are always allowed to use this database, on top of any listed in config.php */
 const BUILTIN_ORIGINS = ['https://elsha.co.in', 'https://www.elsha.co.in', 'https://elsha.jacknjose.co.in'];
 /* Module collections are recognised by prefix, so new portal modules need no change here.
    prefix => [roles that may read and write them] (the administrator always can). They are never public. */
-const MODULE_PREFIXES = ['hc_' => ['hotels'], 'tr_' => ['travels'], 'lg_' => ['logistics'], 'fl_' => ['fleet', 'logistics'], 'el_' => ['*'], 'x_' => []];
+const MODULE_PREFIXES = ['hc_' => ['hotels'], 'hs_' => ['hostels'], 'tr_' => ['travels'], 'lg_' => ['logistics'], 'fl_' => ['fleet', 'logistics'], 'el_' => ['*'], 'x_' => []];
 function moduleRoles(string $c): ?array { foreach (MODULE_PREFIXES as $p => $roles) if (strncmp($c, $p, strlen($p)) === 0) return $roles; return null; }
 
 function respond(int $code, array $body): void { http_response_code($code); header('Content-Type: application/json; charset=utf-8'); header('Cache-Control: no-store'); echo json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); exit; }
@@ -99,6 +100,7 @@ function publicView(string $c, array $list): array {
     case 'hotelBookings': if (in_array($d['status'] ?? '', ['Confirmed', 'Checked-in'], true)) $out[] = ['id' => pid($d['id']), 'hotelId' => $d['hotelId'] ?? '', 'checkIn' => $d['checkIn'] ?? '', 'checkOut' => $d['checkOut'] ?? '', 'rooms' => $d['rooms'] ?? 1, 'status' => $d['status']]; break;
     case 'coupons': if (($d['status'] ?? '') === 'Active' && (($d['to'] ?? '') === '' || $d['to'] >= gmdate('Y-m-d', time() - 86400))) { $code = strtoupper(preg_replace('/\s+/', '', (string)($d['code'] ?? ''))); $o = array_intersect_key($d, array_flip(['id', 'title', 'type', 'value', 'maxDiscount', 'minAmount', 'appliesTo', 'routeFrom', 'routeTo', 'city', 'from', 'to', 'perCustomer', 'show', 'status'])); if (!empty($d['show'])) $o['code'] = $code; else $o['codeHash'] = hash('sha256', 'jjcpn:' . $code); $out[] = $o; } break;
     case 'announcements': if (($d['status'] ?? '') === 'Active' && ($d['to'] ?? '') >= gmdate('Y-m-d', time() - 86400)) $out[] = ['id' => $d['id'], 'title' => $d['title'] ?? '', 'msg' => $d['msg'] ?? '', 'link' => $d['link'] ?? '', 'from' => $d['from'] ?? '', 'to' => $d['to'] ?? '', 'status' => 'Active', 'createdAt' => $d['createdAt'] ?? '']; break;
+    case 'hostels': if (($d['status'] ?? '') === 'Active') $out[] = array_intersect_key($d, array_flip(['id', 'name', 'type', 'city', 'area', 'address', 'phone', 'whatsapp', 'about', 'amenities', 'rules', 'rentFrom', 'vacantBeds', 'sharing', 'food', 'mapLink', 'status'])); break;
     case 'agents': if (($d['status'] ?? '') === 'Active') $out[] = ['id' => $d['id'], 'name' => $d['name'] ?? '', 'agency' => $d['agency'] ?? '', 'city' => $d['city'] ?? '', 'status' => 'Active']; break;
     case 'reviews': if (($d['status'] ?? '') !== 'Removed') { unset($d['resolution']); if (isset($d['challenge'])) $d['challenge'] = ['reason' => 'under review']; $out[] = $d; } break;
     default: $out[] = $d;

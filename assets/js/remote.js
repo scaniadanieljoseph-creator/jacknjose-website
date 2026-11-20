@@ -5,7 +5,7 @@
 
 const REMOTE_OBJECT_KEYS = ['gatewaySettings', 'notifySettings'];     // single settings objects
 const REMOTE_DEFAULT_KEYS = ['notifyTemplates', ...REMOTE_OBJECT_KEYS]; // fall back to built-in defaults when the database has none
-const REMOTE_PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews'];
+const REMOTE_PUBLIC_CREATE = ['busBookings', 'hotelBookings', 'hostelEnquiries', 'parcels', 'shipments', 'mediaBookings', 'eeeEnquiries', 'messages', 'reviews'];
 
 const Remote = {
   on: !!SITE_CONFIG.api,
