@@ -1,4 +1,4 @@
-/* Jack & Jose Hotels — hotel booking platform + hotels master portal */
+/* Elsha Hotels — hotel booking platform + hotels master portal */
 'use strict';
 
 const ROOM_TYPES = [
@@ -8,7 +8,7 @@ const ROOM_TYPES = [
 ];
 const AMENITIES = ['Free WiFi', 'Breakfast', 'Pool', 'Parking', 'AC', 'Restaurant', 'Gym', 'Spa', 'Airport shuttle', 'Lake view', 'Beach access', 'Power backup'];
 SEED.hotels = () => [
-  ['Jack & Jose Residency', 'Kochi', 'MG Road', 4, 4200, 4.6, 'Free WiFi, Breakfast, Pool, Parking, AC, Restaurant, Gym', 48, 210],
+  ['Elsha Residency', 'Kochi', 'MG Road', 4, 4200, 4.6, 'Free WiFi, Breakfast, Pool, Parking, AC, Restaurant, Gym', 48, 210],
   ['Marine Drive Bay Inn', 'Kochi', 'Marine Drive', 3, 2600, 4.2, 'Free WiFi, AC, Restaurant, Parking', 36, 195],
   ['Fort Heritage Bungalow', 'Kochi', 'Fort Kochi', 4, 5400, 4.7, 'Free WiFi, Breakfast, AC, Restaurant, Lake view', 14, 25],
   ['Kovalam Palm Retreat', 'Thiruvananthapuram', 'Kovalam', 4, 4800, 4.5, 'Free WiFi, Breakfast, Pool, Beach access, Spa, AC', 30, 165],
@@ -76,7 +76,7 @@ function bindHotelSearch(root) {
   };
 }
 function hotelVoucherHtml(b) {
-  return `<div class="ticket"><div class="ticket-head"><div><div class="small" style="opacity:.8">Jack & Jose Hotels · Booking voucher</div><h3 style="color:#fff;margin-top:4px">${esc(b.hotelName)}</h3><div class="small" style="opacity:.85">${esc(b.city)}</div></div>
+  return `<div class="ticket"><div class="ticket-head"><div><div class="small" style="opacity:.8">Elsha Hotels · Booking voucher</div><h3 style="color:#fff;margin-top:4px">${esc(b.hotelName)}</h3><div class="small" style="opacity:.85">${esc(b.city)}</div></div>
     <div style="text-align:right"><div class="small" style="opacity:.8">Booking ID</div><b class="mono" style="font-size:1.2rem">${esc(b.id)}</b></div></div>
     <div class="ticket-body"><div class="kv"><div><span>Check-in</span><b>${fmtDate(b.checkIn)}</b><div class="muted small">from 12:00 PM</div></div><div><span>Check-out</span><b>${fmtDate(b.checkOut)}</b><div class="muted small">by 11:00 AM</div></div><div><span>Nights</span><b>${b.nights}</b></div><div><span>Status</span><b>${statusChip(b.status)}</b></div></div>
     <div class="kv"><div><span>Room</span><b>${esc(b.roomType)} × ${b.rooms}</b></div><div><span>Guests</span><b>${b.guests}</b></div><div><span>Guest name</span><b>${esc(b.guest)}</b></div><div><span>Phone</span><b>${esc(b.phone)}</b></div>${Pay.kv(b.id)}</div></div>
@@ -87,13 +87,13 @@ function hotelVoucherHtml(b) {
 ROUTE_TITLES.hotels = 'Hotel booking';
 route('hotels', app => {
   const cities = [...new Set(Store.get('hotels').filter(h => h.active === 'Active').map(h => h.city))];
-  app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Hotels', title: 'Stays from backwater resorts to business hotels', lead: 'Compare verified hotels, check live room availability and get a booking voucher in seconds. Free cancellation up to 24 hours before check-in.' }) +
+  app.innerHTML = pageHero({ eyebrow: 'Elsha Hotels', title: 'Stays from backwater resorts to business hotels', lead: 'Compare verified hotels, check live room availability and get a booking voucher in seconds. Free cancellation up to 24 hours before check-in.' }) +
   `<section class="wrap overlap"><div class="search-box">${hotelSearchForm()}</div></section>${cpnOffersHtml('hotel')}
   <section class="section"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Destinations</div><h2 style="margin-top:6px">Where our partner hotels are</h2></div></div>
     <div class="grid g4">${cities.map(c => { const hs = Store.get('hotels').filter(h => h.city === c && h.active === 'Active'); const min = Math.min(...hs.map(h => h.price)); return `<button class="card svc" data-city="${esc(c)}" style="text-align:left;cursor:pointer;padding:0;overflow:hidden"><div class="city-pic">${hotelPic(hs[0])}<span>${esc(c)}</span></div><div style="padding:14px 16px"><b>${hs.length} hotel${hs.length > 1 ? 's' : ''}</b><div class="muted small">from ${inr(min)} / night</div></div></button>`; }).join('')}</div></div></section>
   <section class="section-tight"><div class="wrap grid g2"><div class="card"><div class="eyebrow">Manage booking</div><h3 style="margin:6px 0 14px">Find your hotel booking</h3>
     <form id="hb-form" style="display:flex;gap:10px;flex-wrap:wrap"><input class="input mono" id="hbid" name="bid" placeholder="Booking ID, e.g. JJH5100" style="flex:1 1 180px" required><button class="btn btn-primary">Find booking</button></form></div>
-    <div class="card" style="display:grid;gap:10px;align-content:center"><div class="eyebrow">Hotel partners</div><h3>List your property with Jack & Jose</h3><p class="muted">Hotel managers control rooms, rates and bookings in the Hotels master portal.</p><div><a class="btn btn-primary btn-sm" href="#hotels-admin">Open Hotels portal</a></div></div></div></section>`;
+    <div class="card" style="display:grid;gap:10px;align-content:center"><div class="eyebrow">Hotel partners</div><h3>List your property with Elsha</h3><p class="muted">Hotel managers control rooms, rates and bookings in the Hotels master portal.</p><div><a class="btn btn-primary btn-sm" href="#hotels-admin">Open Hotels portal</a></div></div></div></section>`;
   bindHotelSearch(app);
   $$('[data-city]', app).forEach(b => b.onclick = () => { const f = $('#hotel-search'); f.city.value = b.dataset.city; f.requestSubmit(); });
   $('#hb-form', app).onsubmit = async e => { e.preventDefault(); const id = e.target.bid.value.trim().toUpperCase(), b = await Store.lookup('hotelBookings', id); if (!b) return toast(`No booking found for ${id}`, 'err');
@@ -124,7 +124,7 @@ route('hotel-results', app => {
     const by = { pop: (a, b) => b.reviews - a.reviews, low: (a, b) => a.price - b.price, high: (a, b) => b.price - a.price, rating: (a, b) => b.rating - a.rating }; L.sort(by[st.sort]);
     $('#count').textContent = `${L.length} propert${L.length === 1 ? 'y' : 'ies'}`;
     $('#hotel-list').innerHTML = L.map(h => { const left = roomsLeft(h, s.checkIn, s.checkOut), enough = left >= s.rooms;
-      return `<article class="card hotel"><div class="hotel-img">${Media.cover('hotel', h.id) ? `<img class="cover" src="${Media.cover('hotel', h.id)}" alt="${esc(h.name)}">` : hotelPic(h)}${h.name.startsWith('Jack & Jose') ? '<span class="tag own-badge">Jack & Jose</span>' : ''}</div>
+      return `<article class="card hotel"><div class="hotel-img">${Media.cover('hotel', h.id) ? `<img class="cover" src="${Media.cover('hotel', h.id)}" alt="${esc(h.name)}">` : hotelPic(h)}${h.name.startsWith('Elsha') ? '<span class="tag own-badge">Elsha</span>' : ''}</div>
         <div class="hotel-body"><div><span class="stars small">${starStr(h.stars)}</span></div><h3>${esc(h.name)}</h3><div class="muted small">${icon('pin', '').replace('<svg', '<svg style="width:14px;height:14px;vertical-align:-2px"')} ${esc(h.area)}, ${esc(h.city)}</div>
         <div class="chips">${h.amenities.split(',').slice(0, 5).map(a => `<span class="chip">${esc(a.trim())}</span>`).join('')}</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${ratingBadge('hotel', h.id, h.rating, h.name)}${(st => st ? `<span class="small muted">${st.avg >= 4.5 ? 'Excellent' : st.avg >= 4 ? 'Very good' : st.avg >= 3 ? 'Good' : 'Mixed'}${st.count ? '' : SITE_CONFIG.bookingMode === 'demo' ? ` · ${h.reviews} reviews` : ''}</span>` : '')(Reviews.stats('hotel', h.id, h.rating))}${Media.of('hotel', h.id).length ? `<span class="chip blue">${Media.of('hotel', h.id, 'photo').length} photos${Media.of('hotel', h.id, 'video').length ? ' · video' : ''}</span>` : ''}</div></div>

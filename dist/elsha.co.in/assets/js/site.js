@@ -14,11 +14,11 @@ const PORTALS = [['travels-admin', 'bus', 'Travels portal', 'Buses, agents and t
 
 function headerHtml() {
   const dd = (items) => items.map(v => `<a href="#${v.id}"><span class="dd-icon ${v.venture === 'el' ? 'g' : ''}">${icon(v.icon)}</span><div><b>${v.title}</b><span>${v.text.split('.')[0]}.</span></div></a>`).join('');
-  return `<div class="wrap nav"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Elsha<small>by Jack &amp; Jose</small></span></a>
+  return `<div class="wrap nav"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Elsha</span></a>
     <button class="menu-btn" aria-label="Open menu" id="menu-btn">☰</button>
     <nav class="nav-links" id="nav-links">
-      <div class="nav-item"><button class="nav-link" data-nav="jack transports logistics fleet travels hotels bus hotel">Jack &amp; Jose <span class="caret">▼</span></button><div class="dropdown"><a href="#jack-jose"><span class="dd-icon">${icon('globe')}</span><div><b>About Jack &amp; Jose</b><span>Travels and transports venture.</span></div></a>${dd(VERTICALS.filter(v => v.venture === 'jj'))}</div></div>
-      <div class="nav-item"><button class="nav-link" data-nav="elsha media eee">Elsha <span class="caret">▼</span></button><div class="dropdown"><a href="#elsha"><span class="dd-icon g">${icon('leaf')}</span><div><b>About Elsha</b><span>Media, design and energy venture.</span></div></a>${dd(VERTICALS.filter(v => v.venture === 'el'))}</div></div>
+      <div class="nav-item"><button class="nav-link" data-nav="elsha-travels jack transports logistics fleet travels hotels bus hotel">Travels &amp; Transports <span class="caret">▼</span></button><div class="dropdown"><a href="#elsha-travels"><span class="dd-icon">${icon('globe')}</span><div><b>Elsha Travels &amp; Transports</b><span>Buses, hotels, freight, parcels and fleet.</span></div></a>${dd(VERTICALS.filter(v => v.venture === 'jj'))}</div></div>
+      <div class="nav-item"><button class="nav-link" data-nav="elsha-studio media eee">Media &amp; Energy <span class="caret">▼</span></button><div class="dropdown"><a href="#elsha-studio"><span class="dd-icon g">${icon('leaf')}</span><div><b>Elsha Media, Design &amp; Energy</b><span>Photography, design and energy efficiency.</span></div></a>${dd(VERTICALS.filter(v => v.venture === 'el'))}</div></div>
       <a class="nav-link" href="#travels" data-nav="travels bus">Bus tickets</a><a class="nav-link" href="#hotels" data-nav="hotels hotel">Hotels</a>
       <div class="nav-item"><button class="nav-link" data-nav="admin login">${Auth.user() ? esc(Auth.user().name.split(' ')[0]) : 'Staff'} <span class="caret">▼</span></button><div class="dropdown" style="right:0;left:auto">
         ${Auth.user() ? `<div class="small muted" style="padding:6px 10px">Signed in as <b>${esc(Auth.user().username)}</b> · ${esc(ROLES[Auth.user().role].label)}</div>` : `<a href="#login"><span class="dd-icon g">${icon('shield')}</span><div><b>Staff sign in</b><span>Access the master portals.</span></div></a>`}
@@ -36,23 +36,23 @@ function appBandHtml() {
     <div class="app-band-cta"><a class="btn btn-green btn-lg" href="${APP_APK}" download="Elsha.apk">${icon('box')} Download for Android</a><span class="small" style="color:#cfe2f3">Elsha 1.0 · APK</span></div></div></div></section>`;
 }
 function footerHtml() {
-  return `<div class="wrap"><div class="footer-grid"><div class="stack"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Elsha<small>by Jack &amp; Jose</small></span></a><p style="max-width:40ch">Jack &amp; Jose runs travels and transports. Elsha runs media, design and energy efficiency. Both are part of one group.</p></div>
-    <div><h4>Jack &amp; Jose</h4>${VERTICALS.filter(v => v.venture === 'jj').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}</div>
-    <div><h4>Elsha</h4>${VERTICALS.filter(v => v.venture === 'el').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}<a href="#elsha">About Elsha</a></div>
+  return `<div class="wrap"><div class="footer-grid"><div class="stack"><a class="brand" href="#home"><span class="brand-mark">${BRAND_MARK}</span><span>Elsha</span></a><p style="max-width:40ch">Elsha runs travels and transports, and media, design and energy efficiency, all under one name.</p></div>
+    <div><h4>Travels &amp; Transports</h4>${VERTICALS.filter(v => v.venture === 'jj').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}</div>
+    <div><h4>Media, Design &amp; Energy</h4>${VERTICALS.filter(v => v.venture === 'el').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}<a href="#elsha">About Elsha</a></div>
     <div><h4>Company</h4><a href="#contact">Contact</a><a href="#terms">Terms of service</a><a href="#privacy">Privacy policy</a><a href="#refunds">Cancellation &amp; refunds</a><a href="#login">Staff sign in</a>${IN_APP ? '' : `<a href="${APP_APK}" download="Elsha.apk">Download the Elsha app</a>`}</div></div>
-    <div class="legal"><span>© ${new Date().getFullYear()} Jack &amp; Jose · elsha.co.in</span><span>${[SITE_CONFIG.phone, SITE_CONFIG.email, SITE_CONFIG.supportEmail, SITE_CONFIG.gstin && 'GSTIN ' + SITE_CONFIG.gstin].filter(Boolean).map(esc).join(' · ') || 'Fares and freight rates shown are estimates until confirmed.'}</span></div></div>`;
+    <div class="legal"><span>© ${new Date().getFullYear()} Elsha · elsha.co.in</span><span>${[SITE_CONFIG.phone, SITE_CONFIG.email, SITE_CONFIG.supportEmail, SITE_CONFIG.gstin && 'GSTIN ' + SITE_CONFIG.gstin].filter(Boolean).map(esc).join(' · ') || 'Fares and freight rates shown are estimates until confirmed.'}</span></div></div>`;
 }
 const vertCard = v => `<a class="card svc ${v.venture}" href="#${v.id}">${pic(v.id)}<div class="ico ${v.venture === 'el' ? 'g' : ''}">${icon(v.icon)}</div><h3>${v.title}</h3><p>${v.text}</p><span class="more">${['fleet'].includes(v.id) ? 'Open portal' : 'Explore'} →</span></a>`;
 
 ROUTE_TITLES.home = '';
 route('home', app => {
   app.innerHTML = `<section class="hero"><canvas data-routes></canvas><div class="wrap">
-    <div class="eyebrow">Jack &amp; Jose · Elsha</div><h1 style="margin-top:12px">Moving people and cargo across India. Creating images and saving energy.</h1>
-    <p class="lead">Book a bus seat, a hotel room, a parcel or a full truckload with Jack &amp; Jose. Hire Elsha for photography, design and energy-efficiency consulting.</p>
+    <div class="eyebrow">Elsha</div><h1 style="margin-top:12px">Moving people and cargo across India. Creating images and saving energy.</h1>
+    <p class="lead">Book a bus seat, a hotel room, a parcel or a full truckload with Elsha. Hire us for photography, design and energy-efficiency consulting.</p>
     <div class="search-box" style="margin-top:32px;max-width:1000px"><div class="tabs" id="qb-tabs">${[['bus', 'bus', 'Bus tickets'], ['hotel', 'hotel', 'Hotels'], ['parcel', 'box', 'Send parcel'], ['freight', 'truck', 'Freight quote']].map(([k, i, l], n) => `<button class="tab ${n ? '' : 'on'}" data-qb="${k}">${icon(i).replace('<svg', '<svg style="width:18px;height:18px"')} ${l}</button>`).join('')}</div><div id="qb-body"></div></div></div></section>
-  <section class="section"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Two ventures, one group</div><h2 style="margin-top:6px">Jack &amp; Jose and Elsha</h2></div></div>
-    <div class="grid g2"><a class="venture jj" href="#jack-jose">${pic('jj', 'venture-art')}<span class="eyebrow" style="color:#9ff0c8">Travels &amp; Transports</span><h2>Jack &amp; Jose</h2><p>Bus and hotel bookings, freight by road, air and sea, parcel logistics and a fleet run from one control room.</p><div class="chips">${VERTICALS.filter(v => v.venture === 'jj').map(v => `<span class="chip">${v.title}</span>`).join('')}</div><span class="go">Explore Jack &amp; Jose →</span></a>
-    <a class="venture el" href="#elsha">${pic('eee', 'venture-art')}<span class="eyebrow" style="color:#c6f6dd">Media, Design &amp; Energy</span><h2>Elsha</h2><p>Photographers, filmmakers and designers, plus EEE: energy-efficiency consulting and appliance supply for hostels and companies.</p><div class="chips">${VERTICALS.filter(v => v.venture === 'el').map(v => `<span class="chip">${v.title}</span>`).join('')}</div><span class="go">Explore Elsha →</span></a></div></div></section>
+  <section class="section"><div class="wrap"><div class="section-head"><div><div class="eyebrow">One name, two divisions</div><h2 style="margin-top:6px">Everything Elsha does</h2></div></div>
+    <div class="grid g2"><a class="venture jj" href="#elsha-travels">${pic('jj', 'venture-art')}<span class="eyebrow" style="color:#9ff0c8">Elsha</span><h2>Travels &amp; Transports</h2><p>Bus and hotel bookings, freight by road, air and sea, parcel logistics and a fleet run from one control room.</p><div class="chips">${VERTICALS.filter(v => v.venture === 'jj').map(v => `<span class="chip">${v.title}</span>`).join('')}</div><span class="go">Explore travels &amp; transports →</span></a>
+    <a class="venture el" href="#elsha-studio">${pic('eee', 'venture-art')}<span class="eyebrow" style="color:#c6f6dd">Elsha</span><h2>Media, Design &amp; Energy</h2><p>Photographers, filmmakers and designers, plus EEE: energy-efficiency consulting and appliance supply for hostels and companies.</p><div class="chips">${VERTICALS.filter(v => v.venture === 'el').map(v => `<span class="chip">${v.title}</span>`).join('')}</div><span class="go">Explore media &amp; energy →</span></a></div></div></section>
   <section class="section band"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Everything we do</div><h2 style="margin-top:6px">Seven services</h2></div><p>Each service has its own booking page, and the operational ones have a master portal for our staff.</p></div><div class="svc-grid">${VERTICALS.map(vertCard).join('')}</div></div></section>
   ${appBandHtml()}<section class="section"><div class="wrap"><div class="section-head"><div><div class="eyebrow">On the road, at sea and behind the lens</div><h2 style="margin-top:6px">A look at what we run</h2></div></div>
     <div class="photo-grid">${[['travels', 'Overnight sleeper buses', 'travels'], ['hotels', 'Backwater and city stays', 'hotels'], ['sea', 'Sea freight from Kochi', 'transports'], ['air', 'Air cargo worldwide', 'transports'], ['logistics', 'Parcel hubs and door delivery', 'logistics'], ['fleet', 'A fleet tracked live', 'fleet'], ['media', 'Films and photography', 'media'], ['eee', 'Solar and efficient buildings', 'eee']].map(([k, cap, to]) => `<a class="photo" href="#${to}">${pic(k)}<span>${cap}</span></a>`).join('')}</div></div></section>
@@ -70,15 +70,22 @@ route('home', app => {
   $$('[data-count]', app).forEach(el => { const n = +el.dataset.count; if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; let i = 0; const t = setInterval(() => { i++; el.textContent = Math.round(n * i / 30); if (i >= 30) clearInterval(t); }, 30); });
 });
 
-ROUTE_TITLES['jack-jose'] = 'Jack & Jose';
-route('jack-jose', app => {
-  app.innerHTML = pageHero({ eyebrow: 'Travels & Transports', title: 'Jack & Jose', lead: 'Passenger travel and goods movement under one roof: buses, hotels, freight, parcels and the fleet that runs them.' }) +
+ROUTE_TITLES['elsha-travels'] = 'Elsha Travels & Transports';
+route('elsha-travels', app => {
+  app.innerHTML = pageHero({ eyebrow: 'Elsha', title: 'Travels & Transports', lead: 'Passenger travel and goods movement under one roof: buses, hotels, freight, parcels and the fleet that runs them.' }) +
   `<section class="section"><div class="wrap"><div class="grid g3">${VERTICALS.filter(v => v.venture === 'jj').map(vertCard).join('')}</div></div></section>
   <section class="section band"><div class="wrap"><div class="section-head"><div><div class="eyebrow">For our team</div><h2 style="margin-top:6px">Master portals</h2></div><p>Staff, agents and branch managers run daily operations here.</p></div><div class="grid g4">${PORTALS.map(([id, ic, t, d]) => `<a class="card svc" href="#${id}"><div class="ico">${icon(ic)}</div><h3>${t}</h3><p>${d}</p><span class="more">Open →</span></a>`).join('')}</div></div></section>`;
 });
-ROUTE_TITLES.elsha = 'Elsha';
+route('jack-jose', app => { location.replace('#elsha-travels'); }); // old address
+ROUTE_TITLES.elsha = 'About Elsha';
 route('elsha', app => {
-  app.innerHTML = pageHero({ elsha: true, eyebrow: 'Media, Design & Energy', title: 'Elsha', lead: 'Elsha brings together photographers, filmmakers and designers with an energy-efficiency team that helps hostels and companies cut their power bills.' }) +
+  app.innerHTML = pageHero({ elsha: true, eyebrow: 'About us', title: 'Elsha', lead: 'One company for getting people and goods where they need to go, and for the pictures, designs and energy savings that help businesses grow.' }) +
+  `<section class="section"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Division</div><h2 style="margin-top:6px">Travels &amp; Transports</h2></div><a class="btn btn-outline" href="#elsha-travels">More</a></div><div class="grid g3">${VERTICALS.filter(v => v.venture === 'jj').map(vertCard).join('')}</div></div></section>
+  <section class="section band"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Division</div><h2 style="margin-top:6px">Media, Design &amp; Energy</h2></div><a class="btn btn-outline" href="#elsha-studio">More</a></div><div class="grid g2">${VERTICALS.filter(v => v.venture === 'el').map(vertCard).join('')}</div></div></section>`;
+});
+ROUTE_TITLES['elsha-studio'] = 'Elsha Media, Design & Energy';
+route('elsha-studio', app => {
+  app.innerHTML = pageHero({ elsha: true, eyebrow: 'Elsha', title: 'Media, Design & Energy', lead: 'Elsha brings together photographers, filmmakers and designers with an energy-efficiency team that helps hostels and companies cut their power bills.' }) +
   `<section class="section"><div class="wrap"><div class="grid g2">${VERTICALS.filter(v => v.venture === 'el').map(vertCard).join('')}</div></div></section>
   <section class="section band"><div class="wrap grid g2"><div class="stack"><div class="eyebrow">Elsha Media &amp; Designers</div><h2>Photography, films and brand design</h2><p class="muted">Weddings, corporate films, product catalogues and drone aerials, with an in-house design studio for logos, brochures and social media.</p><div><a class="btn btn-green" href="#media">See media services</a></div></div>
     <div class="stack"><div class="eyebrow">EEE · Elsha Energy Efficiency</div><h2>Consultation and efficient appliances</h2><p class="muted">Energy audits, savings reports, and supply and installation of LED, BLDC fans, heat pumps, inverter ACs and rooftop solar.</p><div><a class="btn btn-green" href="#eee">See energy services</a></div></div></div></section>`;

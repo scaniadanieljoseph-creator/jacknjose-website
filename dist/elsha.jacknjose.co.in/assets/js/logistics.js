@@ -1,4 +1,4 @@
-/* Jack & Jose Logistics — parcel booking, loading/unloading, tracking + branch master portal */
+/* Elsha Logistics — parcel booking, loading/unloading, tracking + branch master portal */
 'use strict';
 
 const PARCEL_STATUSES = ['Booked', 'Picked Up', 'Loaded', 'In Transit', 'Unloaded', 'Out for Delivery', 'Delivered'];
@@ -44,7 +44,7 @@ function parcelTimeline(p) {
   return `<ol class="timeline">${PARCEL_STATUSES.map((s, i) => { const h = done.get(s); return `<li class="${i < cur ? 'done' : i === cur ? (s === 'Delivered' ? 'done' : 'now') : ''}"><b>${s}</b>${h ? `<div class="muted small">${fmtDateTime(h.at)}${h.note ? ' · ' + esc(h.note) : ''}</div>` : ''}</li>`; }).join('')}</ol>`;
 }
 function parcelCard(p) {
-  return `<div class="ticket"><div class="ticket-head"><div><div class="small" style="opacity:.8">Jack & Jose Logistics · Airway bill</div><b class="mono" style="font-size:1.3rem">${esc(p.id)}</b></div><div>${statusChip(p.status)}</div></div>
+  return `<div class="ticket"><div class="ticket-head"><div><div class="small" style="opacity:.8">Elsha Logistics · Airway bill</div><b class="mono" style="font-size:1.3rem">${esc(p.id)}</b></div><div>${statusChip(p.status)}</div></div>
     <div class="ticket-body"><div class="kv"><div><span>From</span><b>${esc(branchName(p.fromBranch))}</b></div><div><span>To</span><b>${esc(p.toCity)}</b></div><div><span>Service</span><b>${esc(p.service)}</b></div><div><span>Parcel</span><b>${esc(p.type)} · ${p.pkgs} pkg · ${p.weight} kg</b></div></div>
     <div class="kv"><div><span>Sender</span><b>${esc(p.sender)}</b><div class="muted small">${esc(p.senderPhone)}</div></div><div><span>Receiver</span><b>${esc(p.receiver)}</b><div class="muted small">${esc(p.receiverPhone)}</div></div><div><span>Amount</span><b>${inr(p.total)}</b></div></div></div>
     <div class="ticket-perf"></div><div class="ticket-body">${parcelTimeline(p)}${movementLog(p)}${Notify.note(p.id)}</div></div>`;
@@ -53,7 +53,7 @@ function parcelCard(p) {
 ROUTE_TITLES.logistics = 'Parcel booking';
 route('logistics', app => {
   const brs = Store.get('branches').filter(b => b.status === 'Active');
-  app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Logistics', title: 'Send a parcel from any of our branches', lead: `${brs.length} active branches and hubs. Door pickup, loading and unloading help, and live tracking from booking to delivery.` }) +
+  app.innerHTML = pageHero({ eyebrow: 'Elsha Logistics', title: 'Send a parcel from any of our branches', lead: `${brs.length} active branches and hubs. Door pickup, loading and unloading help, and live tracking from booking to delivery.` }) +
   `<section class="wrap overlap"><div class="search-box"><div class="split"><form id="pb" class="stack" autocomplete="off">
     <h3>Parcel details</h3><div class="form-grid">
       <label class="field"><span>Booking branch</span><select class="input" id="pb-from" name="from">${brs.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join('')}</select></label>

@@ -3,7 +3,7 @@
 'use strict';
 const SITE_CONFIG = {
   demoSite: true,
-  name: 'Jack & Jose',
+  name: 'Elsha',
   domain: 'elsha.co.in',
   siteHost: 'elsha.jacknjose.co.in', // where the site is published: used in parcel QR codes
   allowPrint: true,
@@ -21,7 +21,7 @@ const SITE_CONFIG = {
   jurisdiction: 'Coimbatore, Tamil Nadu',
   hours: 'Mon–Sat, 9:00 AM – 7:00 PM. Bus helpline 24×7.',
   gstin: '33BBQPJ1260D1Z0',                 // shown in the footer when filled
-  legalName: 'Jack & Jose',  // company name used in Terms, Privacy and Refund pages
+  legalName: 'Elsha',  // company name used in Terms, Privacy and Refund pages
 
   /* 'demo'    — bookings and payments are simulated in the visitor's browser (a preview banner is shown on the live site).
      'request' — LAUNCH MODE: every booking is sent to you as a request on WhatsApp / email; you confirm and collect

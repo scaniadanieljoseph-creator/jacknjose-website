@@ -86,7 +86,7 @@ route('login', app => {
   const want = Session.get('afterLogin');
   app.innerHTML = `<section class="login-page"><div class="wrap"><div class="login-card">
     <div class="login-side"><canvas data-routes></canvas><div style="position:relative;display:grid;gap:16px">
-      <div class="eyebrow" style="color:#9ff0c8">Staff only</div><h1 style="font-size:clamp(1.6rem,3vw,2.2rem)">Jack &amp; Jose master portals</h1>
+      <div class="eyebrow" style="color:#9ff0c8">Staff only</div><h1 style="font-size:clamp(1.6rem,3vw,2.2rem)">Elsha master portals</h1>
       <p style="color:#d6e6f5">Sign in with the account your administrator gave you. You'll only see the portals your role allows.</p>
       <ul class="login-list">${PROTECTED.map(p => `<li>${icon({ 'travels-admin': 'bus', 'hotels-admin': 'hotel', 'logistics-admin': 'box', fleet: 'fleet', 'payments-admin': 'chart', 'notify-admin': 'mail', 'hotel-crm': 'building', admin: 'grid' }[p])}<span>${PORTAL_LABEL[p]}</span></li>`).join('')}</ul></div></div>
     <form class="login-form" id="login-form" autocomplete="on" novalidate>

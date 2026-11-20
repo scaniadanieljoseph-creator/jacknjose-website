@@ -38,7 +38,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-/** Elsha by Jack & Jose: the website in an Android app. */
+/** Elsha: the website in an Android app. */
 public class MainActivity extends Activity {
     static final String HOME = "https://elsha.co.in/";
     static final String[] OUR_HOSTS = { "elsha.co.in", "jacknjose.co.in" };   // the app keeps these sites inside; everything else opens outside

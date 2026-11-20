@@ -40,9 +40,9 @@ const legalPage = (title, updated, sections) => pageHero({ eyebrow: 'Policies', 
 const LEGAL_DATE = '11 November 2026';
 ROUTE_TITLES.terms = 'Terms of service';
 route('terms', app => { app.innerHTML = legalPage('Terms of service', LEGAL_DATE, [
-  ['1. Who we are', [`This website is operated by ${esc(SITE_CONFIG.legalName)} (“we”, “us”), ${esc(SITE_CONFIG.address)}. It covers our Jack &amp; Jose services (bus tickets, hotels, freight transport, parcel logistics, fleet) and our Elsha services (media, design and energy efficiency).`]],
+  ['1. Who we are', [`This website is operated by ${esc(SITE_CONFIG.legalName)} (“we”, “us”), ${esc(SITE_CONFIG.address)}. It covers our services: bus tickets, hotels, freight transport, parcel logistics, fleet, media, design and energy efficiency.`]],
   ['2. Bookings and requests', ['A booking made or requested on this website becomes confirmed only when we send you a confirmation with a PNR, booking ID, airway bill or shipment ID.', 'Fares, room rates, freight and parcel prices shown before confirmation are estimates. Freight and parcel charges are finalised after weighment and measurement.', 'You are responsible for giving correct passenger, guest, consignee and contact details. Carry a valid government photo ID for bus travel and hotel check-in.']],
-  ['3. Bus travel', ['Buses are run by Jack &amp; Jose Travels and partner operators. Departure and arrival times can change because of traffic, weather or breakdowns. Please reach the boarding point 15 minutes early.', 'Luggage is carried at the passenger’s risk. Prohibited and hazardous goods are not allowed on board.']],
+  ['3. Bus travel', ['Buses are run by Elsha Travels and partner operators. Departure and arrival times can change because of traffic, weather or breakdowns. Please reach the boarding point 15 minutes early.', 'Luggage is carried at the passenger’s risk. Prohibited and hazardous goods are not allowed on board.']],
   ['4. Hotels', ['Standard check-in is 12:00 PM and check-out 11:00 AM unless the hotel states otherwise. Hotels may refuse admission without valid ID or for conduct that disturbs other guests.']],
   ['5. Freight and parcels', ['You must declare goods truthfully and must not send items banned by law. Goods move under the Carriage by Road Act, 2007 and our consignment note terms. Our liability for loss or damage is limited as stated on the consignment note unless you buy transit insurance.']],
   ['6. Media and energy services', ['Shoot dates are blocked on receipt of the agreed advance. Energy-saving figures on this site are estimates; actual savings depend on your site and usage and are set out in the audit report.']],
@@ -74,7 +74,7 @@ route('refunds', app => { app.innerHTML = legalPage('Cancellation &amp; refund p
 function mountWhatsApp() {
   if (!SITE_CONFIG.whatsapp || document.getElementById('wa-fab')) return;
   const a = document.createElement('a'); a.id = 'wa-fab'; a.className = 'wa-fab'; a.target = '_blank'; a.rel = 'noopener';
-  a.href = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hello Jack & Jose, I have a question about ')}`;
+  a.href = `https://wa.me/${SITE_CONFIG.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Hello Elsha, I have a question about ')}`;
   a.setAttribute('aria-label', 'Chat with us on WhatsApp');
   a.innerHTML = `<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15.1L2 22l5-1.3A10 10 0 1012 2zm0 18.2a8.200 8.200 0 01-4.2-1.200l-.3-.2-3 .8.8-2.900-.2-.3A8.200 8.200 0 1112 20.200zm4.500-6.100c-.2-.1-1.500-.700-1.700-.800s-.400-.100-.600.100-.700.800-.800 1-.300.200-.500.100a6.700 6.700 0 01-3.300-2.900c-.300-.400.300-.400.700-1.300.100-.200 0-.300 0-.500l-.800-1.800c-.200-.500-.400-.400-.600-.400h-.500a1 1 0 00-.700.300 2.900 2.900 0 00-.900 2.200 5.100 5.100 0 001.100 2.700 11.700 11.700 0 004.500 3.900c1.700.700 2.300.800 3.100.700a2.700 2.700 0 001.800-1.200 2.200 2.200 0 00.100-1.200c0-.200-.200-.200-.400-.300z"/></svg><span>Chat</span>`;
   document.body.appendChild(a);

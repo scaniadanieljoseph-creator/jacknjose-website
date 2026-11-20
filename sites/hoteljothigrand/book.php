@@ -7,7 +7,7 @@
 const MAIL_FROM      = 'info@jacknjose.co.in';             // sender address (a mailbox on this cPanel account)
 const MAIL_FROM_NAME = 'Hotel Jothi Grand Bookings';
 const MAIL_TO        = ['hoteljothigrand666@gmail.com'];    // who receives the booking requests
-const MAIL_BCC       = ['info@jacknjose.co.in'];            // a copy for Jack & Jose
+const MAIL_BCC       = ['info@jacknjose.co.in'];            // a copy for Elsha
 const HOTEL_NAME     = 'Hotel Jothi Grand';
 const HOTEL_PHONE    = '+91 73040 43384';
 const ALLOWED_HOSTS  = ['hoteljothigrand.elsha.co.in', 'www.hoteljothigrand.elsha.co.in', 'hoteljothigrand.jacknjose.co.in', 'www.hoteljothigrand.jacknjose.co.in', 'localhost', '127.0.0.1'];

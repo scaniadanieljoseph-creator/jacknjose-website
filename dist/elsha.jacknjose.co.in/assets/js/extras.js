@@ -76,13 +76,13 @@ SEED.reviews = () => {
   if (SITE_CONFIG.bookingMode !== 'demo') return []; // never show sample reviews on the live (launch-mode) site
   const mk = (type, targetId, targetName, i, rating, text, extra = {}) => ({ id: 'REV' + (4101 + i), targetType: type, targetId, targetName, bookingId: '', name: SAMPLE_NAMES[(i * 3) % SAMPLE_NAMES.length], rating, text, status: 'Published', createdAt: new Date(Date.now() - (i + 1) * 864e5 * 2.3).toISOString(), sample: true, ...extra });
   return [
-    mk('bus', 'BUS101', 'Jack & Jose Travels · Kochi → Bengaluru', 0, 5, 'Left on time, clean berths and the blanket was fresh. Driver was careful on the ghat section.'),
-    mk('bus', 'BUS101', 'Jack & Jose Travels · Kochi → Bengaluru', 1, 4, 'Comfortable sleeper. Charging point at my berth did not work, otherwise good.', { reply: { text: 'Thank you. We have replaced the charging socket at L7.', by: 'Travels Desk', at: new Date(Date.now() - 864e5).toISOString() } }),
-    mk('bus', 'BUS103', 'Jack & Jose Travels · Bengaluru → Kochi', 2, 2, 'Bus reached two hours late and nobody informed us.', {}),
-    mk('bus', 'BUS104', 'Jack & Jose Travels · Kochi → Chennai', 3, 1, 'Worst service, I was not allowed to board!!', { status: 'Challenged', challenge: { reason: 'Customer did not travel', note: 'Booking shows the passenger cancelled the ticket two hours before departure and was refunded.', by: 'Travels Desk', at: new Date(Date.now() - 864e5 * 1.5).toISOString() } }),
-    mk('bus', 'BUS108', 'Jack & Jose Travels · Kochi → Coimbatore', 4, 4, 'Good day service, AC was a bit too cold.'),
-    mk('hotel', 'HTL301', 'Jack & Jose Residency', 5, 5, 'Spotless room, quick check-in and a very good breakfast spread.'),
-    mk('hotel', 'HTL301', 'Jack & Jose Residency', 6, 4, 'Great location on MG Road. Pool closes early at 7 pm.', { reply: { text: 'Thanks for staying with us. Pool hours are now extended to 9 pm.', by: 'Hotels Desk', at: new Date(Date.now() - 864e5 * 3).toISOString() } }),
+    mk('bus', 'BUS101', 'Elsha Travels · Kochi → Bengaluru', 0, 5, 'Left on time, clean berths and the blanket was fresh. Driver was careful on the ghat section.'),
+    mk('bus', 'BUS101', 'Elsha Travels · Kochi → Bengaluru', 1, 4, 'Comfortable sleeper. Charging point at my berth did not work, otherwise good.', { reply: { text: 'Thank you. We have replaced the charging socket at L7.', by: 'Travels Desk', at: new Date(Date.now() - 864e5).toISOString() } }),
+    mk('bus', 'BUS103', 'Elsha Travels · Bengaluru → Kochi', 2, 2, 'Bus reached two hours late and nobody informed us.', {}),
+    mk('bus', 'BUS104', 'Elsha Travels · Kochi → Chennai', 3, 1, 'Worst service, I was not allowed to board!!', { status: 'Challenged', challenge: { reason: 'Customer did not travel', note: 'Booking shows the passenger cancelled the ticket two hours before departure and was refunded.', by: 'Travels Desk', at: new Date(Date.now() - 864e5 * 1.5).toISOString() } }),
+    mk('bus', 'BUS108', 'Elsha Travels · Kochi → Coimbatore', 4, 4, 'Good day service, AC was a bit too cold.'),
+    mk('hotel', 'HTL301', 'Elsha Residency', 5, 5, 'Spotless room, quick check-in and a very good breakfast spread.'),
+    mk('hotel', 'HTL301', 'Elsha Residency', 6, 4, 'Great location on MG Road. Pool closes early at 7 pm.', { reply: { text: 'Thanks for staying with us. Pool hours are now extended to 9 pm.', by: 'Hotels Desk', at: new Date(Date.now() - 864e5 * 3).toISOString() } }),
     mk('hotel', 'HTL306', 'Backwater Crest Resort', 7, 5, 'The lake view from the room is exactly like the pictures. Houseboat ride arranged by the desk was the highlight.'),
     mk('hotel', 'HTL309', 'Garden City Grand', 8, 3, 'Room was fine but the WiFi kept dropping during my calls.'),
   ];

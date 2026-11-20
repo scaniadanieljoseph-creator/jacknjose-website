@@ -1,4 +1,4 @@
-/* Jack & Jose Fleet — master portal for every vehicle: live positions, trips, maintenance, compliance */
+/* Elsha Fleet — master portal for every vehicle: live positions, trips, maintenance, compliance */
 'use strict';
 
 const VEHICLE_TYPES = ['32 ft MXL container', '32 ft SXL container', '19 ft truck', '14 ft LCV', 'Tata Ace / mini truck', '40 ft trailer', 'AC sleeper bus', 'AC seater bus', 'Tempo Traveller (12 seat)', 'Sedan (staff car)'];

@@ -1,4 +1,4 @@
-/* Jack & Jose Group — core utilities, data store, router, UI helpers */
+/* Elsha — core utilities, data store, router, UI helpers */
 'use strict';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -308,7 +308,7 @@ function render() {
   $$('.nav-links').forEach(n => n.classList.remove('open'));
   $$('.nav-item').forEach(n => n.classList.remove('open'));
   $$('[data-nav]').forEach(a => a.classList.toggle('active', a.dataset.nav.split(' ').includes(name.split('-')[0])));
-  document.title = (ROUTE_TITLES[name] ? ROUTE_TITLES[name] + ' · ' : '') + 'Elsha by Jack & Jose';
+  document.title = (ROUTE_TITLES[name] ? ROUTE_TITLES[name] + ' · ' : '') + 'Elsha';
 }
 const ROUTE_TITLES = {};
 window.addEventListener('hashchange', render);

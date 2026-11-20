@@ -14,7 +14,7 @@ const NB_BANKS = ['State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank',
 const WALLETS = ['Paytm', 'PhonePe', 'Amazon Pay', 'MobiKwik'];
 const PROVIDERS = ['Razorpay', 'PayU', 'Cashfree', 'CCAvenue'];
 
-SEED.gatewaySettings = () => ({ provider: 'Razorpay', mode: 'test', keyId: 'rzp_test_JJdemo00000000', merchantName: 'Jack & Jose', convFeePct: 0, settlementDays: 2, methods: { upi: true, card: true, netbanking: true, wallet: true } });
+SEED.gatewaySettings = () => ({ provider: 'Razorpay', mode: 'test', keyId: 'rzp_test_JJdemo00000000', merchantName: 'Elsha', convFeePct: 0, settlementDays: 2, methods: { upi: true, card: true, netbanking: true, wallet: true } });
 SEED.payments = () => {
   const r = rng(2026), out = [], methods = ['upi', 'upi', 'upi', 'card', 'card', 'netbanking', 'wallet'];
   const mk = (type, b, name, phone) => {

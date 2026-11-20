@@ -1,4 +1,4 @@
-/* Jack & Jose Travels — bus booking platform + travels master portal */
+/* Elsha Travels — bus booking platform + travels master portal */
 'use strict';
 
 const BUS_TYPES = {
@@ -9,7 +9,7 @@ const BUS_TYPES = {
   'Non-AC Seater (2+2)': { layout: 'seater', ac: false, sleeper: false, rate: 1.1 },
 };
 const PARTNER_OPERATORS = ['Malabar Star Travels', 'Southern Comfort Lines', 'Deccan Express Coaches', 'Konkan Coastal Travels', 'Western Ghats Travels', 'Ganga Tours & Travels', 'Coromandel Roadlines', 'Sahyadri Sleeper Co.'];
-const OWN_OPERATOR = 'Jack & Jose Travels';
+const OWN_OPERATOR = 'Elsha Travels';
 const SAMPLE_NAMES = ['Anitha Varghese', 'Rahul Menon', 'Fathima Rasheed', 'Arjun Nair', 'Priya Sundaram', 'Joseph Mathew', 'Deepak Rao', 'Sneha Pillai', 'Mohammed Irfan', 'Kavya Reddy', 'Vivek Sharma', 'Neha Joshi', 'Thomas Kurian', 'Lakshmi Iyer'];
 
 SEED.buses = () => [
@@ -88,7 +88,7 @@ function bindBusSearch(root) {
 /* ---------- Ticket ---------- */
 function busTicketHtml(b) {
   const agent = b.agentId ? Store.find('agents', b.agentId) : null;
-  return `<div class="ticket"><div class="ticket-head"><div><div class="small" style="opacity:.8">Jack & Jose Travels · e-Ticket</div><h3 style="color:#fff;margin-top:4px">${esc(b.from)} → ${esc(b.to)}</h3></div>
+  return `<div class="ticket"><div class="ticket-head"><div><div class="small" style="opacity:.8">Elsha Travels · e-Ticket</div><h3 style="color:#fff;margin-top:4px">${esc(b.from)} → ${esc(b.to)}</h3></div>
     <div style="text-align:right"><div class="small" style="opacity:.8">PNR</div><b class="mono" style="font-size:1.2rem">${esc(b.id)}</b></div></div>
     <div class="ticket-body"><div class="kv"><div><span>Journey date</span><b>${fmtDate(b.date)}</b></div><div><span>Departure</span><b>${esc(b.dep)}</b></div><div><span>Arrival</span><b>${esc(b.arr)}</b></div><div><span>Status</span><b>${statusChip(b.status)}</b></div></div>
     <div class="kv"><div><span>Operator</span><b>${esc(b.operator)}</b></div><div><span>Bus</span><b>${esc(b.type)}</b></div><div><span>Bus no.</span><b class="mono">${esc(b.busNo)}</b></div><div><span>Booked via</span><b>${agent ? esc(agent.agency) : 'Website'}</b></div>${Pay.kv(b.id)}</div>
@@ -110,7 +110,7 @@ function showBusTicket(b, { allowCancel = false, after } = {}) {
 ROUTE_TITLES.travels = 'Bus booking';
 route('travels', app => {
   const popular = [...new Map(Store.get('buses').filter(b => b.active === 'Active').map(b => [`${b.from}|${b.to}`, [b.from, b.to]])).values()].slice(0, 12);
-  app.innerHTML = pageHero({ eyebrow: 'Jack & Jose Travels', title: 'Book bus tickets to any city in India', lead: `Our own fleet, live seat maps and instant e-tickets.` }) +
+  app.innerHTML = pageHero({ eyebrow: 'Elsha Travels', title: 'Book bus tickets to any city in India', lead: `Our own fleet, live seat maps and instant e-tickets.` }) +
   `<section class="wrap overlap"><div class="search-box">${busSearchForm()}<div class="chips" style="margin-top:12px"><span class="muted small">Quick date:</span>
     <button class="chip" type="button" data-qd="0">Today</button><button class="chip" type="button" data-qd="1">Tomorrow</button><button class="chip" type="button" data-qd="2">Day after</button><a class="chip blue" href="#travels-admin" style="margin-left:auto;text-decoration:none">Office / Agent login</a></div></div></section>
   ${cpnOffersHtml('bus')}<section class="section"><div class="wrap grid g2">
@@ -120,7 +120,7 @@ route('travels', app => {
       <p class="muted small" style="margin-top:10px">Your PNR is on the e-ticket shown after booking.</p></div>
   </div></section>
   <section class="section band"><div class="wrap"><div class="section-head"><div><div class="eyebrow">Why book with us</div><h2 style="margin-top:6px">Designed around the overnight journey</h2></div></div>
-    <div class="grid g4">${[['shield', 'Verified operators', 'Every partner bus is checked for permits, insurance and driver records.'], ['clock', 'Live seat maps', 'See sleeper berths and seats exactly as laid out, with ladies-booked seats marked.'], ['pin', 'Pick-up near you', 'Choose from several boarding and dropping points in each city.'], ['users', 'Agent network', 'Book through an authorised Jack & Jose agent in your town.']]
+    <div class="grid g4">${[['shield', 'Verified operators', 'Every partner bus is checked for permits, insurance and driver records.'], ['clock', 'Live seat maps', 'See sleeper berths and seats exactly as laid out, with ladies-booked seats marked.'], ['pin', 'Pick-up near you', 'Choose from several boarding and dropping points in each city.'], ['users', 'Agent network', 'Book through an authorised Elsha agent in your town.']]
       .map(([i, t, d]) => `<div class="stack"><div class="ico">${icon(i)}</div><h3>${t}</h3><p class="muted">${d}</p></div>`).join('')}</div></div></section>
   <section class="section-tight"><div class="wrap"><div class="notice" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><span><b>Operators & staff:</b> manage buses, agents and bookings in the Travels master portal.</span><a class="btn btn-primary btn-sm" href="#travels-admin">Open Travels portal</a></div></div></section>`;
   bindBusSearch(app);
@@ -142,7 +142,7 @@ route('bus-results', app => {
       <span style="flex:1"></span><button class="btn btn-outline btn-sm" id="prev-d" ${s.date <= todayISO() ? 'disabled' : ''}>‹ Prev day</button><button class="btn btn-outline btn-sm" id="next-d">Next day ›</button><button class="btn btn-light btn-sm" id="modify">Modify search</button></div></div>
     <div class="wrap" id="modify-box" hidden style="padding-top:16px"><div class="search-box">${busSearchForm(s)}</div></div>
     <section class="section-tight"><div class="wrap results-layout">
-      <aside class="filters card"><div><h4>Bus type</h4><div class="stack">${['AC', 'Non-AC', 'Sleeper', 'Seater', 'Jack & Jose buses'].map(t => `<label class="check"><input type="checkbox" data-f="${t}"> ${t}</label>`).join('')}</div></div>
+      <aside class="filters card"><div><h4>Bus type</h4><div class="stack">${['AC', 'Non-AC', 'Sleeper', 'Seater', 'Elsha buses'].map(t => `<label class="check"><input type="checkbox" data-f="${t}"> ${t}</label>`).join('')}</div></div>
         <div><h4>Departure time</h4><div class="stack">${[['m', 'Before 6 AM'], ['d', '6 AM – 12 PM'], ['a', '12 PM – 6 PM'], ['n', 'After 6 PM']].map(([k, l]) => `<label class="check"><input type="checkbox" data-slot="${k}"> ${l}</label>`).join('')}</div></div>
         <button class="btn btn-outline btn-sm" id="clear-f">Clear filters</button></aside>
       <div style="min-width:0"><div class="sortbar"><b id="count"></b><span style="flex:1"></span><span class="muted small">Sort by</span>${[['dep', 'Departure'], ['dur', 'Duration'], ['price', 'Price'], ['rating', 'Rating']].map(([k, l]) => `<button class="chip ${k === 'dep' ? 'on' : ''}" data-sort="${k}">${l}</button>`).join('')}</div>
@@ -156,13 +156,13 @@ route('bus-results', app => {
     let L = all.filter(b => { const T = BUS_TYPES[b.type];
       if (state.f.has('AC') && !state.f.has('Non-AC') && !T.ac) return false; if (state.f.has('Non-AC') && !state.f.has('AC') && T.ac) return false;
       if (state.f.has('Sleeper') && !state.f.has('Seater') && !T.sleeper) return false; if (state.f.has('Seater') && !state.f.has('Sleeper') && T.sleeper) return false;
-      if (state.f.has('Jack & Jose buses') && !b.own) return false; if (state.slot.size && !state.slot.has(slotOf(b.dep))) return false; return true; });
+      if (state.f.has('Elsha buses') && !b.own) return false; if (state.slot.size && !state.slot.has(slotOf(b.dep))) return false; return true; });
     const by = { dep: (a, b) => a.dep.localeCompare(b.dep), dur: (a, b) => a.durationMin - b.durationMin, price: (a, b) => a.fare - b.fare, rating: (a, b) => b.rating - a.rating };
     L.sort(by[state.sort]);
     $('#count').textContent = `${L.length} bus${L.length === 1 ? '' : 'es'} found`;
     $('#bus-list').innerHTML = L.map(b => { const arr = addMins(b.dep, b.durationMin), booked = bookedSeats(b, s.date), left = totalSeats(b) - Object.keys(booked).length;
       return `<article class="card bus" data-bus="${esc(b.id)}"><div class="bus-main">
-        <div style="min-width:0"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(b.operator)}</h3>${b.own ? '<span class="own-badge">Jack & Jose</span>' : ''}</div><div class="muted small" style="margin-top:4px">${esc(b.type)}</div></div>
+        <div style="min-width:0"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><h3>${esc(b.operator)}</h3>${b.own ? '<span class="own-badge">Elsha</span>' : ''}</div><div class="muted small" style="margin-top:4px">${esc(b.type)}</div></div>
         <div class="bus-times"><div><b>${b.dep}</b><div class="muted small">${esc(s.from)}</div></div><div style="flex:1;text-align:center" class="muted small"><div class="route-line" style="margin:6px 0"></div>${durTxt(b.durationMin)}</div><div style="text-align:right"><b>${arr.t}</b>${arr.days ? `<sup class="small" style="color:var(--warn)"> +${arr.days}</sup>` : ''}<div class="muted small">${esc(s.to)}</div></div></div>
         <div class="bus-price"><div>${ratingBadge('bus', b.id, b.rating, b.operator)}</div><div><span class="muted small">Starts from</span><br><b>${inr(minFare(b))}</b></div><div class="small" style="color:${left < 8 ? 'var(--danger)' : 'var(--muted)'}">${left} seats left</div></div></div>
         <div class="bus-foot">${b.amenities.split(',').slice(0, 4).map(a => `<span class="chip">${esc(a.trim())}</span>`).join('')}${Media.of('bus', b.id, 'photo').length ? `<button class="chip blue" data-busphotos="${esc(b.id)}">Photos (${Media.of('bus', b.id, 'photo').length})</button>` : ''}<span style="flex:1"></span><button class="btn btn-green btn-sm" data-view="${esc(b.id)}">${state.open === b.id ? 'Hide seats' : 'View seats'}</button></div>
