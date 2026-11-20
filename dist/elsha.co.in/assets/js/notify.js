@@ -8,7 +8,7 @@ const NOTIFY_EVENTS = {
   bus_booked: { label: 'Bus ticket confirmed', group: 'Travels', audience: 'Passenger',
     sms: 'Jack & Jose: PNR {{pnr}} confirmed. {{route}}, {{date}} {{time}} from {{boarding}}. Seats {{seats}}. Rs.{{amount}} paid.',
     subject: 'Your bus ticket {{pnr}} · {{route}} on {{date}}',
-    email: 'Hi {{name}},\n\nYour bus ticket is confirmed.\n\nPNR: {{pnr}}\nJourney: {{route}}\nDate: {{date}}, departs {{time}}\nBoarding point: {{boarding}}\nDropping point: {{dropping}}\nOperator: {{operator}} · Bus {{busNo}}\nSeats: {{seats}}\nAmount paid: ₹{{amount}}\n\nPlease reach the boarding point 15 minutes early with a photo ID. To cancel, open Manage booking on jacknjose.co.in and enter your PNR.\n\nHappy journey,\nJack & Jose Travels',
+    email: 'Hi {{name}},\n\nYour bus ticket is confirmed.\n\nPNR: {{pnr}}\nJourney: {{route}}\nDate: {{date}}, departs {{time}}\nBoarding point: {{boarding}}\nDropping point: {{dropping}}\nOperator: {{operator}} · Bus {{busNo}}\nSeats: {{seats}}\nAmount paid: ₹{{amount}}\n\nPlease reach the boarding point 15 minutes early with a photo ID. To cancel, open Manage booking on elsha.co.in and enter your PNR.\n\nHappy journey,\nJack & Jose Travels',
     vars: b => ({ pnr: b.id, route: `${b.from} to ${b.to}`, date: fmtDate(b.date), time: b.dep, boarding: b.boarding, dropping: b.dropping, operator: b.operator, busNo: b.busNo, seats: b.seats.join(', '), amount: num(b.total) }),
     to: b => [{ name: b.passengers?.[0]?.name, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('busBookings')[0] },
   bus_cancelled: { label: 'Bus ticket cancelled', group: 'Travels', audience: 'Passenger',
@@ -36,8 +36,8 @@ const NOTIFY_EVENTS = {
     subject: 'Thank you for staying at {{hotel}}', email: 'Hi {{name}},\n\nThank you for staying at {{hotel}}. Your final bill for booking {{bid}} is ₹{{amount}}.\n\nWe would love to hear about your stay. Just reply to this email.\n\nJack & Jose Hotels',
     vars: b => ({ hotel: b.hotelName, bid: b.id, amount: num(b.total) }), to: b => [{ name: b.guest, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('hotelBookings')[0] },
   parcel_booked: { label: 'Parcel booked (to sender)', group: 'Logistics', audience: 'Sender',
-    sms: 'Jack & Jose Logistics: Parcel booked. AWB {{awb}}, {{pkgs}} pkg to {{receiver}}, {{to}}. Paid Rs.{{amount}}. Track at jacknjose.co.in',
-    subject: 'Parcel booked · AWB {{awb}}', email: 'Hi {{name}},\n\nYour parcel is booked.\n\nAWB: {{awb}}\nFrom: {{from}}\nTo: {{receiver}}, {{to}}\nService: {{service}}\nPackages: {{pkgs}} · {{weight}} kg\nAmount: ₹{{amount}}\n\nTrack it any time on jacknjose.co.in with your AWB number.\n\nJack & Jose Logistics',
+    sms: 'Jack & Jose Logistics: Parcel booked. AWB {{awb}}, {{pkgs}} pkg to {{receiver}}, {{to}}. Paid Rs.{{amount}}. Track at elsha.co.in',
+    subject: 'Parcel booked · AWB {{awb}}', email: 'Hi {{name}},\n\nYour parcel is booked.\n\nAWB: {{awb}}\nFrom: {{from}}\nTo: {{receiver}}, {{to}}\nService: {{service}}\nPackages: {{pkgs}} · {{weight}} kg\nAmount: ₹{{amount}}\n\nTrack it any time on elsha.co.in with your AWB number.\n\nJack & Jose Logistics',
     vars: p => ({ awb: p.id, from: branchName(p.fromBranch), to: p.toCity, receiver: p.receiver, service: p.service, pkgs: p.pkgs, weight: p.weight, amount: num(p.total) }),
     to: p => [{ name: p.sender, phone: p.senderPhone, email: p.senderEmail }], ref: p => p.id, sample: () => Store.get('parcels')[0], also: ['parcel_incoming'] },
   parcel_incoming: { label: 'Parcel on its way (to receiver)', group: 'Logistics', audience: 'Receiver', emailOff: true,
@@ -45,7 +45,7 @@ const NOTIFY_EVENTS = {
     subject: 'A parcel is on its way to you · AWB {{awb}}', email: 'Hi {{name}},\n\n{{sender}} has sent you a parcel (AWB {{awb}}). We will message you before delivery.\n\nJack & Jose Logistics',
     vars: p => ({ awb: p.id, sender: p.sender, to: p.toCity }), to: p => [{ name: p.receiver, phone: p.receiverPhone }], ref: p => p.id, sample: () => Store.get('parcels')[0] },
   parcel_update: { label: 'Parcel status update', group: 'Logistics', audience: 'Sender & receiver',
-    sms: 'Jack & Jose Logistics: AWB {{awb}} is now {{status}}{{where}}. Track at jacknjose.co.in',
+    sms: 'Jack & Jose Logistics: AWB {{awb}} is now {{status}}{{where}}. Track at elsha.co.in',
     subject: 'AWB {{awb}}: {{status}}', email: 'Hi {{name}},\n\nUpdate on parcel {{awb}}: {{status}}{{where}}.\n\nJack & Jose Logistics',
     when: p => ['In Transit', 'Out for Delivery', 'Delivered', 'Cancelled'].includes(p.status),
     vars: p => ({ awb: p.id, status: p.status.toUpperCase(), where: p.status === 'Out for Delivery' ? ` in ${p.toCity}. Keep your phone reachable` : p.status === 'Delivered' ? ` to ${p.receiver}` : '' }),
@@ -174,7 +174,7 @@ function emailPreview(m) {
   const S = Store.get('notifySettings');
   return `<div class="email-mock"><div class="email-meta"><div><span>From</span>${esc(m.from || `${S.fromName} <${S.fromEmail}>`)}</div><div><span>To</span>${esc(m.toName ? `${m.toName} <${m.to}>` : m.to || '—')}</div><div><span>Subject</span><b>${esc(m.subject)}</b></div></div>
     <div class="email-frame"><div class="email-brand"><span class="brand-mark">${BRAND_MARK}</span><b>Elsha <span style="font-weight:500;opacity:.8">by Jack &amp; Jose</span></b></div><div class="email-body">${esc(m.body).split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}</div>
-    <div class="email-foot">Jack &amp; Jose · ${esc(SITE_CONFIG.address)} · jacknjose.co.in<br>You received this because you made a booking or enquiry with us.</div></div></div>`;
+    <div class="email-foot">Jack &amp; Jose · ${esc(SITE_CONFIG.address)} · elsha.co.in<br>You received this because you made a booking or enquiry with us.</div></div></div>`;
 }
 const messagePreview = m => m.channel === 'sms' ? smsPreview(m) : emailPreview(m);
 

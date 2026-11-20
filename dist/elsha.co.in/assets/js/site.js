@@ -41,7 +41,7 @@ function footerHtml() {
     <div><h4>Jack &amp; Jose</h4>${VERTICALS.filter(v => v.venture === 'jj').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}</div>
     <div><h4>Elsha</h4>${VERTICALS.filter(v => v.venture === 'el').map(v => `<a href="#${v.id}">${v.title}</a>`).join('')}<a href="#elsha">About Elsha</a></div>
     <div><h4>Company</h4><a href="#contact">Contact</a><a href="#terms">Terms of service</a><a href="#privacy">Privacy policy</a><a href="#refunds">Cancellation &amp; refunds</a><a href="#login">Staff sign in</a>${IN_APP ? '' : `<a href="${APP_APK}" download="Elsha.apk">Download the Elsha app</a>`}</div></div>
-    <div class="legal"><span>© ${new Date().getFullYear()} Jack &amp; Jose · jacknjose.co.in</span><span>${[SITE_CONFIG.phone, SITE_CONFIG.email, SITE_CONFIG.supportEmail, SITE_CONFIG.gstin && 'GSTIN ' + SITE_CONFIG.gstin].filter(Boolean).map(esc).join(' · ') || 'Fares and freight rates shown are estimates until confirmed.'}</span></div></div>`;
+    <div class="legal"><span>© ${new Date().getFullYear()} Jack &amp; Jose · elsha.co.in</span><span>${[SITE_CONFIG.phone, SITE_CONFIG.email, SITE_CONFIG.supportEmail, SITE_CONFIG.gstin && 'GSTIN ' + SITE_CONFIG.gstin].filter(Boolean).map(esc).join(' · ') || 'Fares and freight rates shown are estimates until confirmed.'}</span></div></div>`;
 }
 const vertCard = v => `<a class="card svc ${v.venture}" href="#${v.id}">${pic(v.id)}<div class="ico ${v.venture === 'el' ? 'g' : ''}">${icon(v.icon)}</div><h3>${v.title}</h3><p>${v.text}</p><span class="more">${['fleet'].includes(v.id) ? 'Open portal' : 'Explore'} →</span></a>`;
 

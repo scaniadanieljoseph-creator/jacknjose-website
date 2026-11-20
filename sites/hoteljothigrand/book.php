@@ -10,8 +10,8 @@ const MAIL_TO        = ['hoteljothigrand666@gmail.com'];    // who receives the 
 const MAIL_BCC       = ['info@jacknjose.co.in'];            // a copy for Jack & Jose
 const HOTEL_NAME     = 'Hotel Jothi Grand';
 const HOTEL_PHONE    = '+91 73040 43384';
-const ALLOWED_HOSTS  = ['hoteljothigrand.jacknjose.co.in', 'www.hoteljothigrand.jacknjose.co.in', 'localhost', '127.0.0.1'];
-const LOGO_URL       = 'https://hoteljothigrand.jacknjose.co.in/img/logo-gold-light-360.png';
+const ALLOWED_HOSTS  = ['hoteljothigrand.elsha.co.in', 'www.hoteljothigrand.elsha.co.in', 'hoteljothigrand.jacknjose.co.in', 'www.hoteljothigrand.jacknjose.co.in', 'localhost', '127.0.0.1'];
+const LOGO_URL       = 'https://hoteljothigrand.elsha.co.in/img/logo-gold-light-360.png';
 const MAX_PER_HOUR   = 6;                                    // requests allowed per visitor per hour
 /* ==================== */
 

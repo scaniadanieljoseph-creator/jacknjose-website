@@ -1,0 +1,9 @@
+# Hotel Jothi Grand now lives at hoteljothigrand.elsha.co.in.
+# Visitors to the old address (hoteljothigrand.jacknjose.co.in) are sent to the same page on the new one, and everyone uses https.
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www\.)?hoteljothigrand\.jacknjose\.co\.in$ [NC]
+RewriteRule ^(.*)$ https://hoteljothigrand.elsha.co.in/$1 [R=301,L]
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+Options -Indexes
