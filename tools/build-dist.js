@@ -13,12 +13,16 @@ const copy = (rel, transform) => { const src = path.join(root, rel), dst = path.
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const files = ['assets/css/style.css', ...[...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]).filter(u => !/^https?:/.test(u))];
 const ver = Date.now().toString(36);
+// Keeps visitors and the Android app on the latest version: if a newer build is published, refresh the cached page and reload once.
+const freshness = base => `<script>(function(){var V='${ver}';function chk(){if(!window.fetch)return;fetch('${base}version.txt?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){t=(t||'').trim();if(!t||t===V)return;var k='jj_upd_'+t;try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}fetch('${base}',{cache:'reload'}).catch(function(){}).then(function(){location.reload()})}).catch(function(){})}chk();document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()})})();</script>\n`;
 const page = html.replace(/"(assets\/[^"]+\.(?:js|css))"/g, `"/$1?v=${ver}"`)
   .replace('<meta name="theme-color"', `<link rel="canonical" href="https://${domain}/">\n<meta property="og:title" content="Elsha by Jack &amp; Jose">\n<meta property="og:url" content="https://${domain}/">\n<meta name="theme-color"`)
   .replace('<meta name="claude:viewport-fit-sides" content="cover">\n', '')
+  .replace('</body>', freshness('/') + '</body>')
   .replace('<header class="site-header"', (banner ? '<div class="demo-strip" role="note"><b>Preview site.</b> Online booking and payments are in test mode: no seats, rooms or parcels are actually reserved and no money is charged. To book, contact us.</div>\n' : '') + '<header class="site-header"');
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, 'index.html'), page);
+fs.writeFileSync(path.join(out, 'version.txt'), ver + '\n');
 fs.writeFileSync(path.join(out, '404.html'), page);
 files.forEach(f => copy(f, f.endsWith('auth.js') ? c => c.replace('const SHOW_DEMO_LOGINS = true;', 'const SHOW_DEMO_LOGINS = SITE_CONFIG.demoSite === true;') : f.endsWith('config.js') && cpanel ? c => c.replace("api: '',", "api: 'api/',") : null));
 if (cpanel) { for (const f of ['index.php', 'install.php', 'schema.php', '.htaccess']) { fs.mkdirSync(path.join(out, 'api'), { recursive: true }); fs.copyFileSync(path.join(root, 'api', f), path.join(out, 'api', f)); } }
@@ -36,7 +40,8 @@ if (!cpanel && !process.argv.includes('--no-demo')) { // client demo: https://<d
   const strip = `<div class="demo-site-strip" role="note"><b>Demo of Elsha by Jack &amp; Jose</b> · sample data only, nothing reaches the real system · Staff portals: sign in with <b class="mono">demo</b> / <b class="mono">Demo@123</b> <span class="dss-act"><a href="#login">Sign in</a><button type="button" onclick="if(confirm('Clear everything you changed in this demo and start again with fresh sample data?')){try{Object.keys(localStorage).filter(function(k){return /^jjdemo_/.test(k)}).forEach(function(k){localStorage.removeItem(k)});Object.keys(sessionStorage).filter(function(k){return /^jjd_|^jjdemo_/.test(k)}).forEach(function(k){sessionStorage.removeItem(k)})}catch(e){}location.hash='';location.reload()}">Reset demo</button></span></div>\n`;
   const dpage = html.replace(/"(assets\/[^"]+\.(?:js|css))"/g, (m, f) => f === 'assets/js/config.js' ? `"/demo/config.js?v=${ver}"` : `"/${f}?v=${ver}"`)
     .replace('<meta name="claude:viewport-fit-sides" content="cover">\n', '').replace('<title>Elsha by Jack &amp; Jose</title>', '<title>Demo · Elsha by Jack &amp; Jose</title>\n<meta name="robots" content="noindex, nofollow">')
+    .replace('</body>', freshness('/demo/') + '</body>')
     .replace('<header class="site-header"', strip + '<header class="site-header"');
-  fs.writeFileSync(path.join(out, 'demo', 'index.html'), dpage);
+  fs.writeFileSync(path.join(out, 'demo', 'index.html'), dpage); fs.writeFileSync(path.join(out, 'demo', 'version.txt'), ver + '\n');
 }
 console.log('built', out, launch ? '(LAUNCH mode: requests go to WhatsApp/email)' : banner ? '(preview banner ON: fill in config.js to launch)' : '(no banner)');
