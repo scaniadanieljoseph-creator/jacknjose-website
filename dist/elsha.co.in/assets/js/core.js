@@ -289,6 +289,8 @@ function render() {
   document.body.classList.toggle('kds-on', false);
   // On the Elsha site (elsha.co.in) the site opens on the Elsha page; the logo still leads to the group home.
   const startPage = 'home';
+  // Plain addresses such as elsha.co.in/hostels or /hostel-crm open the same page as #hostels.
+  if (!location.hash) { const m = location.pathname.match(/^(.*?\/)([a-z][a-z0-9-]*)\/?$/); if (m && ROUTES[m[2]]) { history.replaceState(null, '', m[1] + location.search + '#' + m[2]); } }
   const name = (location.hash || '#' + startPage).slice(1) || startPage;
   const fn = ROUTES[name] || ROUTES.home;
   if (fleetTimer) { clearInterval(fleetTimer); fleetTimer = null; }

@@ -2,6 +2,13 @@
 RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Page addresses such as /hostels open the site (it shows the right page itself)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^demo/ /demo/index.html [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /index.html [L]
 ErrorDocument 404 /index.html
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"
