@@ -6,62 +6,62 @@
 const num = n => Math.round(Number(n) || 0).toLocaleString('en-IN');
 const NOTIFY_EVENTS = {
   bus_booked: { label: 'Bus ticket confirmed', group: 'Travels', audience: 'Passenger',
-    sms: 'Jack & Jose: PNR {{pnr}} confirmed. {{route}}, {{date}} {{time}} from {{boarding}}. Seats {{seats}}. Rs.{{amount}} paid.',
+    sms: 'Elsha: PNR {{pnr}} confirmed. {{route}}, {{date}} {{time}} from {{boarding}}. Seats {{seats}}. Rs.{{amount}} paid.',
     subject: 'Your bus ticket {{pnr}} · {{route}} on {{date}}',
-    email: 'Hi {{name}},\n\nYour bus ticket is confirmed.\n\nPNR: {{pnr}}\nJourney: {{route}}\nDate: {{date}}, departs {{time}}\nBoarding point: {{boarding}}\nDropping point: {{dropping}}\nOperator: {{operator}} · Bus {{busNo}}\nSeats: {{seats}}\nAmount paid: ₹{{amount}}\n\nPlease reach the boarding point 15 minutes early with a photo ID. To cancel, open Manage booking on elsha.co.in and enter your PNR.\n\nHappy journey,\nJack & Jose Travels',
+    email: 'Hi {{name}},\n\nYour bus ticket is confirmed.\n\nPNR: {{pnr}}\nJourney: {{route}}\nDate: {{date}}, departs {{time}}\nBoarding point: {{boarding}}\nDropping point: {{dropping}}\nOperator: {{operator}} · Bus {{busNo}}\nSeats: {{seats}}\nAmount paid: ₹{{amount}}\n\nPlease reach the boarding point 15 minutes early with a photo ID. To cancel, open Manage booking on elsha.co.in and enter your PNR.\n\nHappy journey,\nElsha Travels',
     vars: b => ({ pnr: b.id, route: `${b.from} to ${b.to}`, date: fmtDate(b.date), time: b.dep, boarding: b.boarding, dropping: b.dropping, operator: b.operator, busNo: b.busNo, seats: b.seats.join(', '), amount: num(b.total) }),
     to: b => [{ name: b.passengers?.[0]?.name, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('busBookings')[0] },
   bus_cancelled: { label: 'Bus ticket cancelled', group: 'Travels', audience: 'Passenger',
-    sms: 'Jack & Jose: PNR {{pnr}} ({{route}}, {{date}}) is cancelled. Refund of Rs.{{refund}} will reach your original payment method in 1-7 working days.',
+    sms: 'Elsha: PNR {{pnr}} ({{route}}, {{date}}) is cancelled. Refund of Rs.{{refund}} will reach your original payment method in 1-7 working days.',
     subject: 'Cancelled: bus ticket {{pnr}} · refund ₹{{refund}}',
-    email: 'Hi {{name}},\n\nYour bus ticket {{pnr}} for {{route}} on {{date}} has been cancelled.\n\nRefund: ₹{{refund}} (75% of ₹{{amount}})\nUPI and wallet refunds arrive in 1–2 days; cards and net banking in 5–7 working days.\n\nJack & Jose Travels',
+    email: 'Hi {{name}},\n\nYour bus ticket {{pnr}} for {{route}} on {{date}} has been cancelled.\n\nRefund: ₹{{refund}} (75% of ₹{{amount}})\nUPI and wallet refunds arrive in 1–2 days; cards and net banking in 5–7 working days.\n\nElsha Travels',
     vars: b => ({ pnr: b.id, route: `${b.from} to ${b.to}`, date: fmtDate(b.date), amount: num(b.total), refund: num(b.refund ?? b.total * .75) }),
     to: b => [{ name: b.passengers?.[0]?.name, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('busBookings').find(b => b.status === 'Cancelled') || Store.get('busBookings')[0] },
   hotel_booked: { label: 'Hotel booking confirmed', group: 'Hotels', audience: 'Guest',
-    sms: 'Jack & Jose Hotels: Booking {{bid}} confirmed at {{hotel}}, {{city}}. Check-in {{checkin}} 12 PM, check-out {{checkout}}. {{rooms}}. Paid Rs.{{amount}}.',
+    sms: 'Elsha Hotels: Booking {{bid}} confirmed at {{hotel}}, {{city}}. Check-in {{checkin}} 12 PM, check-out {{checkout}}. {{rooms}}. Paid Rs.{{amount}}.',
     subject: 'Booking confirmed: {{hotel}} · {{checkin}}',
-    email: 'Hi {{name}},\n\nYour stay is booked.\n\nBooking ID: {{bid}}\nHotel: {{hotel}}, {{city}}\nCheck-in: {{checkin}} from 12:00 PM\nCheck-out: {{checkout}} by 11:00 AM\nRoom: {{rooms}} · {{guests}} guest(s)\nAmount paid: ₹{{amount}} (incl. GST)\n\nCarry a government photo ID at check-in. Free cancellation until 24 hours before check-in.\n\nJack & Jose Hotels',
+    email: 'Hi {{name}},\n\nYour stay is booked.\n\nBooking ID: {{bid}}\nHotel: {{hotel}}, {{city}}\nCheck-in: {{checkin}} from 12:00 PM\nCheck-out: {{checkout}} by 11:00 AM\nRoom: {{rooms}} · {{guests}} guest(s)\nAmount paid: ₹{{amount}} (incl. GST)\n\nCarry a government photo ID at check-in. Free cancellation until 24 hours before check-in.\n\nElsha Hotels',
     vars: b => ({ bid: b.id, hotel: b.hotelName, city: b.city, checkin: fmtDate(b.checkIn), checkout: fmtDate(b.checkOut), rooms: `${b.roomType} x ${b.rooms}`, guests: b.guests, amount: num(b.total) }),
     to: b => [{ name: b.guest, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('hotelBookings')[0] },
   hotel_cancelled: { label: 'Hotel booking cancelled', group: 'Hotels', audience: 'Guest',
-    sms: 'Jack & Jose Hotels: Booking {{bid}} at {{hotel}} is cancelled. Full refund of Rs.{{amount}} is on its way to your original payment method.',
-    subject: 'Cancelled: {{hotel}} booking {{bid}}', email: 'Hi {{name}},\n\nYour booking {{bid}} at {{hotel}}, {{city}} for {{checkin}} has been cancelled.\n\nRefund: ₹{{amount}} to your original payment method.\n\nJack & Jose Hotels',
+    sms: 'Elsha Hotels: Booking {{bid}} at {{hotel}} is cancelled. Full refund of Rs.{{amount}} is on its way to your original payment method.',
+    subject: 'Cancelled: {{hotel}} booking {{bid}}', email: 'Hi {{name}},\n\nYour booking {{bid}} at {{hotel}}, {{city}} for {{checkin}} has been cancelled.\n\nRefund: ₹{{amount}} to your original payment method.\n\nElsha Hotels',
     vars: b => ({ bid: b.id, hotel: b.hotelName, city: b.city, checkin: fmtDate(b.checkIn), amount: num(b.total) }), to: b => [{ name: b.guest, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('hotelBookings')[0] },
   hotel_checkin: { label: 'Welcome at check-in', group: 'Hotels', audience: 'Guest',
-    sms: 'Welcome to {{hotel}}, {{name}}! Your room is ready. Front desk is open 24x7. Check-out is {{checkout}} by 11 AM. - Jack & Jose Hotels',
-    subject: 'Welcome to {{hotel}}', email: 'Hi {{name}},\n\nWelcome to {{hotel}}. We hope you enjoy your stay.\n\nCheck-out: {{checkout}} by 11:00 AM\nWiFi details and the in-room dining menu are at the front desk.\n\nJack & Jose Hotels',
+    sms: 'Welcome to {{hotel}}, {{name}}! Your room is ready. Front desk is open 24x7. Check-out is {{checkout}} by 11 AM. - Elsha Hotels',
+    subject: 'Welcome to {{hotel}}', email: 'Hi {{name}},\n\nWelcome to {{hotel}}. We hope you enjoy your stay.\n\nCheck-out: {{checkout}} by 11:00 AM\nWiFi details and the in-room dining menu are at the front desk.\n\nElsha Hotels',
     vars: b => ({ hotel: b.hotelName, checkout: fmtDate(b.checkOut) }), to: b => [{ name: b.guest, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('hotelBookings')[0] },
   hotel_checkout: { label: 'Thank you at check-out', group: 'Hotels', audience: 'Guest', smsOff: true,
-    sms: 'Thank you for staying at {{hotel}}, {{name}}. We hope to see you again. - Jack & Jose Hotels',
-    subject: 'Thank you for staying at {{hotel}}', email: 'Hi {{name}},\n\nThank you for staying at {{hotel}}. Your final bill for booking {{bid}} is ₹{{amount}}.\n\nWe would love to hear about your stay. Just reply to this email.\n\nJack & Jose Hotels',
+    sms: 'Thank you for staying at {{hotel}}, {{name}}. We hope to see you again. - Elsha Hotels',
+    subject: 'Thank you for staying at {{hotel}}', email: 'Hi {{name}},\n\nThank you for staying at {{hotel}}. Your final bill for booking {{bid}} is ₹{{amount}}.\n\nWe would love to hear about your stay. Just reply to this email.\n\nElsha Hotels',
     vars: b => ({ hotel: b.hotelName, bid: b.id, amount: num(b.total) }), to: b => [{ name: b.guest, phone: b.phone, email: b.email }], ref: b => b.id, sample: () => Store.get('hotelBookings')[0] },
   parcel_booked: { label: 'Parcel booked (to sender)', group: 'Logistics', audience: 'Sender',
-    sms: 'Jack & Jose Logistics: Parcel booked. AWB {{awb}}, {{pkgs}} pkg to {{receiver}}, {{to}}. Paid Rs.{{amount}}. Track at elsha.co.in',
-    subject: 'Parcel booked · AWB {{awb}}', email: 'Hi {{name}},\n\nYour parcel is booked.\n\nAWB: {{awb}}\nFrom: {{from}}\nTo: {{receiver}}, {{to}}\nService: {{service}}\nPackages: {{pkgs}} · {{weight}} kg\nAmount: ₹{{amount}}\n\nTrack it any time on elsha.co.in with your AWB number.\n\nJack & Jose Logistics',
+    sms: 'Elsha Logistics: Parcel booked. AWB {{awb}}, {{pkgs}} pkg to {{receiver}}, {{to}}. Paid Rs.{{amount}}. Track at elsha.co.in',
+    subject: 'Parcel booked · AWB {{awb}}', email: 'Hi {{name}},\n\nYour parcel is booked.\n\nAWB: {{awb}}\nFrom: {{from}}\nTo: {{receiver}}, {{to}}\nService: {{service}}\nPackages: {{pkgs}} · {{weight}} kg\nAmount: ₹{{amount}}\n\nTrack it any time on elsha.co.in with your AWB number.\n\nElsha Logistics',
     vars: p => ({ awb: p.id, from: branchName(p.fromBranch), to: p.toCity, receiver: p.receiver, service: p.service, pkgs: p.pkgs, weight: p.weight, amount: num(p.total) }),
     to: p => [{ name: p.sender, phone: p.senderPhone, email: p.senderEmail }], ref: p => p.id, sample: () => Store.get('parcels')[0], also: ['parcel_incoming'] },
   parcel_incoming: { label: 'Parcel on its way (to receiver)', group: 'Logistics', audience: 'Receiver', emailOff: true,
-    sms: 'Jack & Jose Logistics: {{sender}} has sent you a parcel, AWB {{awb}}. Expected delivery to {{to}} soon. We will SMS you before delivery.',
-    subject: 'A parcel is on its way to you · AWB {{awb}}', email: 'Hi {{name}},\n\n{{sender}} has sent you a parcel (AWB {{awb}}). We will message you before delivery.\n\nJack & Jose Logistics',
+    sms: 'Elsha Logistics: {{sender}} has sent you a parcel, AWB {{awb}}. Expected delivery to {{to}} soon. We will SMS you before delivery.',
+    subject: 'A parcel is on its way to you · AWB {{awb}}', email: 'Hi {{name}},\n\n{{sender}} has sent you a parcel (AWB {{awb}}). We will message you before delivery.\n\nElsha Logistics',
     vars: p => ({ awb: p.id, sender: p.sender, to: p.toCity }), to: p => [{ name: p.receiver, phone: p.receiverPhone }], ref: p => p.id, sample: () => Store.get('parcels')[0] },
   parcel_update: { label: 'Parcel status update', group: 'Logistics', audience: 'Sender & receiver',
-    sms: 'Jack & Jose Logistics: AWB {{awb}} is now {{status}}{{where}}. Track at elsha.co.in',
-    subject: 'AWB {{awb}}: {{status}}', email: 'Hi {{name}},\n\nUpdate on parcel {{awb}}: {{status}}{{where}}.\n\nJack & Jose Logistics',
+    sms: 'Elsha Logistics: AWB {{awb}} is now {{status}}{{where}}. Track at elsha.co.in',
+    subject: 'AWB {{awb}}: {{status}}', email: 'Hi {{name}},\n\nUpdate on parcel {{awb}}: {{status}}{{where}}.\n\nElsha Logistics',
     when: p => ['In Transit', 'Out for Delivery', 'Delivered', 'Cancelled'].includes(p.status),
     vars: p => ({ awb: p.id, status: p.status.toUpperCase(), where: p.status === 'Out for Delivery' ? ` in ${p.toCity}. Keep your phone reachable` : p.status === 'Delivered' ? ` to ${p.receiver}` : '' }),
     to: p => [...(['In Transit', 'Delivered', 'Cancelled'].includes(p.status) ? [{ name: p.sender, phone: p.senderPhone, email: p.senderEmail }] : []), ...(['Out for Delivery', 'Delivered'].includes(p.status) ? [{ name: p.receiver, phone: p.receiverPhone }] : [])],
     ref: p => p.id, sample: () => ({ ...Store.get('parcels')[0], status: 'Out for Delivery' }) },
   shipment_booked: { label: 'Freight shipment booked', group: 'Transports', audience: 'Shipper',
-    sms: 'Jack & Jose Transports: Shipment {{sid}} booked, {{mode}} {{route}}. Pickup {{pickup}}. Est. freight Rs.{{amount}}. Our team will call to confirm.',
-    subject: 'Shipment {{sid}} booked · {{route}}', email: 'Hi {{name}},\n\nThank you for booking with Jack & Jose Transports.\n\nShipment ID: {{sid}}\nMode: {{mode}}\nRoute: {{route}}\nPickup date: {{pickup}}\nEstimated freight: ₹{{amount}}\n\nOur operations team will call you to confirm the pickup slot. The final price is confirmed after weighment.\n\nJack & Jose Transports',
+    sms: 'Elsha Transports: Shipment {{sid}} booked, {{mode}} {{route}}. Pickup {{pickup}}. Est. freight Rs.{{amount}}. Our team will call to confirm.',
+    subject: 'Shipment {{sid}} booked · {{route}}', email: 'Hi {{name}},\n\nThank you for booking with Elsha Transports.\n\nShipment ID: {{sid}}\nMode: {{mode}}\nRoute: {{route}}\nPickup date: {{pickup}}\nEstimated freight: ₹{{amount}}\n\nOur operations team will call you to confirm the pickup slot. The final price is confirmed after weighment.\n\nElsha Transports',
     vars: s => ({ sid: s.id, mode: `${MODE_INFO[s.mode].label} ${s.load === 'FTL' ? 'full load' : 'part load'}`, route: `${s.from} to ${s.to}`, pickup: fmtDate(s.pickupDate), amount: num(s.total) }),
     to: s => [{ name: s.contact, phone: s.phone, email: s.email }], ref: s => s.id, sample: () => Store.get('shipments')[0] },
   shipment_update: { label: 'Freight status update', group: 'Transports', audience: 'Shipper',
-    sms: 'Jack & Jose Transports: Shipment {{sid}} ({{route}}) is now {{status}}.', subject: 'Shipment {{sid}}: {{status}}', email: 'Hi {{name}},\n\nYour shipment {{sid}} ({{route}}) is now: {{status}}.\n\nJack & Jose Transports',
+    sms: 'Elsha Transports: Shipment {{sid}} ({{route}}) is now {{status}}.', subject: 'Shipment {{sid}}: {{status}}', email: 'Hi {{name}},\n\nYour shipment {{sid}} ({{route}}) is now: {{status}}.\n\nElsha Transports',
     vars: s => ({ sid: s.id, route: `${s.from} to ${s.to}`, status: SHIP_STAGES(s.intl)[s.stage] }), to: s => [{ name: s.contact, phone: s.phone, email: s.email }], ref: s => s.id, sample: () => Store.get('shipments')[0] },
   payment_refund: { label: 'Refund issued by staff', group: 'Payments', audience: 'Customer',
-    sms: 'Jack & Jose: Refund of Rs.{{refund}} issued for payment {{pid}} ({{reason}}). It reaches your account in 1-7 working days.',
-    subject: 'Refund of ₹{{refund}} issued', email: 'Hi {{name}},\n\nWe have issued a refund of ₹{{refund}} for payment {{pid}}.\nReason: {{reason}}\nRefund reference: {{rid}}\n\nUPI and wallet refunds arrive in 1–2 days; cards and net banking in 5–7 working days.\n\nJack & Jose',
+    sms: 'Elsha: Refund of Rs.{{refund}} issued for payment {{pid}} ({{reason}}). It reaches your account in 1-7 working days.',
+    subject: 'Refund of ₹{{refund}} issued', email: 'Hi {{name}},\n\nWe have issued a refund of ₹{{refund}} for payment {{pid}}.\nReason: {{reason}}\nRefund reference: {{rid}}\n\nUPI and wallet refunds arrive in 1–2 days; cards and net banking in 5–7 working days.\n\nElsha',
     vars: p => ({ pid: p.id, refund: num(p.refund?.amount), reason: p.refund?.reason, rid: p.refund?.id }), to: p => [{ name: p.customer?.name, phone: p.customer?.phone, email: p.customer?.email }], ref: p => p.bookingId || p.id,
     sample: () => { const p = Store.get('payments').find(x => x.refunds?.length) || Store.get('payments')[0]; return { ...p, refund: p.refunds?.[0] || { amount: 500, reason: 'Booking cancelled', id: 'rfnd_demo' } }; } },
   media_request: { label: 'Shoot request received', group: 'Elsha Media', audience: 'Client',
@@ -75,8 +75,8 @@ const NOTIFY_EVENTS = {
     vars: q => ({ ref: q.id, org: q.org, type: q.type, city: q.city, items: q.items?.length ? q.items.map(i => `${i.qty} x ${i.name}`).join('; ') : 'none yet' }), to: q => [{ name: q.contact, phone: q.phone, email: q.email }], ref: q => q.id, sample: () => Store.get('eeeEnquiries')[0],
     ops: q => ({ kind: 'energy audit request', ref: q.id, customer: `${q.contact} (${q.org})`, phone: q.phone, summary: `${q.type} in ${q.city}, monthly bill ₹${num(q.bill)}. ${q.items?.length || 0} product(s) in quote.` }) },
   contact_received: { label: 'Contact message received', group: 'Website', audience: 'Visitor',
-    sms: 'Jack & Jose: Thanks {{name}}, we got your message about {{service}}. The team will reply within one working day.',
-    subject: 'We got your message', email: 'Hi {{name}},\n\nThanks for writing to us about {{service}}. The team will reply within one working day.\n\nYour message:\n{{message}}\n\nJack & Jose',
+    sms: 'Elsha: Thanks {{name}}, we got your message about {{service}}. The team will reply within one working day.',
+    subject: 'We got your message', email: 'Hi {{name}},\n\nThanks for writing to us about {{service}}. The team will reply within one working day.\n\nYour message:\n{{message}}\n\nElsha',
     vars: m => ({ service: m.service, message: m.message }), to: m => [{ name: m.name, phone: m.phone, email: m.email }], ref: m => m.id, sample: () => ({ id: 'MSGDEMO', name: 'Visitor', phone: '+91 98765 43210', email: 'visitor@example.com', service: 'Hotels', message: 'Do you have group rates for 40 people?' }),
     ops: m => ({ kind: 'website message', ref: m.id, customer: m.name, phone: m.phone, summary: `${m.service}: ${m.message}` }) },
   ops_alert: { label: 'New enquiry alert (internal)', group: 'Internal', audience: 'Operations team', smsOff: true, internal: true,
@@ -84,11 +84,11 @@ const NOTIFY_EVENTS = {
     email: 'A new {{kind}} has arrived.\n\nReference: {{ref}}\nCustomer: {{customer}}\nPhone: {{phone}}\n\n{{summary}}\n\nFollow up in the Staff dashboard.',
     vars: v => v, to: () => [], ref: v => v.ref, sample: () => ({ kind: 'shoot request', ref: 'ELM2101', customer: 'Anitha Varghese', phone: '+91 96550 00000', summary: 'Wedding photography, Signature package.' }) },
   test_message: { label: 'Test message', group: 'Internal', audience: 'Staff', internal: true,
-    sms: 'Jack & Jose test SMS sent at {{time}}. If you received this, SMS delivery works.', subject: 'Test email from Jack & Jose', email: 'This is a test email sent at {{time}}.\n\nIf you received it, email delivery is working.',
+    sms: 'Elsha test SMS sent at {{time}}. If you received this, SMS delivery works.', subject: 'Test email from Elsha', email: 'This is a test email sent at {{time}}.\n\nIf you received it, email delivery is working.',
     vars: () => ({ time: new Date().toLocaleString('en-IN') }), to: () => [], ref: () => 'TEST', sample: () => ({}) },
 };
 SEED.notifyTemplates = () => Object.entries(NOTIFY_EVENTS).map(([id, d], i) => ({ id, smsOn: !d.smsOff, emailOn: !d.emailOff, sms: d.sms, subject: d.subject, email: d.email, dltId: '1107' + String(170000000000000 + hashStr(id) % 99999999999).slice(0, 15) }));
-SEED.notifySettings = () => ({ mode: 'test', smsOn: true, emailOn: true, smsProvider: 'MSG91', senderId: 'JKNJSE', peId: '1101000000000000000', emailProvider: 'Amazon SES', fromName: 'Jack & Jose', fromEmail: 'bookings@jacknjose.co.in', replyTo: 'support@jacknjose.co.in', opsEmail: 'operations@jacknjose.co.in', endpoint: 'https://api.elsha.co.in/notify', smsRate: 0.18 });
+SEED.notifySettings = () => ({ mode: 'test', smsOn: true, emailOn: true, smsProvider: 'MSG91', senderId: 'JKNJSE', peId: '1101000000000000000', emailProvider: 'Amazon SES', fromName: 'Elsha', fromEmail: 'bookings@jacknjose.co.in', replyTo: 'support@jacknjose.co.in', opsEmail: 'operations@jacknjose.co.in', endpoint: 'https://api.elsha.co.in/notify', smsRate: 0.18 });
 SEED.notifications = () => {
   const out = [], push = (key, o) => { try { buildMessages(key, o).forEach(m => out.push({ ...m, status: 'Delivered', createdAt: o.createdAt || m.createdAt, deliveredAt: o.createdAt || m.createdAt, sample: true })); } catch (e) { /* skip incomplete sample */ } };
   Store.get('busBookings').filter(b => b.sample).slice(0, 6).forEach(b => { push('bus_booked', b); if (b.status === 'Cancelled') push('bus_cancelled', b); });
@@ -173,8 +173,8 @@ function smsPreview(m) {
 function emailPreview(m) {
   const S = Store.get('notifySettings');
   return `<div class="email-mock"><div class="email-meta"><div><span>From</span>${esc(m.from || `${S.fromName} <${S.fromEmail}>`)}</div><div><span>To</span>${esc(m.toName ? `${m.toName} <${m.to}>` : m.to || '—')}</div><div><span>Subject</span><b>${esc(m.subject)}</b></div></div>
-    <div class="email-frame"><div class="email-brand"><span class="brand-mark">${BRAND_MARK}</span><b>Elsha <span style="font-weight:500;opacity:.8">by Jack &amp; Jose</span></b></div><div class="email-body">${esc(m.body).split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}</div>
-    <div class="email-foot">Jack &amp; Jose · ${esc(SITE_CONFIG.address)} · elsha.co.in<br>You received this because you made a booking or enquiry with us.</div></div></div>`;
+    <div class="email-frame"><div class="email-brand"><span class="brand-mark">${BRAND_MARK}</span><b>Elsha</b></div><div class="email-body">${esc(m.body).split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('')}</div>
+    <div class="email-foot">Elsha · ${esc(SITE_CONFIG.address)} · elsha.co.in<br>You received this because you made a booking or enquiry with us.</div></div></div>`;
 }
 const messagePreview = m => m.channel === 'sms' ? smsPreview(m) : emailPreview(m);
 
@@ -228,7 +228,7 @@ route('notify-admin', app => {
         <button class="btn btn-primary">Save settings</button></form>
         <div class="stack" style="align-content:start"><form class="card stack" id="nt"><h3>Send a test message</h3><div class="form-grid"><label class="field"><span>Channel</span><select class="input" id="nt-ch" name="ch"><option value="sms">SMS</option><option value="email">Email</option></select></label><label class="field"><span>Send to</span><input class="input" id="nt-to" name="to" placeholder="+91 98xxxxxxxx or name@example.com" required></label></div><button class="btn btn-green">Send test</button></form>
         <div class="notice" style="background:var(--danger-soft)"><b>No API keys here.</b><p style="margin-top:6px">SMS and email provider keys stay on your server. This website only sends each message to your endpoint, which signs in to the providers.</p></div>
-        <div class="notice"><b>Before SMS goes live in India</b><ol style="margin:8px 0 0;padding-left:18px;display:grid;gap:4px"><li>Register Jack & Jose as a principal entity on a DLT portal (Jio, Vi, Airtel or BSNL).</li><li>Register the sender ID <span class="mono">${esc(S.senderId)}</span> as a header.</li><li>Register each SMS template exactly as written and paste its template ID in Templates.</li></ol></div></div></div>`;
+        <div class="notice"><b>Before SMS goes live in India</b><ol style="margin:8px 0 0;padding-left:18px;display:grid;gap:4px"><li>Register Elsha as a principal entity on a DLT portal (Jio, Vi, Airtel or BSNL).</li><li>Register the sender ID <span class="mono">${esc(S.senderId)}</span> as a header.</li><li>Register each SMS template exactly as written and paste its template ID in Templates.</li></ol></div></div></div>`;
       $('#ns', body).onsubmit = e => { e.preventDefault(); const f = e.target;
         if (!/^[A-Z]{6}$/i.test(f.senderId.value)) return toast('The sender ID must be exactly 6 letters', 'err');
         if (f.mode.value === 'live' && !/^https:\/\//.test(f.endpoint.value.trim())) return toast('Live mode needs an https:// server endpoint', 'err');
